@@ -1205,8 +1205,7 @@ a3.b.c === a1.b.c // false 新对象跟原对象不共享内存
 <div align="center">
 	<img src="0_pictures/原型链.webp" alt="1" width="500x">
 </div>
-> 详细资料可以参考：
-[《JavaScript 深入理解之原型与原型链》](http://cavszhouyou.top/JavaScript%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E4%B9%8B%E5%8E%9F%E5%9E%8B%E4%B8%8E%E5%8E%9F%E5%9E%8B%E9%93%BE.html)、[前端工匠:原型与原型链详解](https://github.com/ljianshu/Blog/issues/18)
+>  详细资料可以参考：[《JavaScript 深入理解之原型与原型链》](http://cavszhouyou.top/JavaScript%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E4%B9%8B%E5%8E%9F%E5%9E%8B%E4%B8%8E%E5%8E%9F%E5%9E%8B%E9%93%BE.html) 、[前端工匠:原型与原型链详解](https://github.com/ljianshu/Blog/issues/18)
 
 #### 1.4.3.2  js中获取原型有哪些方法？
 
@@ -1334,7 +1333,7 @@ anotherPerson.sayHi(); // 'hi'
 // 实现函数： 将父类原型 赋值给 子类的原型
 function inheritPrototype(subType, superType){
 	let prototype = object(superType.prototype);
-  			// 或者 = Object.create(Person.prototype); //ES5
+  			// 或者 = Object.create(superType.prototype); //ES5
 	prototype.constructor = subType;
 	subType.prototype = prototype;
 };
@@ -1610,24 +1609,105 @@ g(3);
 #### 1.6.4.3  什么是递归？
 
 + **递归**函数通常的形式是一个函数通过名称调用自己。比如经典的<a href="#recursion">阶乘递归函数</a>
-+ 
 
 #### 1.6.4.4 什么是尾递归？
 
++ 函数调用自身称为递归，如果函数尾调用自身就称为**尾递归**。尾递归是尾调用的特殊情况。
++ 对于尾递归来说，由于只存在一个调用帧，所以永远不会发生“栈溢出”的错误。
++ 使用尾递归优化[经典阶乘递归函数](#recursion)。
+```js
+function factorial(n,total){
+	if(n===1) return total;
+	return factorial(n-1,n*total)
+}
+factorial(5,1)//120
+// 递归过程
+// f(5,1)
+// f(4,5*1)
+// f(3,4*5*1)
+// f(2,3*4*5*1)
+// f(1,2*3*4*5*1)
+// return 2*3*4*5*1
+```
 
++ 使用尾递归优化斐波那契数列（Fibonacci）
+```js
+function Fibonacci(n){
+  if(n<=1) {return 1};
+  return Fibonacci(n-1)+Fibonacci(n-2);
+}
+Fibonacci(10);//89
+Fibonacci(100);//堆栈溢出
+
+// 尾递归优化后的Fibonacci数列：
+function Fibonacci2(n,ac1=1,ac2=1){
+  if(n<=1){return ac2};
+  return Fibonacci2(n-1,ac2,ac1+ac2)
+}
+Fibonacci2(100)// 可求值
+Fibonacci2(1000) //可求值
+Fibonacci2(10000)//Infinity
+```
+
++ 将尾递归函数[柯里化](#curry)可以将多参数的函数转换成单参数的函数。
+
+```js
+// 简单定义一个仅限本例使用的柯里化函数
+function curry(fn,n){
+	return function(m){
+		return fn.call(this,m,n)
+	}
+}
+// 尾递归阶乘函数
+function tailFactorial(n,total){
+	if(n===1) return total;
+	return tailFactorial(n-1,n*total);
+}
+// 将尾递归函数柯里化
+const factorial = curry(tailFactorial,1);
+factorial(5)//120
+
+// ---------------
+// 上述特例的实现过程也可以使用ES6的参数默认值来实现
+function factorial_es6(n,total=1){
+  if(n===1) return total;
+  return factorial_es6(n-1,n*total);
+}
+factorial_es6(5)
+```
 ------
 
 ### 1.6.5 立即执行函数
 
-
-
++ 立即调用的匿名函数被称作立即调用的函数表达式（IIFE）。
++ 使用IIFE可以创建`块级作用域`。
+```js
+(function(){
+	for(var i=0;i<5;i++){
+		console.log(i);
+	}
+})();
+// 0 1 2 3 4
+console.log(i);
+// ReferenceError : i is not defined
+```
++ ES6之后，出现了支持`块级作用域`的变量声明，IIFE就没那么必要了。
+```js
+for(let i=0;i<5,i++){
+	console.log(i);
+};
+//0 1 2 3 4
+console.log(i) 
+//ReferenceError : i is not defined
+```
+> 关于块级作用域，es3中规定的try/catch的catch分句也会创建一个块级作用域！
 ------
 
 ### 1.6.6 函数柯里化
 
 + **函数柯里化**是针对函数参数而进行优化的技术。
 
-+ 函数柯里化指的是将能够接收多个参数的函数转化为接收单一参数的函数，并且返回一个新函数。这个新函数接收余下的参数且返回结果。
++ <span id="curry">函数柯里化</span>指的是将能够接收多个参数的函数转化为接收单一参数的函数，并且返回一个新函数。这个新函数接收余下的参数且返回结果。
 
 + 函数柯里化的主要作用和特点就是参数复用、提前返回和延迟执行。
 
