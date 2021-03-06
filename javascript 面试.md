@@ -111,7 +111,7 @@ foo=function(){
 
 > 详细资料可以参考：[《JavaScript 有几种类型的值？》](https://blog.csdn.net/lxcao/article/details/52749421) [《JavaScript 有几种类型的值？能否画一下它们的内存图；》](https://blog.csdn.net/jiangjuanjaun/article/details/80327342)
 
-####1.2.1.3  什么是堆？什么是栈？它们之间有什么区别和联系？
+####  1.2.1.3  什么是堆？什么是栈？它们之间有什么区别和联系？
 
   + **堆**和**栈**的概念存在于数据结构中和操作系统内存中。
   + 在数据结构中，栈中数据的存取方式为**先进后出**。而堆是一个**优先队列**，是按优先级来进行排序的，优先级可以按照大小来规定。**完全二叉树**是**堆**的一种实现方式。
@@ -443,14 +443,8 @@ Object.prototype.toString.call(new Class2()); // "[object Class2]"
 
 + ES5 规范 9.2 节中定义了抽象操作 ToBoolean，列举了布尔强制类型转换所有可能出现的结果。
 
-	- 以下这些是假值：
-		• undefined
-		• null
-		• false
-		• +0、-0 和 NaN
-		• ""
-
-+ 假值的布尔强制类型转换结果为 false。从逻辑上说，假值列表以外的都应该是真值。
+	- 以下这些是假值：undefined、null、false、+0、-0、NaN 和 ""
+	- 假值的布尔强制类型转换结果为 false。从逻辑上说，假值列表以外的都应该是真值。
 
 ------
 
@@ -618,6 +612,32 @@ function format2(number) {
 
 > 关于this的详解，参考：[《JavaScript 深入理解之 this 详解》](https://github.com/mqyqingfeng/Blog/issues/7)
 
+#### 1.3.5.1 关于this的面试题1：判断下面函数的输出。
+
+```js
+// 提示：注意判断执行上下文的是如何进出栈的。
+var length = 1000;
+var obj = {
+  length:10,
+  fn:function(fn){
+    fn();      
+    arguments[0]();
+  }
+};
+function fn(){
+  console.log(this.length);
+}
+obj.fn(fn,1,2,3)
+
+/**答案
+	1000
+	4
+**/
+// 解释：首先输出1000，是因为第一个函数是直接调用的，其内部this指向window。其次输出4 . 是因为fn是用过arguments对象调用的，其内部this指向arguments对象。这里的arguments对象关联的函数是obj.fn。obj.fn()在调用的时候才能具体确定arguments对象的值。
+```
+
+
+
 ------
 
 ### 1.3.6 显式绑定this的几种内置函数（call，apply，bind）
@@ -654,7 +674,7 @@ function callSum(num1, num2) {
 };
 console.log(callSum(1, 2))
 ```
-+ ES5 给定了新方法：**bind()**。 bind() 方法会创建一个新的**函数实例**，其this值会被绑定到传给bind()的对象。**bind() **方法创建一个新的函数，在 `bind()` 被调用时，这个新函数的 `this` 被指定为 `bind()` 的第一个参数，而其余参数将作为新函数的参数，供调用时使用
++ ES5 给定了新方法：**bind()**。 bind() 方法会创建一个新的**“函数”实例**，其this值会被绑定到传给bind()的对象。**bind() **方法创建一个新的函数，在 `bind()` 被调用时，这个新函数的 `this` 被指定为 `bind()` 的第一个参数，而其余参数将作为新函数的参数，供调用时使用
 
 ```js
 window.color = 'red';
@@ -733,6 +753,7 @@ Function.prototype.myApply = function(context){
 
 ```js
 // 实现 abc.bind(A,...),在 bind() 被调用时，这个新函数的 this 被指定为 bind() 的第一个参数，而其余参数将作为新函数的参数，供调用时使用.
+// 同时要兼顾【柯里化传参】
 
  Function.prototype.myBind = function () {
    if (typeof this !== 'function') {
@@ -765,7 +786,7 @@ const obj = new fn2(7)
 ------
 > 上面的代码并没有兼顾fn2 函数用作构造函数，通过new调用生成实例对象：this 与绑定对象无关，实例继承调用函数原型上的属性。
 > **更优方案**如下:
-
++ ✅最佳实践：
 ```js
 Function.prototype.myBind = function () {
    if (typeof this !== 'function') {
@@ -775,37 +796,46 @@ Function.prototype.myBind = function () {
    let args = Array.prototype.slice.call(arguments);
    const context = args.shift();
    const self = this;
-   let o = function () { };
+   let o = function () {};
+  // 以下返回的Fn函数是我们要关注的myBind实现的对abc函数的改造结果。
    let Fn = function () {
       let args2 = Array.prototype.slice.call(arguments);
-        // 【6】判断Fn是new调用的构造函数还是直接调用的函数
+        // 【6】判断Fn是通过new调用的构造函数还是被直接调用的函数
       return self.apply(
           this instanceof o ? this : context,
           args.concat(args2)
         )
     };
    o.prototype = self.prototype;
-      // 利用o函数实现中继，
+      // 利用o函数实现中继，=> 原型式继承
    Fn.prototype = new o;
    return Fn;
 }
 ```
-> 举例验证 : bind 实现new 构造函数
+> 举例验证 : fn1.bind()返回的fn2实现new fn2 应该实现的功能：
 >
-> （1）new 生成的实例 继承 构造函数原型上的属性。
+> （1）new fn2生成的实例，要继承fn1构造函数原型上的属性。
 >
 > （2）new 构造函数，其内的this指向生成的实例对象。
 ```js
 function fn1(a, b, c) {
    console.log('this.x', this.x);
-   console.log(a, b, c)
+   console.log(a, b, c);
+  return 'Hello'
 }
 fn1.prototype.d = '定义在fn1上的d属性';
-const fn2 = fn1.myBind({ x: 1 }, 2, 4)
-const obj = new fn2(7)  // this.x  undefined (new规则下，this和绑定对象无关)
-console.log(obj.d) //"定义在fn1上的d属性"
-
+const fn2 = fn1.myBind({ x: 1 }, 2, 4);
+const obj1 = new fn2('thirdP')  // 'this.x'  undefined (new规则下，this和绑定对象无关) 2 4 'thirdP'
+const obj2 = fn2('thirdP');     // 'this.x' 1 (直接调用，this绑定到指定的对象) 2 4 thirdP
+console.log(obj1.d) //"定义在fn1上的d属性"
+console.log(obj2) // "Hello"
 ```
+------
+
++ 总结：为了实现bind函数要考虑的事项？
+	- (1) 通过调用fn1.bind(A,...)返回的函数实例fn2，无论是`new fn2()`调用还是`fn2()`直接调用，都不要忽视`柯里化传参`。
+	- (2) 如果fn2通过`new fn2()`调用，fn2作为一个构造函数，调用时其内部的this指向new调用返回的实例对象。同时，这个实例对象可以从fn1函数的原型对象上继承属性。
+	- (3) 如果通过`fn2()`直接调用，那么调用时其内部的this指向其传入的第一个参数，这也是字面量意义上的绑定对象；此外，如果fn1内有返回值，还要返回fn1函数的返回值。
 
 ------
 
@@ -1170,7 +1200,7 @@ a3.b.c === a1.b.c // false 新对象跟原对象不共享内存
   
   - JavaScript 对象是通过引用来传递的，我们创建的每个新对象实体中并没有一份属于自己的原型副本。当我们修改原型时，与之相关的对象也会继承这一改变。
 
-![avatar](0_pictures/原型链.webp)
+![avatar](0_pictures/原型链.webp#pic_center=150x)
 
 > 详细资料可以参考：
 [《JavaScript 深入理解之原型与原型链》](http://cavszhouyou.top/JavaScript%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E4%B9%8B%E5%8E%9F%E5%9E%8B%E4%B8%8E%E5%8E%9F%E5%9E%8B%E9%93%BE.html)、[前端工匠:原型与原型链详解](https://github.com/ljianshu/Blog/issues/18)
@@ -1344,7 +1374,7 @@ const Animal = class {}
 + 把类表达式赋值给变量后，可以通过name属性获取类表达式的名称。
 + **constructor**关键字用于在类内部定义块内部创建类的构造函数。方法名constructor会告诉解释器使用new操作符创建类的实例时，应该调用这个函数。类实例化时传入的参数会用作构造函数的参数。
 + 通过typeof标识符检测类标识符，表明它是一个函数。（返回`function`）。
-+ 使用**instanceof**操作符可以检测构造函数原型是否出现在实例的原型链上。类标签符也有prototype属性，而这个原型也有一个constructor属性指向类自身。
++ 使用**instanceof**操作符可以检测构造函数的原型是否出现在实例的原型链上。类标签符也有prototype属性，而这个原型也有一个constructor属性指向类自身。
 ```js
 class Person{};
 let p = new Person();
@@ -1373,7 +1403,7 @@ class Person{
 
 #### 1.4.5.2 如何判断一个对象是否属于某个类？
 
-+ 1. 使用 **instanceof** 运算符来判断构造函数的 prototype 属性是否出现在对象的原型链中的任何位置。
++ 1. 使用 **instanceof** 运算符来判断构造函数（类）的 prototype 属性是否出现在对象的原型链中的任何位置。
 + 2. 通过对象的 constructor 属性来判断: 对象的 constructor 属性指向该对象的构造函数，但是这种方式不是很安全，因为 constructor 属性可以被改写。
 + 3. 如果需要判断的是某个内置的引用类型的话，可以使用 Object.prototype.toString() 方法来打印对象的[[Class]] 属性来进行判断。
 
