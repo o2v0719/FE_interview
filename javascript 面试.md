@@ -588,11 +588,8 @@ function format2(number) {
 
 
 + this 提供了一种更优雅的方式来”隐式传递”一个对象引用，因此可以将API设计得更加简洁并且易于复用。在js中，this的存在，使得函数可以自动引用合适的上下文对象。
-
 + this 是在运行时进行绑定的。this的绑定和函数的声明位置没有任何关系，只取决于函数的调用方式。
-
 + this 是执行上下文中的一个属性，它指向最后一次**调用**这个方法的对象。在实际开发中，this 的指向可以通过下面的顺序（四种调用模式）来判断。
-
 	- （1）构造器调用，函数是否在new中调用（new绑定）。如果一个函数用 new 调用时，函数执行前会新创建一个对象，this 指向这个新创建的对象。
 	```js
 	var bar = new foo()
@@ -960,7 +957,7 @@ ECMAScript如何实现方法参数用引用传递, 我实际使用中没用到�
 
 ------
 
-### 1.3.9  类数组对象与arguments
+### 1.3.9  类数组对象
 
 #### 1.3.9.1 什么是类数组对象？
 
@@ -994,6 +991,11 @@ ECMAScript如何实现方法参数用引用传递, 我实际使用中没用到�
   Array.from(arrayLike);
   ```
 
++  （5）通过[...arrayLike] 转化为数组
+```js
+  // 某函数内部
+  var arr = [...arguments];
+```
 > 详细的资料可以参考：[《JavaScript 深入之类数组对象与 arguments》](https://github.com/mqyqingfeng/Blog/issues/14)、[《javascript 类数组》](https://segmentfault.com/a/1190000000415572)、[《深入理解 JavaScript 类数组》](https://blog.lxxyx.cn/2016/05/07/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3JavaScript%E7%B1%BB%E6%95%B0%E7%BB%84/)
 
 ------
@@ -1200,8 +1202,9 @@ a3.b.c === a1.b.c // false 新对象跟原对象不共享内存
   
   - JavaScript 对象是通过引用来传递的，我们创建的每个新对象实体中并没有一份属于自己的原型副本。当我们修改原型时，与之相关的对象也会继承这一改变。
 
-![avatar](0_pictures/原型链.webp#pic_center=150x)
-
+<div align="center">
+	<img src="0_pictures/原型链.webp" alt="1" width="500x">
+</div>
 > 详细资料可以参考：
 [《JavaScript 深入理解之原型与原型链》](http://cavszhouyou.top/JavaScript%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E4%B9%8B%E5%8E%9F%E5%9E%8B%E4%B8%8E%E5%8E%9F%E5%9E%8B%E9%93%BE.html)、[前端工匠:原型与原型链详解](https://github.com/ljianshu/Blog/issues/18)
 
@@ -1461,27 +1464,166 @@ class Person{
 
 ------
 
-## 1.6 函数
+## 1.6 深入函数
 
-### 1.6.1 箭头函数
+### 1.6.1 函数的参数与arguments对象
+
++ ES中的函数既不关心传入的参数的个数，也不关心参数的数据类型，之所以会这样是因为ES函数中的参数在内部表现为一个数组，函数被调用时，总会接收一个数组，但函数并不关心这个数组里面包含什么。
++ 使用function关键字定义的函数，可以在函数内部访问`arguments`对象，从中获取传进来的每个参数的值。arguments反映了调用时提供的参数。arguments对象是个类数组对象，因此可以使用中括号语法访问其中的元素。
++ 可以通过arguments对象的`length`属性检查（函数执行时）传入的参数的个数。
++ arguments对象里面的序号属性值始终和对应的命名参数保持同步。<u>但并不意味着它们都能访问同一个内存地址，它们在内存中还是分开的，只不过会保持同步而已</u>。另外，如果只传了一个参数，然后把arguments[1]设置为某个值，那么这个值不会反应到第二个命名参数。这是因为arguments对象的长度是根据函数调用时传入的参数的个数，而非定义函数时给出的命名参数的个数确定的。
+```js
+function add(num1,num2){
+	console.log(arguments[0],arguments[1]) 
+	arguments[1]=10;
+	console.log(arguments[0]+num2); 
+}
+add(1,3); // 1,3    11
+add(1);  // 1,undefined  NaN
+```
++ arguments对象里面有一个**callee**属性，是一个指向arguments对象所在函数的指针。针对<span id="recursion">递归调用的函数</span>，使用`arguments.callee`来代替外层函数名，可以让函数逻辑和函数名**解耦**。
+
+```js
+// 经典的阶乘函数是一个递归函数
+function factorial(num){
+	if(num<=1){
+		 return 1;
+	}else{
+	// return num*factorial(num-1);
+	   return num*arguments.callee(num-1)	;
+	}
+}
+```
+
+-------
+### 1.6.2  函数的一些属性
+
++ **length** : 保存函数定义的命名参数的个数。
++ prototype ：保存引用类型所有实例方法的地方。
++ **caller** : 这个属性引用调用当前函数的函数，如果是全局作用域调用则为null。ES5新增。
+```js
+function outer(){
+	inner();
+}
+function inner(){
+  //console.log(inner.caller)
+	console.log(arguments.callee.caller);
+}
+outer();//f outer
+```
++ **new.target** : ES6 新增了是否使用new关键字调用的new.target属性。如果是正常调用，该属性的值是undefined，如果使用关键字调用，该属性将引用被调用的构造函数。
+```js
+function King(){
+	if(!new.target){
+		throw 'King must be instantiated using "new"'
+	}
+	consnole.log('King instantiated using "new"')
+};
+new King();  //King instantiated using "new"
+King();  //  Error: King must be instantiated using "new"
+```
+
+### 1.6.3 箭头函数
+
++ ES6 新增了使用 `=>`语法定义函数表达式的能力。
++ 特别注意，由于大括号被解释为代码块，所以如果箭头函数直接返回一个对象，必须在对象外面加上括号()。
+```js
+var getTempItem = id => ({ id:id, name:"Temp"});
+```
++ 箭头函数不能使用arguments、super和new.target ,也不能用作构造函数。此外，箭头函数也没有prototype属性。
++ 箭头函数不可以使用yeild命令，因此箭头函数不能使用Generator函数。
+
++ ✅ **箭头函数与this**：
+	- 箭头函数体内的this总是指向**函数定义生效时所在的对象**。
+	- 箭头函数可以让this的指向固定化，这种特性有利于封装回调函数。
+	- 箭头函数根本没有自己的this，导致内部的this就是外层代码块的this。正是因为没有this，所以他不能用作构造函数。
+	- 由于箭头函数没有自己的this，当然也不能用call、apply和bind这些方法去改变this的指向。
+
+```js
+function Timer(){
+	this.s1 = 0;
+	this.s2 = 0;
+	setInterval(
+		//箭头函数：this绑定了定义时所在的作用域，即Timer函数
+		()=>this.s1++,
+		1000);
+	setInterval(
+	  // 普通函数：this指向运行时所在的作用域（即全局对象window）
+		function(){
+			this.s2++;
+		},1000);
+}
+var timer = new Timer();
+setTimeout(()=>console.log('s1:',timer.s1),3100);
+setTimeout(()=>console.log('s2:',timer.s2),3100);
+// 3
+// 0
+// 3100ms后，timer.s1 被更新了三次，而timer.s2 一次也没有更新。
+```
+
+```js
+(function(){
+	return [
+		(()=>this.x).bind({x:'inner'})()
+	]
+}).call({x:'outer'});
+// outer
+// 箭头函数的this指向定义时所在的作用域，即匿名函数function的作用域。箭头函数使用bind无效。function匿名函数使用call，改变了其内部this的指向，指向了对象{x:'outer'}
+```
+------
+
+### 1.6.4 尾调用优化
+
+#### 1.6.4.1 什么是尾调用？
+
++ 尾调用是函数式编程的一个重要概念。是指某个函数的最后一步是返回**纯粹的另一个函数的调用**。
+
+```js
+function f(x){
+	return g(x);
+}
+```
+
+#### 1.6.4.2 什么是尾调用优化？
+
++ 诸如递归之类的代码很容易在栈内存中产生大量的栈帧，ES6新增了一项内存管理优化机制，使js引擎在满足条件时可以重用栈帧。这项优化非常适合尾调用。所以，在ES6中，只要使用尾递归，就不会发生栈溢出，相对节省内存。
+
+```js
+function f(){
+	let m =1 ;
+	let n =1 ;
+	return g(m+n);
+}
+f();
+
+// 等同于
+g(3);
+```
++ **尾调用优化**，即只保留内层函数的调用帧。如果所有的函数都是尾调用，那么完全可以做到每次执行时调用帧只有一项，这将大大节省内存。这就是尾调用优化的意义。
++ 尾调用优化的条件：
+
+  - 代码在严格模式下执行；
+  - 外部函数的返回值是对尾调用函数的调用。
+  - 尾调用函数返回后不需要执行额外的逻辑。
+  - 尾调用函数不是引用外部函数作用域中自由变量的闭包。
+
+#### 1.6.4.3  什么是递归？
+
++ **递归**函数通常的形式是一个函数通过名称调用自己。比如经典的<a href="#recursion">阶乘递归函数</a>
++ 
+
+#### 1.6.4.4 什么是尾递归？
+
+
+------
+
+### 1.6.5 立即执行函数
 
 
 
 ------
 
-### 1.6.2 递归
-
-
-
-------
-
-### 1.6.3 立即执行函数
-
-
-
-------
-
-### 1.6.4 函数柯里化
+### 1.6.6 函数柯里化
 
 + **函数柯里化**是针对函数参数而进行优化的技术。
 
@@ -1518,7 +1660,7 @@ introd('老李');
 
 
 ------
-#### 1.6.4.1 如何封装一个通用的柯里化函数？
+#### 1.6.6.1 如何封装一个通用的柯里化函数？
 > 柯里化一个目标函数，返回一个新函数。
 
 ```js
