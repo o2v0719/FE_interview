@@ -87,7 +87,7 @@ foo=function(){
 
 + js 一共有六种基本数据类型，分别是**Undefined、Null、Boolean、Number、String**，还有在 ES6 中新增的 **Symbol**（和 ES10 中新增的 **BigInt** 类型）。
 + **Symbol** 代表创建后独一无二且不可变的数据类型，它的出现我认为主要是为了解决可能出现的全局变量冲突的问题。
-+ **BigInt **是一种数字类型的数据，它可以表示任意精度格式的整数，使用 BigInt 可以安全地存储和操作大整数，即使这个数已经超出了 Number 能够表示的安全整数范围。
++ **BigInt**是一种数字类型的数据，它可以表示任意精度格式的整数，使用 BigInt 可以安全地存储和操作大整数，即使这个数已经超出了 Number 能够表示的安全整数范围。
 
 #### 1.2.1.2  JavaScript 有几种类型的值？你能画一下他们的内存图吗？
 
@@ -1205,13 +1205,28 @@ a3.b.c === a1.b.c // false 新对象跟原对象不共享内存
 <div align="center">
 	<img src="0_pictures/原型链.webp" alt="1" width="500x">
 </div>
->  详细资料可以参考：[《JavaScript 深入理解之原型与原型链》](http://cavszhouyou.top/JavaScript%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E4%B9%8B%E5%8E%9F%E5%9E%8B%E4%B8%8E%E5%8E%9F%E5%9E%8B%E9%93%BE.html) 、[前端工匠:原型与原型链详解](https://github.com/ljianshu/Blog/issues/18)
 
+
+> 详细资料可以参考：[《JavaScript 深入理解之原型与原型链》](http://cavszhouyou.top/JavaScript%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E4%B9%8B%E5%8E%9F%E5%9E%8B%E4%B8%8E%E5%8E%9F%E5%9E%8B%E9%93%BE.html) 、[前端工匠:原型与原型链详解](https://github.com/ljianshu/Blog/issues/18)
+
+------
 #### 1.4.3.2  js中获取原型有哪些方法？
 
 - p.\_\_proto\_\_
 - p.constructor.prototype
 - **Object.getPrototypeOf(p)**
+-------
+
+#### 1.4.3.3 如何判断一个属性是否存在于原型对象上？
++ **obj.hasOwnProperty(prop)** ：只有当属性prop存在于实例对象obj时才返回true。
++ **in** 操作符：单独使用in操作符时，in操作符会在可以通过对象访问指定属性时返回true，无论这个属性是在实例上还是原型上。
+```js
+// 判断一个属性是否定义在了原型对象上
+function hasPrototypeProperty(object,name){
+	// 实例对象上没有该属性 且 in操作符返回true
+	return !object.hasOwnProperty(name) && (name in object);
+}
+```
 
 ------
 
@@ -1354,7 +1369,6 @@ inheritPrototype(SubType,SuperType);
 SubType.prototype.sayAge = function(){
 	console.log(this.age);
 };
-
 ```
 ------
 
@@ -1419,50 +1433,604 @@ class Person{
 
 ### 1.5.1 数组有哪些原生方法？
 
+> 以下红色加粗的方法的表示这些方法会直接改变原数组。
 
+#### 1.5.1.1 增
+
++ <font color=red>**push()**</font> 方法接收任意数量的参数，并将它们添加到数组的末尾，返回数组的最新长度。
+```js
+let colors = ['black'];
+let count = colors.push('red','blue');
+console.log(count);// 3  
+console.log(colors);// ['black','red','blue']
+```
+
++ <font color=red>**unshift()**</font>方法在数组开头添加任意多个值，然后返回新数组的长度。
+```js
+let colors = ['black'];
+let count = colors.unshift('red','blue');
+console.log(count);// 3  
+console.log(colors);// ['red','blue','black']
+```
+
++ <font color=red>**splice()**</font>方法传入三个参数，分别是开始位置、要删除的元素的数量、插入的元素。**splice()**方法会返回被删除的元素组成的数组，如果没有元素被删除，则返回空数组。
+```js
+// (只增未删)
+let colors = ["red","green","blue"];
+let removed = colors.splice(1,0,"yellow","orange");
+console.log(colors);// ["red","yellow","orange","green","blue"]
+console.log(removed);//[] 
+```
+
++ <font color=green>**concat()**</font> 方法首先会创建一个当前元素的副本，然后再把它的参数添加到副本的末尾，最后返回新构建的数组。
+```js
+let colors = ["red","green","blue"];
+let colors2 = colors.concat("yellow",["brown","black"]);
+console.log(colors);// ["red","green","blue"]
+console.log(colors2);// ["red","green","blue","yellow","brown","black"]
+```
+
+#### 1.5.1.2 删
+
++ <font color=red>**pop()**</font>用于删除数组的最后一项，同时减少数组的length值，返回被删除的项。
+```js
+let colors = ["red","blue"];
+let item = colors.pop();
+console.log(item);// ["blue"] 被删除项
+console.log(colors);//["red"]
+```
+
++ <font color=red>**shift()**</font> 用于删除数组的第一项，同时减少数组的length值，返回被删除的项。
+```js
+let colors = ["red","blue"];
+let item = colors.shift();
+console.log(item);// ["red"] 被删除项
+console.log(colors);//["blue"]
+```
+
++ <font color=red>**splice()**</font> 传入两个参数，分别是开始位置，删除元素的数量，返回包含删除元素的数组。（相当于第三个参数不传）
+```js
+// （只删未增）
+let colors = ["red","green","blue"];
+let removed = colors.splice(1,1); // 删除第二项
+console.log(colors);//["red","blue"]
+console.log(removed);//["green"] 
+```
++ <font color=green>**slice()**</font> 用于创建一个包含原有数组的一个或多个元素的新数组，不改变原数组。<font color=green>**slice()**</font>方法接收一个或两个参数：返回元素的开始索引和结束索引。如果只有一个参数，就是返回该索引到数组末尾的所有元素。如果有两个参数，则返回从开始索引到结束索引的所有元素，其中不包含结束索引对应的元素。
+```js
+let colors=["red","green","blue","yellow","purple"];
+let colors2=colors.slice(1);
+let colors3=colors.slice(1,4);
+console.log(colors);//["red","green","blue","yellow","purple"]
+console.log(colors2);//["green","blue","yellow","purple"]
+console.log(colors3);//["green","blue","yellow"]
+```
+
+#### 1.5.1.3 改
++ <font color=red>**splice()**</font>方法传入三个参数，分别是开始位置、要删除的元素的数量、插入的元素。**splice()**方法会返回被删除的元素组成的数组，如果没有元素被删除，则返回空数组。
+```js
+// （改）
+let colors = ["red","green","blue"];
+let removed = colors.splice(1,1,"yellow","orange");
+console.log(colors);// ["red","yellow","orange","blue"]
+console.log(removed);//["green"] 
+```
+
+#### 1.5.1.4 查
+
++ **严格相等**匹配查找：
+  - <font color=green>**indexOf()**</font> 和<font color=green>**lastIndexOf()**</font>方法返回要查找的元素在数组中的位置，如果没找到，返回-1。前者从前往后找，后者从后往前找。它们都接收两个参数：要查找的元素和一个可选的起始位置。
+  - <font color=green>**includes()**</font>方法返回一个布尔值，表示是否至少找到一个与指定元素严格相等的项。接收两个参数：要查找的元素和一个可选的起始位置。
+
+```js
+let numbers = [1,2,3,4,5,6,7];
+console.log(numbers.indexOf(4)); //3
+console.log(numbers.lastIndexOf(2));//5
+console.log(numbers.includes(7));//true
+```
+
++ 按照**自定义断言函数匹配**查找：
+
+  - <font color=green>**find()**</font>和<font color=green>**findIndex()**</font>方法使用了`断言函数`。这两个方法接收断言函数作为参数，从数组的最小索引开始。find()返回<u>第一个匹配到的元素</u>，findeIndex() 返回<u>第一个匹配到的元素的索引</u>。这两个方法也都接收第二个可选的参数，用于指定断言函数内部的this的值。找到匹配项后，就不再继续搜索。
+  - **断言函数**: `断言函数接`收三个参数，`元素`，`索引` 和`数组`本身。断言函数返回真值，表示匹配到了要搜寻的元素。
+```js
+const people = [
+	{
+		name:"Matt",
+		age:27
+	},
+	{
+		name:'Nicholas',
+		age:'30'
+	}
+];
+let item = people.find((elem,index,arr)=>elem.age<28);
+console.log(item);// {name:'Matt',age:27}
+let itemIndex = people.find((elem,index,arr)=>elem.age<28);
+console.log(itemIndex);//0
+```
+------
+
+#### 1.5.1.5 数组的排序
+
++ <font color=red>**reverse()**</font>方法会将数组元素反向排列。
+```js
+let value = [1,2,3,4,5];
+values.reverse();
+console.log(values);//[5,4,3,2,1]
+```
+
++ <font color=red id="sort">**sort()**</font> 方法会默认按照每一项元素使用String()转型函数转换后，比较字符串来决定顺序。<font color=red>**sort()**</font> 方法可以接收一个比较函数作为参数，用于判断哪个值应该排在前面。比较函数接收两个参数，如果第一个参数应该排在第二个参数前面，就返回负值；如果两个参数相等就返回0；如果第一个参数应该排在第二个参数后面，就返回正值。如下是一个简单的适用于大多数数据类型的比较函数。
+```js
+let values = [0,1,5,2,10,6,7];
+// 升序
+values.sort((a,b)=>a<b?-1:a>b?1:0);
+console.log(values);//[0,1,2,5,6,7,10]
+// 降序
+values.sort((a,b)=>a<b?1:a>b?-1:0);
+console.log(value);//[10,7,6,5,2,1,0]
+```
+
+#### 1.5.1.6 数组的转换
+
++ <font color=green>**join()**</font>方法接收一个参数，即字符串分隔符，返回包含所有项的字符串。
+```js
+let colors = ["red","green","blue"];
+console.log(colors.join('*'));
+//red*green*blue
+```
 
 ------
 
-### 1.5.2 数组的排序
+#### 1.5.1.7 数组的迭代
 
++ <font color=green>**some()**</font> 对数组的每一项都运行传入的函数，如果**有一项**函数返回true，则这个方法返回true。
+```js
+let numbers = [1,2,3,4,5];
+let result = numbers.some((item,index,array)=>item>2);
+console.log(result); // true
+```
 
++ <font color=green>**every()**</font> 对数组的每一项都运行传入的函数，如果**对每一项**函数返回true，则这个方法返回true。
+```js
+let numbers = [1,2,3,4,5];
+let result = numbers.every((item,index,array)=>item>2);
+console.log(result); // false
+```
 
-------
++ <font color=green id="forEach">**forEach()**</font> 对数组的每一项都运行传入的函数，**没有返回值**。
+```js
+let numbers = [1,2,3,4,5];
+numbers.forEach((item,index,array)=>{
+  console.log(item*2)
+});
+//2 4 6 8 10
+```
++ <font color=green>**filter()**</font> 对数组的每一项都运行传入的函数，函数返回true的项，会组成数组之后返回。
+```js
+let numbers = [1,2,3,4,5];
+let result = numbers.filter((item,index,array) => item>2);
+console.log(result);
+//[3,4,5]
+```
++ <font color=green>**map()**</font> 对数组的每一项都运行传入的函数，返回由每次函数调用的结果构成的数组。
+```js
+let numbers = [1,2,3,4,5];
+let result = numbers.map((item,index,array)=>item*2);
+console.log(result);
+//[2,4,6,8,10]
+```
+#### 1.5.1.8 数组的归并
 
-
++ ES为数组提供了两个归并方法。<font color=green>**reduce()**</font> 和 <font color=green>**reduceRight()**</font> 。 这两个方法都接收两个参数，对每一项都会运行的归并函数，以及可选的以之为归并起点的初始值。归并函数接收4个参数：上一个归并值，当前项，当前项的索引和数组本身。归并函数执行一次返回的任何值都将作为下一次归并调用时的第一个参数。如果没有给这两个方法传入第二个参数（作为归并起点值），则第一次迭代将从数组的第二项开始，因此传给归并函数的第一个参数是数组的第一项，第二个参数是数组的第二项。
+```js
+// 归并求和
+let values = [1,2,3,4,5,6];
+// 归并起点第一项为数组的第一项
+let sum = values.reduce((prev,cur,index,array)=>prev+cur);
+// 归并起点第一项为0
+let sum0 = values.reduce((prev,cur,index,array)=>prev+cur,0); 
+console.log(sum,sum0);// 21 21
+```
 
 ### 1.5.3 数组的应用场景
 
 #### 1.5.3.1 数组去重
 
++ 1. 原始双层循环
+```js
+var array = [1,1,'1','1'];
 
+function unique(array){
+  // res 用来储存结果
+  var res = [];
+  for(var i=0;i<array.length;i++){
+    for(var j=0;j<res.length;j++){
+      if(array[i]===res[j]){
+        break;// 结束当前内层for循环
+      }
+    };
+    // j===res.length 说明针对每个i，res数组里的每一项都被检查过了一次
+    // 并且都不和array[i] 相等，这个时候可以把array[i]放入res数组里
+    if(j===res.length){
+      res.push(array[i])
+    }
+  }
+  return res;
+}
+console.log(unique(array));
+//[1,'1']
+```
 
++ 2. indexOf 简化内层循环
+```js
+var array = [1,1,'1','1'];
+function unique(array){
+	res = [];
+	for(var i=0;i<array.length;i++){
+		var current = array[i];
+    // 针对要被迭代的每一项，检查它能否在res数组里查找到索引
+    // 查不到索引说明当前的res数组还没有这一项
+		if(res.indexOf(current)===-1){
+			res.push(current);
+		}
+	};
+	return res;
+}
+console.log(unique(array));//[1,'1']
+```
+
++ 3. filter 简化外层循环(迭代)
+```js
+var array = [1,2,1,1,'1'];
+function unique(array){
+	var res = array.filter((item,index,array)=>{
+    // 针对数组的每一项查找索引，重复的项会查到多个索引，会被过滤
+    return array.indexOf(item)===index;
+  });
+  return res;
+};
+console.log(unique(array)) //[1,2,'1'];
+```
+
++ 4. ES6 set数据结构
+> Set 是一种类数组的数据结构，但是成员都是唯一的。Set构造函数可以接收一个数组或类数组作为参数，用来初始化。Set数据结构可以被扩展符展开。
+```js
+var array = [1,1,2,2,'1'];
+function unique(array){
+	return Array.from(new Set(array))
+}
+console.log(unique(array)) //[1,2,'1'];
+```
+```js
+// 或者
+function unique(array){
+	return [...new Set(array)]
+}
+```
+> 详细参考[Javascript专题之数组去重]
 ------
 
 #### 1.5.3.2 数组扁平化
 
+> 数组扁平化就是将一个嵌套多层的array转换为只有一层的数组。
 
++ 1. 递归
+```js
+var arr = [1,[2,[3,4]]];
+function flatten(arr){
+  var result = [];
+  for(var i=0;i<arr.length;i++){
+    //如果某一项是数组，使用concat方法拼接递归后的这一项
+    if(Array.isArray(arr[i])){
+      result = result.concat(flatten(arr[i]))
+    }else{
+      result.push(arr[i])
+    }
+  }
+  return result;
+}
+console.log(flatten(arr));
+// [1,2,3,4]
+```
++ 2. reduce归并
+```js
+var arr = [1,[2,[3,4]]];
+function flatten(arr){
+	return arr.reduce(function(prev,cur){
+		return prev.concat(Array.isArray(cur)?flatten(cur):cur)
+	},[])
+}
+console.log(flatten(arr));
+// [1,2,3,4]
+```
+
++ 3. while循环 
+```js
+var arr = [1,[2,[3,4]]];
+function flatten(arr){
+	while(arr.some(item=>Array.isArray(item))){
+		arr=[].concat(...arr);
+	};
+	return arr;
+}
+console.log(flatten(arr));
+// [1,2,3,4]
+```
 
 ------
 
-#### 1.5.3.3 求数组的最大最小值
+#### 1.5.3.3 求数组的最大（最小值）
 
+> 这里以最大值为例。
+> 基于静态方法（Math.max(参数列表))
 
++ 1. 原始循环遍历
+```js
+var arr = [6,3,1,4,7,5,2,10]
+
+function maxArr(arr){
+	var result = arr[0];
+	for(var i=1;i<arr.length;i++){
+		result = Math.max(result,arr[i]);
+	};
+	return result;
+};
+console.log(maxArr(arr));//10
+```
+
++ 2. reduce遍历
+```js
+var arr =[6,4,1,8,2,11,23]
+function maxArr(arr){
+	return arr.reduce((prev,cur)=>Math.max(prev,cur));
+};
+console.log(maxArr(arr));//23
+```
+
++ 3. sort 排序
+```js
+var arr =[6,4,1,8,2,11,23];
+function maxArr(arr){
+	// 降序
+	var newArr = arr.sort((a,b)=>b-a);
+	return newArr[0];
+}
+console.log(maxArr(arr));//23
+```
+
++ 4.apply
+```js
+var arr = [6,4,1,8,2,11,23];
+function maxArr(arr){
+	return Math.max.apply(null,arr);
+};
+console.log(maxArr(arr));//23
+```
+
++ 5. ES6 扩展运算符
+```js
+var arr = [6,4,1,8,2,11,23];
+function maxArr(arr){
+	return Math.max(...arr);
+};
+console.log(maxArr(arr));//23
+```
 
 ------
 
 #### 1.5.3.4 在数组中查找指定元素
 
+> ES6对数组新增了findIndex方法，会返回满足提供的函数的第一个元素的索引，否则返回-1
 
+```js
+function isBigEnough(element){
+	return element>10;
+}
+console.log([4,10,23,19].findIndex(isBigEnough));//2
+```
++ 如何实现findIndex?
+```js
+Array.prototype.myFindIndex = function(fn,context=null){
+  //this 指向调用此函数的数组对象
+	for(var i=0;i<this.length;i++){
+    if(fn.call(context,this[i],i,this)) return i;
+  }
+  return -1;
+}
+console.log([4,10,23,19].myFindIndex(isBigEnough));//2
+```
+> 详细资料可以参考：[JavaScript专题之学underscore在数组中查找指定元素](https://github.com/mqyqingfeng/Blog/issues/37)
 
 ------
 
 #### 1.5.3.5 如何将数组打乱？
 
-
-
+> 基于Math.random() 函数和[sort](#sort)方法
+```js
+var values =[1,2,3,4,5,6];
+values.sort(function(){
+	return Math.random()-0.5;
+});
+console.log(values);
+```
+> 更加精确的乱序算法参考[JavaScript专题之乱序](https://github.com/mqyqingfeng/Blog/issues/51)
 ------
 
+#### 1.5.3.6 比较数组的各种迭代方法？
+
++ 1. **for循环**
+	- for 循环的遍历方式与另外两者的差别是最大的，通过代码块来执行循环。在代码块中，需要通过迭代变量来获取当前遍历的元素，如`arr[i]`。
+	 - 看上去通过迭代变量获取元素没有另外两种方式（能够直接获取）方便，但是在某些情况下，我们却不得不使用 for 循环：**当在循环满足特定条件时跳出循环体，或跳出本次循环直接进行下一次循环。**
+```javascript
+let arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+for (let i = 0; i < arr.length; i++) {
+  // 当迭代变量 i == 3 时，跳过此次循环直接进入下一次
+  if (i == 3) continue;
+  console.log(arr[i]);
+  // 当 i > 7 时，跳出循环
+  if (i > 7) break;
+}
+
+//>> 0
+//>> 1
+//>> 2
+//>> 4
+//>> 5
+//>> 6
+//>> 7
+//>> 8
+```
+
+另外两种遍历方式，由于是通过回调函数的方式对遍历到的元素进行操作，即使在回调函数中 return ，也仅能够跳出当前的回调函数，无法阻止遍历本身的暂停。
+
+```javascript
+let arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+arr.forEach(item => {
+  console.log(item);
+  if (item > 3) return; // 遍历并没有在大于 3 时结束
+});
+
+//>> 0
+//>> 1
+//>> 2
+//>> 3
+//>> 4
+//>> 5
+//>> 6
+//>> 7
+//>> 8
+//>> 9
+```
+
++ 2. **forEach**
+
+	- **`forEach()`** 方法对数组的每个项执行一次提供的回调函数。
+	- **语法如下：**
+```javascript
+arr.forEach(callback[, thisArg]);
+```
+> 参数说明: [forEach](#forEach)
+
+```javascript
+var a = "coffe";
+var b = {a:"1891"};
+(function() {
+  let arr = [0, 1, 2];
+  arr.forEach(function(item){
+    console.log(this.a);//这里是访问的b.a
+  },b);//这里把b作为thisArg参数传入之后，this就指向了b
+})();
+
+//>> 1891
+//>> 1891
+//>> 1891
+```
+
+> **注 意：**  
+> 如果使用箭头函数表达式来传入`thisArg` 参数会被忽略，因为箭头函数在词法上绑定了 `this` 值。
+
+```javascript
+var a = "coffe";
+var b = {a:"1891"};
+(function() {
+  let arr = [0, 1, 2];
+  arr.forEach((item)=>{
+    console.log(this.a);//这里是访问的window.a
+  },b);//这里把b作为thisArg参数传入之后，本来this就应指向b，但由于使用了箭头函数表达式，
+       //this固定指向包含它的函数的外层作用域（也即匿名函数）的this，也即window
+})();
+
+//>> coffe
+//>> coffe
+//>> coffe
+```
+
++ 3. **map**
+	- map 的使用与 forEach 几乎一致，唯一的区别是：**map 会返回一个新的数组，而这个数组的元素是回调函数的返回值**，所以我们可以用一个变量接收 map 的返回值。
+
+```javascript
+let arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+const arr1 = arr.map(item => item + 1);
+console.log(arr1);
+//>> [1,2,3,4,5,6,7,8,9,10]
+
+const arr2 = arr.map(item => {item + 1});//注意这个回调箭头函数并没有返回值
+console.log(arr2);
+//输出一个数组项都为undefined的数组
+//>> [undefined, undefined, …… undefined]
+```
+
+> 上面的代码中，`arr1`将回调函数的返回值`item + 1`作为了数组中的元素，而`arr2`由于回调函数没有返回值，所以创建了一个每项都为`undefined`的数组。
+
++ 4. **for...in** 与**for...of**
+
+	- for...in遍历的是数组项的索引，而for...of遍历的是数组项的值。
+	- for...of遍历的只是数组内的项，而不包括数组的原型属性、方法，以及索引。
+
+```javascript
+Array.prototype.getLength = function () {
+   return this.length;
+}
+var arr = [1, 2, 4, 5, 6, 7]
+arr.name = "coffe1981";
+console.log("-------for...of--------");
+for (var value of arr) {
+   console.log(value);
+}
+console.log("-------for...in--------");
+for (var key in arr) {
+   console.log(key);
+}
+
+//>>    -------for...of--------
+//>>    1
+//>>    2
+//>>    4
+//>>    5
+//>>    6
+//>>    7
+//>>    -------for...in--------
+//>>    0
+//>>    1
+//>>    2
+//>>    3
+//>>    4
+//>>    5
+//>>    name
+//>>    getLength
+```
+
+如上代码，会发现 for...in 可以遍历到原型上的属性和方法，如果不想遍历原型的属性和方法，则可以在循环内部用`hasOwnPropery`方法判断某属性是否是该对象的实例属性。
+
+```javascript
+Array.prototype.getLength = function () {
+   return this.length;
+}
+var arr = [1, 2, 4, 5, 6, 7]
+arr.name = "coffe1981";
+console.log("-------for...in--------");
+for (var key in arr) {
+   if(arr.hasOwnProperty(key))
+      console.log(key);
+}
+//>>    -------for...in--------
+//>>    0
+//>>    1
+//>>    2
+//>>    3
+//>>    4
+//>>    5
+//>>    name
+```
+
++ 5. 总结：
+	- for..of适用遍历数组/类数组对象/字符串/map/set等拥有迭代器对象的集合，但是不能遍历对象，因为没有迭代器对象。遍历对象通常用for...in来遍历对象的键名。
+	- 与forEach不同的是，for...of和for...in都可以正确响应break、continue和return语句。
+
+------
+>详细资料参考：[强大的数组](https://github.com/coffe1891/frontend-hard-mode-interview/blob/master/1/1.2.9.md)
+------
 ## 1.6 深入函数
 
 ### 1.6.1 函数的参数与arguments对象
