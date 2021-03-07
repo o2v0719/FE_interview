@@ -1433,11 +1433,11 @@ class Person{
 
 ### 1.5.1 数组有哪些原生方法？
 
-> 以下红色加粗的方法的表示这些方法会直接改变原数组。
+> 以下红色加粗或显示带🖍的方法的表示这些方法会直接改变原数组。
 
 #### 1.5.1.1 增
 
-+ <font color=red>**push()**</font> 方法接收任意数量的参数，并将它们添加到数组的末尾，返回数组的最新长度。
++ <font color=red>**push()**</font> 🖍方法接收任意数量的参数，并将它们添加到数组的末尾，返回数组的最新长度。
 ```js
 let colors = ['black'];
 let count = colors.push('red','blue');
@@ -1445,7 +1445,7 @@ console.log(count);// 3
 console.log(colors);// ['black','red','blue']
 ```
 
-+ <font color=red>**unshift()**</font>方法在数组开头添加任意多个值，然后返回新数组的长度。
++ <font color=red>**unshift()**</font>🖍方法在数组开头添加任意多个值，然后返回新数组的长度。
 ```js
 let colors = ['black'];
 let count = colors.unshift('red','blue');
@@ -1453,7 +1453,7 @@ console.log(count);// 3
 console.log(colors);// ['red','blue','black']
 ```
 
-+ <font color=red>**splice()**</font>方法传入三个参数，分别是开始位置、要删除的元素的数量、插入的元素。**splice()**方法会返回被删除的元素组成的数组，如果没有元素被删除，则返回空数组。
++ <font color=red>**splice()**</font>🖍方法传入三个参数，分别是开始位置、要删除的元素的数量、插入的元素。**splice()**方法会返回被删除的元素组成的数组，如果没有元素被删除，则返回空数组。
 ```js
 // (只增未删)
 let colors = ["red","green","blue"];
@@ -1472,7 +1472,7 @@ console.log(colors2);// ["red","green","blue","yellow","brown","black"]
 
 #### 1.5.1.2 删
 
-+ <font color=red>**pop()**</font>用于删除数组的最后一项，同时减少数组的length值，返回被删除的项。
++ <font color=red>**pop()**</font>🖍用于删除数组的最后一项，同时减少数组的length值，返回被删除的项。
 ```js
 let colors = ["red","blue"];
 let item = colors.pop();
@@ -1480,7 +1480,7 @@ console.log(item);// ["blue"] 被删除项
 console.log(colors);//["red"]
 ```
 
-+ <font color=red>**shift()**</font> 用于删除数组的第一项，同时减少数组的length值，返回被删除的项。
++ <font color=red>**shift()**</font>🖍 用于删除数组的第一项，同时减少数组的length值，返回被删除的项。
 ```js
 let colors = ["red","blue"];
 let item = colors.shift();
@@ -1488,7 +1488,7 @@ console.log(item);// ["red"] 被删除项
 console.log(colors);//["blue"]
 ```
 
-+ <font color=red>**splice()**</font> 传入两个参数，分别是开始位置，删除元素的数量，返回包含删除元素的数组。（相当于第三个参数不传）
++ <font color=red>**splice()**</font>🖍 传入两个参数，分别是开始位置，删除元素的数量，返回包含删除元素的数组。（相当于第三个参数不传）
 ```js
 // （只删未增）
 let colors = ["red","green","blue"];
@@ -1507,7 +1507,7 @@ console.log(colors3);//["green","blue","yellow"]
 ```
 
 #### 1.5.1.3 改
-+ <font color=red>**splice()**</font>方法传入三个参数，分别是开始位置、要删除的元素的数量、插入的元素。**splice()**方法会返回被删除的元素组成的数组，如果没有元素被删除，则返回空数组。
++ <font color=red>**splice()**</font>🖍方法传入三个参数，分别是开始位置、要删除的元素的数量、插入的元素。**splice()**方法会返回被删除的元素组成的数组，如果没有元素被删除，则返回空数组。
 ```js
 // （改）
 let colors = ["red","green","blue"];
@@ -1553,14 +1553,14 @@ console.log(itemIndex);//0
 
 #### 1.5.1.5 数组的排序
 
-+ <font color=red>**reverse()**</font>方法会将数组元素反向排列。
++ <font color=red>**reverse()**</font>🖍方法会将数组元素反向排列。
 ```js
 let value = [1,2,3,4,5];
 values.reverse();
 console.log(values);//[5,4,3,2,1]
 ```
 
-+ <font color=red id="sort">**sort()**</font> 方法会默认按照每一项元素使用String()转型函数转换后，比较字符串来决定顺序。<font color=red>**sort()**</font> 方法可以接收一个比较函数作为参数，用于判断哪个值应该排在前面。比较函数接收两个参数，如果第一个参数应该排在第二个参数前面，就返回负值；如果两个参数相等就返回0；如果第一个参数应该排在第二个参数后面，就返回正值。如下是一个简单的适用于大多数数据类型的比较函数。
++ <font color=red id="sort">**sort()**</font>🖍 方法会默认按照每一项元素使用String()转型函数转换后，比较字符串来决定顺序。<font color=red>**sort()**</font> 方法可以接收一个比较函数作为参数，用于判断哪个值应该排在前面。比较函数接收两个参数，如果第一个参数应该排在第二个参数前面，就返回负值；如果两个参数相等就返回0；如果第一个参数应该排在第二个参数后面，就返回正值。如下是一个简单的适用于大多数数据类型的比较函数。
 ```js
 let values = [0,1,5,2,10,6,7];
 // 升序
