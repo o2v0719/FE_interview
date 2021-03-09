@@ -2356,23 +2356,127 @@ introd('MeiTuan')('骑手')('小吴') // ✅
 
 
 
-## 1.7 Promise 与异步函数
+## 1.7 Promise 与异步
 
-## 1.7.1 Promise 
+## 1.7.1 异步
+
+#### 1.7.3.1 深入理解js的同步与异步
+
++ JavaScript语言的一大特点就是单线程，也就是说，同一个时间只能做一件事。为了利用多核CPU的计算能力，HTML5提出Web Worker标准，允许JavaScript脚本创建多个线程，但是子线程完全受主线程控制，且不得操作DOM。所以，这个新标准并没有改变JavaScript单线程的本质。
++ javascript是单线程。单线程就意味着，所有任务需要排队，前一个任务结束，才会执行后一个任务。如果前一个任务耗时很长，后一个任务就不得不一直等着。于是就有一个概念——任务队列。如果排队是因为计算量大，CPU忙不过来，倒也算了，但是很多时候CPU是闲着的，因为IO设备（输入输出设备）很慢（比如Ajax操作从网络读取数据），不得不等着结果出来，再往下执行。于是JavaScript语言的设计者意识到，这时主线程完全可以不管IO设备，挂起处于等待中的任务，先运行排在后面的任务。等到IO设备返回了结果，再回过头，把挂起的任务继续执行下去。
++ 所有任务可以分成两种，一种是**同步任务**（synchronous），另一种是**异步任务**（asynchronous）。同步任务指的是，在主线程上排队执行的任务，只有前一个任务执行完毕，才能执行后一个任务；异步任务指的是，不进入主线程、而进入"任务队列"（task queue）的任务，只有等主线程任务执行完毕，"任务队列"开始通知主线程，请求执行任务，该任务才会进入主线程执行。
+
 
 
 
 ------
 
-### 1.7.2 异步函数
+### 1.7.2 Promise
 
+#### 1.7.1.1 为什么需要Promise？
 
++ 在早期的Javascript中，只支持定义回调函数来表明异步操作完成。串联多个异步操作，通常需要深度嵌套回调函数，又称”回调地狱“。Promise规范的出现，解决了回调地狱的问题，同时使代码更具有可读性和维护性。
+------
+
+#### 1.7.1.2 Promise 的基本用法
+
++ 1. Promise对象的两个特点：
+	- 对象的状态不受外界的影响。Promise对象代表一个异步操作，有3中状态：Pending（进行中），Fulfilled(已成功)和Rejected（已失败）。只有异步操作的结果可以决定当前是哪一种状态。
+	- 一旦状态改变就不会再变。Promise对象的状态改变只有两种可能：从Pending变为Fulfilled和从Pending变为Rejected。状态改变后就称为Resolved（已定型）。
+
++ 2. Promise构造函数
+	- Promise对象是一个构造函数。用来生成Promise实例。Promise接收一个函数作为参数，这个函数也接收两个函数作为参数，分别是resolve和reject，它们是由js引擎提供的。
+	
+	- Promise实例生成以后，可以用then方法分别指定Resolve的状态和Rejected状态的回调函数。then方法可以接收两个回调函数作为参数。第一个回调函数是Promise对象的状态变为Resolved状态时调用，第二个回调函数是Promise对象的状态变为Rejected时调用。then方法返回的是一个新的Promise实例。
+	
+	- 如果调用resolve和reject 函数时带有参数，那么这些参数会被传递给回调函数。reject 函数的参数通常是Error实例，表示抛出的错误。resolve函数的参数除了正常的值以外，还可能是另一个Promise的实例。
+	
+```js
+var p1 = new Promise(function(resove,reject){
+	//...
+});
+var p2 = new Promise(function(resolve,reject){
+	//...
+	resolve(p1);
+});
+// p2的resolve方法将p1作为参数，p1的状态决定了p2的状态。p1的状态一旦改变，p2的状态也会随之改变，并立即执行p2的回调函数。
+```
+
++ 3. **then()**
+	- 定义于`Promise.prototype.then()`。
+	- then方法返回一个新的Promise实例。
+	- 采用链式的then可以指定一组按照次序调用的回调函数，而后一个回调函数会等待该Promise对象的状态发生变化，再别调用。
+
++ 4. **catch()**
+	- 定义于`Promise.prototype.catch()`.
+	- 相当于**.then(null,rejection)**。用于指定发生错误时的回调函数。
+	- Promise在resolve语句后面再抛出错误，并不会捕获。因为Promise的状态已一旦改变，就会永久改变状态。
+	- 一般来说，不要在then方法的第二个参数定义Rejected状态的回调参数，而应总是使用catch方法。
+	- catch方法返回的还是一个Promise对象，因此在后面还可以继续跟then方法。
+	
++ 5.**Promise.all()**
+	- `Promise.all()`用于将多个Promise实例包装成一个新的Promise的实例。
+	- `Promise.all()`方法接收一个数组作为参数，数组的每一项都是Promise实例，如果不是，就先到用Promise.resolve方法将参数转换为Promise的实例，再进一步处理。
+```js
+var promises = [1,2,3,4,5,6].map(function(id){
+	return getJSON('/POST/'+id+".json");
+});
+Promise.all(promises).then(function(posts){
+	//...
+}).catch(function(error){
+	//...
+});
+// 只有当6个实例的状态都变成fullfilled或者其中有一个变为rejected时，才会调用Promise.all方法后面的回调函数。
+```
+
++ 6. **Promise.race()**
+	- `Promise.race()`方法同样是将多个Promise的实例包装成一个新的Promise实例。
+	- 只要参数中的一个promise实例率先改变状态，`Promise.race()`方法返回的promise对象的状态就会跟着改变。
+
++ 7. **Promise.resolve()**
+	- `Promise.resolve()`可以将现有对象转换为Promise对象。
+	- 如果参数是一个**Promise**实例，那么Promise.resolve将不做任何修改，原封不动地返回这个实例。
+	- 如果参数是一个**thenable**对象，那么Promise.resolve将会把这个对象转换为Promise对象，然后立即执行thenable对象的then方法。
+	- 如果参数是一个原始值，或是一个不具有then方法的对象，那么Promise.resolve方法将会返回一个新的Promise对象，状态为resolved。
+	- 如果不带任何参数，直接返回一个Resolved状态的Promise对象。
+
++ 8. **Promise.reject()**
+	- `Promise.reject()`方法也会返回一个新的Promise实例，状态为rejected。
+	- `Promise.reject()`的参数会原封不动地作为reject的理由变成后续方法的参数！！！
 
 ------
 
-### 1.7.3 节流与防抖
+### 1.7.3 async 函数
 
+#### 1.7.3.1 async/await 的用法。
 
++ ES8 引入了`async/await`函数。可以使同步方式写的代码异步执行。
+
++ `async`函数返回一个promise对象，可以使用then方法添加回调函数。await是一个操作符，可以暂停异步函数代码的执行，等待一个Promise对象产生结果。如果await后面不是一个Promise对象，那它会被立即转换成一个resolve的Promise对象。
+
++ `async`函数内部抛出错误会导致返回的Promise对象变成rejected状态。
+
++ `await`关键字必须在声明了async的异步函数中使用。
+
++ 异步`async`函数如果使用reuturn关键字返回了值，这个值会被Proimise.resolve()包装成一个Promise对象。
+
++ `await`命令后面的Promise对象的运行结果可能是rejected，所以最好把await命令放在try...catch代码块中。
+
+  ```js
+  async function main(){
+    try{
+      var val1 = await firstStep();
+      var val2 = await secondStep();
+      var val3 = await thirdStep();
+      console.log('Final:',val3);  
+    }
+    catch(err){
+      console.log(err);
+    }
+  }
+  ```
+
+  
 
 ------
 
@@ -2380,7 +2484,32 @@ introd('MeiTuan')('骑手')('小吴') // ✅
 
 ### 1.7.4 事件循环
 
++ 事件循环
 
++ 宏任务
+
++ 微任务
+
++ 事件循环的顺序。
+
+> 详见：[这波能反杀：深入核心，详解事件循环机制](https://segmentfault.com/a/1190000012646373)、[浏览器与Node的事件循环有何区别?](https://github.com/ljianshu/Blog/issues/54)
+------
+
+### 1.7.5 节流和防抖
+
+#### 1.7.5.1 函数节流（throttle)
++ 函数节流指的是：一个函数执行一次后，只有大于设定的周期才会执行第二次。
++ 函数节流的间隔时间是为了限制函数触发的频次，
++ 函数节流，限制的时间，是为了减小单位时间内事件触发的频次。
++ ✅**节流使用场景**：鼠标不断点击，mousedown事件；鼠标滚动事件，比如是否滑到底部自动加载更多。
+
+#### 1.7.5.2 函数防抖(debounce)
++ 函数防抖指的是：一个需要频繁触发的函数，在规定时间内只让**最后一次**生效，前面的不生效。
++ 函数防抖的时间间隔指的是，一次操作执行完到下一次操作执行开始的这段时间，限制这段时间不要过短，连续发生的系列事件间隔时间要小于防抖间隔时间。
++ 函数防抖，限制的时间，依托于最后一次触发事件后在限制时间内，有足够的时间使其成为最后一次的事件触发。
++ ✅**防抖使用场景**：search搜索联想，用户不断输入值，用防抖来节约请求资源；window触发size事件时，不断的调整窗口大小会不断地触发这个事件，用防抖来让其只触发一次。
+
+> 详细参考：[函数节流和防抖](https://github.com/ljianshu/Blog/issues/43) 、[薄荷前端：7分钟理解js的节流防抖及使用场景](https://segmentfault.com/a/1190000016261602) 、 [跟着underscore学防抖](https://github.com/mqyqingfeng/Blog/issues/22)、[跟着underscore学节流](https://github.com/mqyqingfeng/Blog/issues/26)
 
 ------
 
