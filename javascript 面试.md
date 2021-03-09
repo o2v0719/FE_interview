@@ -671,7 +671,7 @@ function callSum(num1, num2) {
 };
 console.log(callSum(1, 2))
 ```
-+ ES5 给定了新方法：**bind()**。 bind() 方法会创建一个新的**“函数”实例**，其this值会被绑定到传给bind()的对象。**bind() **方法创建一个新的函数，在 `bind()` 被调用时，这个新函数的 `this` 被指定为 `bind()` 的第一个参数，而其余参数将作为新函数的参数，供调用时使用
++ ES5 给定了新方法：**bind()**。 bind() 方法会创建一个新的**“函数”**，其this值会被绑定到传给bind()的对象。**bind() **方法创建一个新的函数，在 `bind()` 被调用时，这个新函数的 `this` 被指定为 `bind()` 的第一个参数，而其余参数将作为新函数的参数，供调用时使用
 
 ```js
 window.color = 'red';
@@ -1219,7 +1219,7 @@ a3.b.c === a1.b.c // false 新对象跟原对象不共享内存
 
 #### 1.4.3.3 如何判断一个属性是否存在于原型对象上？
 + **obj.hasOwnProperty(prop)** ：只有当属性prop存在于实例对象obj时才返回true。
-+ **in** 操作符：单独使用in操作符时，in操作符会在可以通过对象访问指定属性时返回true，无论这个属性是在实例上还是原型上。
++ **in** 操作符：单独使用 <span id="in">in操作符</span>时，in操作符会在可以通过对象访问指定属性时返回true，无论这个属性是在实例上还是原型上。
 ```js
 // 判断一个属性是否定义在了原型对象上
 function hasPrototypeProperty(object,name){
@@ -1583,6 +1583,8 @@ console.log(colors.join('*'));
 ------
 
 #### 1.5.1.7 数组的迭代
+
+>  ES为数组定义了五个迭代方法。每个方法接收两个参数：以每一项为参数运行的函数，以及可选的作为函数运行上下文的作用域对象。传给每个方法的函数接收三个参数：数组元素、元素索引和数组本身。
 
 + <font color=green>**some()**</font> 对数组的每一项都运行传入的函数，如果**有一项**函数返回true，则这个方法返回true。
 ```js
@@ -1965,14 +1967,19 @@ console.log(arr2);
 
 + 4. **for...in** 与**for...of**
 
-	- for...in遍历的是数组项的索引，而for...of遍历的是数组项的值。
-	- for...of遍历的只是数组内的项，而不包括数组的原型属性、方法，以及索引。
+	- for...in用来遍历数据结构的”键“。for...in 可以遍历数组，但特别适合遍历对象。
+	
+	- for...of用来遍历数据结构的”值“，而不包括数组的原型属性、方法，以及索引。for...of可以用来遍历数组，不能直接遍历对象。
+	
+> for...of 只能用来遍历具有**Symboli.iterator**属性的数据结构。数组原生具备Iterator接口，可以直接用for...of 循环遍历。而对象并没有部署Iterator接口，是因为对象属性的遍历先后顺序是不确定的，需要开发者手动指定。
+>
+> for...of循环内部调用的是数据结构的Symbol.iterator方法。原生具备Symbol.iterator接口的数据结构都部署了遍历器接口。如：Array，Map，Set，String，TypedArray，arguments对象，NodeList对象。
 
 ```javascript
 Array.prototype.getLength = function () {
    return this.length;
 }
-var arr = [1, 2, 4, 5, 6, 7]
+var arr = ['a','b', 'c', 'd','e','f','g'];
 arr.name = "coffe1981";
 console.log("-------for...of--------");
 for (var value of arr) {
@@ -1984,12 +1991,12 @@ for (var key in arr) {
 }
 
 //>>    -------for...of--------
-//>>    1
-//>>    2
-//>>    4
-//>>    5
-//>>    6
-//>>    7
+//>>    a
+//>>    b
+//>>    c
+//>>    d
+//>>    e
+//>>    f
 //>>    -------for...in--------
 //>>    0
 //>>    1
@@ -2001,7 +2008,7 @@ for (var key in arr) {
 //>>    getLength
 ```
 
-如上代码，会发现 for...in 可以遍历到原型上的属性和方法，如果不想遍历原型的属性和方法，则可以在循环内部用`hasOwnPropery`方法判断某属性是否是该对象的实例属性。
+如上代码，会发现 for...in 可以遍历到原型上的属性和方法，参考[in操作符](#in)。如果不想遍历原型的属性和方法，则可以在循环内部用`hasOwnPropery`方法判断某属性是否是该对象的实例属性。
 
 ```javascript
 Array.prototype.getLength = function () {
@@ -2011,6 +2018,7 @@ var arr = [1, 2, 4, 5, 6, 7]
 arr.name = "coffe1981";
 console.log("-------for...in--------");
 for (var key in arr) {
+	// 只遍历实例上的属性
    if(arr.hasOwnProperty(key))
       console.log(key);
 }
