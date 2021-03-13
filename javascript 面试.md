@@ -671,7 +671,7 @@ function callSum(num1, num2) {
 };
 console.log(callSum(1, 2))
 ```
-+ ES5 给定了新方法：**bind()**。 bind() 方法会创建一个新的**“函数”**，其this值会被绑定到传给bind()的对象。**bind() **方法创建一个新的函数，在 `bind()` 被调用时，这个新函数的 `this` 被指定为 `bind()` 的第一个参数，而其余参数将作为新函数的参数，供调用时使用
++ ES5 给定了新方法：**bind()**。 bind() 方法会创建一个新的**函数**，其this值会被绑定到传给bind()的对象。**bind() **方法创建一个新的函数，在 `bind()` 被调用时，这个新函数的 `this` 被指定为 `bind()` 的第一个参数，而其余参数将作为新函数的参数，供调用时使用
 
 ```js
 window.color = 'red';
@@ -1496,7 +1496,7 @@ let removed = colors.splice(1,1); // 删除第二项
 console.log(colors);//["red","blue"]
 console.log(removed);//["green"] 
 ```
-+ <font color=green>**slice()**</font> 用于创建一个包含原有数组的一个或多个元素的新数组，不改变原数组。<font color=green>**slice()**</font>方法接收一个或两个参数：返回元素的开始索引和结束索引。如果只有一个参数，就是返回该索引到数组末尾的所有元素。如果有两个参数，则返回从开始索引到结束索引的所有元素，其中不包含结束索引对应的元素。
++ <font color=green>**slice()**</font> 用于创建一个包含原有数组的一个或多个元素的新数组，不改变原数组。<font color=green>**slice()**</font>方法接收一个或两个参数：开始索引和结束索引。如果只有一个参数，就是返回该索引到数组末尾的所有元素。如果有两个参数，则返回从开始索引到结束索引的所有元素，其中不包含结束索引对应的元素。
 ```js
 let colors=["red","green","blue","yellow","purple"];
 let colors2=colors.slice(1);
@@ -1710,7 +1710,7 @@ function unique(array){
 	return [...new Set(array)]
 }
 ```
-> 详细参考[Javascript专题之数组去重]
+> 详细参考: [Javascript专题之数组去重](https://github.com/mqyqingfeng/Blog/issues/27)
 ------
 
 #### 1.5.3.2 数组扁平化
@@ -2358,15 +2358,30 @@ introd('MeiTuan')('骑手')('小吴') // ✅
 
 ## 1.7 Promise 与异步
 
-## 1.7.1 异步
+## 1.7.1定时器
 
-#### 1.7.3.1 深入理解js的同步与异步
+#### 1.7.3.1 setTimeout()
 
-+ JavaScript语言的一大特点就是单线程，也就是说，同一个时间只能做一件事。为了利用多核CPU的计算能力，HTML5提出Web Worker标准，允许JavaScript脚本创建多个线程，但是子线程完全受主线程控制，且不得操作DOM。所以，这个新标准并没有改变JavaScript单线程的本质。
-+ javascript是单线程。单线程就意味着，所有任务需要排队，前一个任务结束，才会执行后一个任务。如果前一个任务耗时很长，后一个任务就不得不一直等着。于是就有一个概念——任务队列。如果排队是因为计算量大，CPU忙不过来，倒也算了，但是很多时候CPU是闲着的，因为IO设备（输入输出设备）很慢（比如Ajax操作从网络读取数据），不得不等着结果出来，再往下执行。于是JavaScript语言的设计者意识到，这时主线程完全可以不管IO设备，挂起处于等待中的任务，先运行排在后面的任务。等到IO设备返回了结果，再回过头，把挂起的任务继续执行下去。
-+ 所有任务可以分成两种，一种是**同步任务**（synchronous），另一种是**异步任务**（asynchronous）。同步任务指的是，在主线程上排队执行的任务，只有前一个任务执行完毕，才能执行后一个任务；异步任务指的是，不进入主线程、而进入"任务队列"（task queue）的任务，只有等主线程任务执行完毕，"任务队列"开始通知主线程，请求执行任务，该任务才会进入主线程执行。
++ **setTimeout()**用于指定在一定时间后执行某些代码，它接收两个参数，要执行的代码和在执行回调函数前等待的时间（ms）。
++ `setTimeout()`函数调用后会返回一个表示该超时排期的数值ID，这个ID是被排期执行代码的唯一标识符，可用于取消该任务，要取消等待中的排期任务，可以调用clearTimeout()方法并传入超时ID。只要在超时时间到达之前调用clearTimeout()方法就可以取消超时任务。
+```js
+let timeoutId = setTimeout(()=>alert('hello world'),1000);
+// 取消超时任务
+clearTimeout(timeoutId);
+```
+
+#### 1.7.3.2 setInterval()
+
++ **setInterval()**与`setTimeout`类似，只不过指定的任务会每隔一段时间就执行一次，直到取消循环定时或页面卸载。它接收两个参数，要执行的代码和下一次执行任务要等待的时间（ms）。setTimeout()方法也可以返回一个循环定时ID，可以用来在未来某个时间点上取消循环定时。
++ 相对于`setTimeout()`而言，取消定时的能力对setInterval()更重要，如果一直不管它，那么定时任务会一直执行到页面卸载。
++ **setInterval()**在实践中很少在生产环境下使用，因为一个任务和下一个任务开始之间的时间间隔是无法保证的，有些循环定时任务因此可能会被跳过。一般来说最好不要使用setInterval()。
+
+#### 1.7.3.3 定时器函数里的this
+
++ 由setTimeout()调用的代码运行在与所在函数完全分离的执行环境上。这会导致，这些代码中包含的 this 关键字在非严格模式会指向 window (或全局)对象，严格模式下为 undefined，这和所期望的this的值是不一样的。
 
 
+> 更多资料参考：[MDN:setTimeout](https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout)
 
 
 ------
@@ -2475,39 +2490,242 @@ Promise.all(promises).then(function(posts){
     }
   }
   ```
+------
 
-  
+#### 1.7.3.2 async/await 函数里的宏任务与微任务
+
++ 由于async/await函数是promise的语法糖，所以类似于promise的宏任务微任务分发机制。async函数本身调用时相当于new Promise(),await 紧跟的语句相当于new Promise(args)里面的参数函数，这里作同步任务处理。注意：await 下一行如果还有同级的“字面同步”代码，那么这些代码同then()里面的参数函数，作为“微任务”处理。
 
 ------
 
 
 
-### 1.7.4 事件循环
+### 1.7.4 同步异步与事件循环
 
-+ 事件循环
 
-+ 宏任务
+- 宏任务：macro-task。包括：script(整体代码)，setInterval,setTimeout,setImmediate,I/O,UI rendering。
+- 微任务：micro-task。包括：process.nextTick,Promise(then,catch,finally还有async函数里面的await之后下一行开始的代码。）。
+- 事件循环的顺序：
+	+ 事件循环从宏任务开始，即从script整体代码开始第一次循环。
+	+ 全局上下文进入函数调用栈，然后同步任务按调用顺序依次进入，同步任务进入主线程，异步任务进入分线程，定时器/事件等被浏览器的**对应模块（线程）**执行（事件处理模块，定时器模块等），直到调用栈被清空（只剩全局，全局上下文永远在栈底）即同步任务执行完。
+	+ 然后执行任务队列中 micro-task微任务。
+	+ 当所有可以执行的micro-task执行完后，循环再次从macro-task开始，找到其中一个任务队列执行完毕，然后再执行所有的micro-task，这样一直循环下去。
+	+ 其中每一个任务的执行，无论是macro-task还是micro-task，都是借助函数调用栈来完成。即都是主线程的同步任务执行完后，任务队列的任务进入主线程执行，即进入函数调用栈。
 
-+ 微任务
-
-+ 事件循环的顺序。
-
-> 详见：[这波能反杀：深入核心，详解事件循环机制](https://segmentfault.com/a/1190000012646373)、[浏览器与Node的事件循环有何区别?](https://github.com/ljianshu/Blog/issues/54)
+- 总结：主线程上代码的执行依托于执行栈（一个存储函数调用的栈结构，遵循先进后出）的原则），而事件循环机制的三个核心是宏任务、微任务和执行栈。js代码执行开始后，从宏任务（一般是script代码）开始，先把全局上下文放入执行栈，然后依次是当前同步代码。然后在执行宏任务过程中产生的微任务，（微任务队列依次放入执行栈）微任务执行完，这轮循环结束，开始下一轮循环。每当一个宏任务队列执行完后，就会去检查这个宏任务队列是否产生了微任务队列，如果有，马上会执行这个微任务队列。完了之后再去执行下一个宏任务队列。
+	
 ------
+
++ 线程和进程
+	- **进程**是CPU资源分配的最小单位，**线程**是CPU调度的最小单位。进程好比工厂，有单独的专属自己的工厂资源。线程好比工人。一个进程由一个或多个线程组成，线程是一个进程中代码的不同执行路线。一个进程的内存空间是共享的，每个线程都可以用这些共享内存。
+------
+
++ 多进程与多线程
+	- **多进程**：同一个时间里，同一个计算机系统中允许两个或两个以上的进程处于运行状态。多进程带来的好处是明显的，比如可以听歌的同时，打开编辑器桥代码。编辑器和听歌软件的进程之间丝毫不会互相干扰。
+	- **多线程**：程序中包含多个执行流，即在一个程序中可以同时运行多个不同的线程来执行不同的任务，也就是说允许单个程序创建多个并行执行的线程来完成各自的任务。
+> 以Chrome浏览器中为例，当你打开一个 Tab 页时，其实就是创建了一个进程，一个进程中可以有多个线程（下文会详细介绍），比如渲染线程、JS 引擎线程、HTTP 请求线程等等。当你发起一个请求时，其实就是创建了一个线程，当请求结束后，该线程可能就会被销毁。
+------
+
++ 同步任务与异步任务
+	- 同步任务：主线程上的任务排队执行。
+	- 异步任务：不进入主线程，进入一个“任务队列”，当主线程中的任务执行完，才会从任务队列中取出异步任务放入主线程中执行。JS有三种异步任务：①鼠标键盘事件触发，onclick，onkeydown等；②网络事件触发，onload、onerror等；③定时器，setTimeout，setInterval。
+	- 同步任务的概念依赖于某个任务的最后执行阶段是否在时间刻度上已经进入主线程中。
+
+> HTML5提出Web Worker标准，允许JS创建出多个线程，但是创建出来的所有子线程全部受制于主线程，这样实现了同步和异步的任务。
+>
+> + JavaScript语言的一大特点就是单线程，也就是说，同一个时间只能做一件事。为了利用多核CPU的计算能力，HTML5提出Web Worker标准，允许JavaScript脚本创建多个线程，但是子线程完全受主线程控制，且不得操作DOM。所以，这个新标准并没有改变JavaScript单线程的本质。
+> + javascript是单线程。单线程就意味着，所有任务需要排队，前一个任务结束，才会执行后一个任务。如果前一个任务耗时很长，后一个任务就不得不一直等着。于是就有一个概念——任务队列。如果排队是因为计算量大，CPU忙不过来，倒也算了，但是很多时候CPU是闲着的，因为IO设备（输入输出设备）很慢（比如Ajax操作从网络读取数据），不得不等着结果出来，再往下执行。于是JavaScript语言的设计者意识到，这时主线程完全可以不管IO设备，挂起处于等待中的任务，先运行排在后面的任务。等到IO设备返回了结果，再回过头，把挂起的任务继续执行下去。
+> + 所有任务可以分成两种，一种是**同步任务**（synchronous），另一种是**异步任务**（asynchronous）。同步任务指的是，在主线程上排队执行的任务，只有前一个任务执行完毕，才能执行后一个任务；异步任务指的是，不进入主线程、而进入"任务队列"（task queue）的任务，只有等主线程任务执行完毕，"任务队列"开始通知主线程，请求执行任务，该任务才会进入主线程执行。
+------
++ 如何理解js是单线程的，但又可实现异步编程？
+	- js是单线程的，指的是依托于js这门语言在执行的任务在一条线上 ，一个任务执行完了，再能执行下一个任务。对于js来说，不是异步的。
+	- 但是js的宿主环境，比如浏览器是多线程的，浏览器会通过事件驱动的方式，让JS能够异步执行，从而达到单线程进行异步执行的效果。
+------
++ JS为什么需要异步执行机制？
+	- 因为js里面的网络请求，定时器事件以及事件监听等事件，会消耗大量的时间，如果JS进行单线程执行，如果这些操作一直在浪费时间，就会导致整个页面无法往下执行，页面假死等情况，所以针对此类情况，浏览器为这些耗时较长时间的任务另外开辟了新的线程，所以这些任务都是**异步**的。
+------
+> 详见：[这波能反杀：深入核心，详解事件循环机制](https://segmentfault.com/a/1190000012646373)、[浏览器与Node的事件循环有何区别?](https://github.com/ljianshu/Blog/issues/54)、[事件循环，队列任务，宏微任务](https://www.yuque.com/woowwu/msyqpd/ypfh8g)
+------
+
++ #### 1.7.4.1 [案例1] 判断下面代码的执行顺序。
+```js
+async function async1(){
+	console.log('async1 start');
+	await async2(); 					 // 相当于new Promise(async2())
+	console.log('async1 end'); // 相当于promise实例后的then方法
+};
+async funciton async2(){
+  // async2里面没有异步代码
+	console.log('async2')
+};
+console.log('script start');
+setTimeout(function(){
+	console.log('setTimeout');
+},0);
+async1();
+new Promise(function(resolve){
+	console.log('promise');
+	resolve();
+}).then(function(){
+	console.log('promise2')
+});
+console.log('script end');
+
+// script start
+// async1 start
+// async2
+// promise
+// script end
+// async1 end
+// promise2
+// setTime out
+```
+
++ #### 1.7.4.2 [案例2] 判断下列代码执行顺序
+```js
+console.log('glob1');
+setTimeout(function(){
+  console.log('timeout1');
+  process.nextTick(function(){
+    console.log('timeout1_nextTick');
+  });
+  new Promise(function(resolve){
+    console.log('timeout1_promise');
+    resolve();
+  }).then(function(){
+    console.log('timeout1_then');
+  });
+});
+// setImmediate方法可能不会被批准成为标准，目前只有最新版本的 Internet Explorer 和Node.js 0.10+实现了该方法
+setImmediate(function(){
+  console.log('immediate1');
+  process.nextTick(function(){
+    console.log('immediate1_nextTick');
+  });
+  new Promise(function(resolve){
+    console.log('immediate1_promise');
+    resolve();
+  }).then(function(){
+    console.log('immediate1_then');
+  });
+});
+
+process.nextTick(function() {
+    console.log('glob1_nextTick');
+});
+
+new Promise(function(resolve) {
+    console.log('glob1_promise');
+    resolve();
+}).then(function() {
+    console.log('glob1_then')
+});
+
+setTimeout(function() {
+    console.log('timeout2');
+    process.nextTick(function() {
+        console.log('timeout2_nextTick');
+    })
+    new Promise(function(resolve) {
+        console.log('timeout2_promise');
+        resolve();
+    }).then(function() {
+        console.log('timeout2_then')
+    })
+});
+
+process.nextTick(function() {
+    console.log('glob2_nextTick');
+});
+
+new Promise(function(resolve) {
+    console.log('glob2_promise');
+    resolve();
+}).then(function() {
+    console.log('glob2_then')
+});
+
+setImmediate(function() {
+    console.log('immediate2');
+    process.nextTick(function() {
+        console.log('immediate2_nextTick');
+    })
+    new Promise(function(resolve) {
+        console.log('immediate2_promise');
+        resolve();
+    }).then(function() {
+        console.log('immediate2_then')
+    });
+});
+
+// 在node环境中测试！
+
+// glob1
+// glob1_promise
+// glob2_promise
+
+// glob1_nextTick
+// glob2_nextTick
+// glob1_then
+// glob2_then
+
+// -----下一轮----
+// timeout1                    // 宏队列1的宏任务1
+// timeout1_promise
+// timeout1_nextTick					 // 宏队列1的宏任务1的微任务
+// timeout1_then
+
+// timeout2										 // 宏队列1的宏任务2
+// timeout2_promise						
+// timeout2_nextTick					 // 宏队列1的宏任务2的微任务
+// timeout2_then
+
+// immediate1									 // 宏队列2的宏任务1
+// immediate1_promise
+// immediate1_nextTick				 // 宏队列2的宏任务1的微任务
+// immediate1_then
+
+// immediate2
+// immediate2_promise
+// immediate2_nextTick
+// immediate2_then
+```
 
 ### 1.7.5 节流和防抖
 
 #### 1.7.5.1 函数节流（throttle)
 + 函数节流指的是：一个函数执行一次后，只有大于设定的周期才会执行第二次。
-+ 函数节流的间隔时间是为了限制函数触发的频次，
-+ 函数节流，限制的时间，是为了减小单位时间内事件触发的频次。
-+ ✅**节流使用场景**：鼠标不断点击，mousedown事件；鼠标滚动事件，比如是否滑到底部自动加载更多。
++ 函数节流是为了限制函数触发的频次。即减小单位时间内事件触发的频次。**目标事件的完成是能很清楚地被计算机界定的，只是这个事件被高频触发了**。
++ ✅**节流使用场景**：<u>鼠标不断点击</u>，mousedown事件；鼠标滚动事件，比如是否滑到底部自动加载更多。
 
-#### 1.7.5.2 函数防抖(debounce)
+#### 1.7.5.2 函数节流的实现
+```js
+function throttle(fun,delay){
+  let last,deferTimer;
+  return function(args){
+    let that = this;
+    let _args = arguments;
+    let now = new Date();
+    if(last && now<last+delay){
+      clearTimeout(deferTimer);
+      deferTimer = setTimeout(function(){
+        last = now;
+        fun.apply(that,_args);
+      })
+    }else{
+      last = now;
+      fun.apply(that,_args);
+    }
+  }
+}
+
+```
+------
+
+#### 1.7.5.3 函数防抖(debounce)
 + 函数防抖指的是：一个需要频繁触发的函数，在规定时间内只让**最后一次**生效，前面的不生效。
-+ 函数防抖的时间间隔指的是，一次操作执行完到下一次操作执行开始的这段时间，限制这段时间不要过短，连续发生的系列事件间隔时间要小于防抖间隔时间。
-+ 函数防抖，限制的时间，依托于最后一次触发事件后在限制时间内，有足够的时间使其成为最后一次的事件触发。
-+ ✅**防抖使用场景**：search搜索联想，用户不断输入值，用防抖来节约请求资源；window触发size事件时，不断的调整窗口大小会不断地触发这个事件，用防抖来让其只触发一次。
++ 函数防抖，针对最后一次触发事件后，在限制时间内，有足够的时间使其成为最后一次的事件触发。**目标事件的完成不能清楚地被计算机界定，它可能随时由于用户的不确定操作而完成确定的事件触发**。
++ ✅**防抖使用场景**：<u>search搜索联想</u>，用户不断输入值，用防抖来节约请求资源；window触发size事件时，不断的调整窗口大小会不断地触发这个事件，用防抖来让其只触发一次。
 
 > 详细参考：[函数节流和防抖](https://github.com/ljianshu/Blog/issues/43) 、[薄荷前端：7分钟理解js的节流防抖及使用场景](https://segmentfault.com/a/1190000016261602) 、 [跟着underscore学防抖](https://github.com/mqyqingfeng/Blog/issues/22)、[跟着underscore学节流](https://github.com/mqyqingfeng/Blog/issues/26)
 
