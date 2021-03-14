@@ -72,7 +72,42 @@ foo=function(){
 
 > 没有用var 声明的变量不会提升。
 
+------
+#### 1.1.2.2 一道常被人轻视的前端 JS 面试题
+```js
+function Foo() {
+  getName = function() {
+    alert(1);
+  };
+  return this;
+}
+Foo.getName = function() {
+  alert(2);
+};
+Foo.prototype.getName = function() {
+  alert(3);
+};
+var getName = function() {
+  alert(4);
+};
+function getName() {
+  alert(5);
+}
 
+//请写出以下输出结果：
+Foo.getName(); // 2
+getName(); // 4
+Foo().getName(); // 1
+getName(); // 1
+new Foo.getName(); // 2
+new Foo().getName(); // 3
+new new Foo().getName(); // 3
+```
+
+> 详细资料可以参考：
+[《前端程序员经常忽视的一个 JavaScript 面试题》](https://github.com/Wscats/Good-text-Share/issues/85)
+[《一道考察运算符优先级的 JavaScript 面试题》](https://segmentfault.com/q/1010000008430170)
+[《一道常被人轻视的前端 JS 面试题》](https://www.cnblogs.com/xxcanghai/p/5189353.html)
 ------
 ------
 
@@ -365,8 +400,27 @@ console.log(arr.toString().split(',').map(item => +item));
 ```
 
 --------
-
-#### 1.2.2.8  内部属性 [[Class]] 是什么？
+#### 1.2.2.8 如何封装一个 javascript 的类型判断函数？
+```js
+function getType(value) {
+  // 判断数据是 null 的情况
+  if (value === null) {
+    return value + "";
+  }
+  // 判断数据是引用类型的情况
+  if (typeof value === "object") {
+    let valueClass = Object.prototype.toString.call(value),
+        type = valueClass.split(" ")[1].split("");
+		type.pop();
+		return type.join("").toLowerCase();
+  } else {
+    // 判断数据是基本数据类型的情况和函数的情况
+    return typeof value;
+  }
+}
+```
+------
+#### 1.2.2.9  内部属性 [[Class]] 是什么？
 
 
 + 所有 typeof 返回值为 "object" 的对象（如数组）都包含一个内部属性 [[Class]]，我们可以把它看作一个（引用类型Object）内部的分类，而非传统的面向对象意义上的类。这个属性无法直接访问，一般通过 Object.prototype.toString(..) 来查看。例如：
@@ -392,7 +446,14 @@ Object.prototype.toString.call(new Class2()); // "[object Class2]"
 ```
 
 ------
-
+#### 1.2.2.10 如何判断一个对象是否为空对象？
+```js
+function checkNullObj(obj) {
+  return Object.keys(obj).length === 0;
+}
+```
+> 详细资料可以参考：
+[《js 判断一个 object 对象是否为空》](https://blog.csdn.net/FungLeo/article/details/78113661)
 ------
 
 
@@ -1187,8 +1248,163 @@ a3.b.c === a1.b.c // false 新对象跟原对象不共享内存
 ```
 > 详细资料：[前端工匠:一文读懂js深拷贝与浅拷贝](https://github.com/ljianshu/Blog/issues/5)
 
+#### 1.4.2.1 原生JS实现浅拷贝
+```js
+// 【原生实现】
+function shallowCopy(source){
+	let target = {};
+	for(var i in source){
+		if(source.hasOwnProperty(i)){
+			target[i]=source[i];
+		}
+	}
+}
+// 验证
+let obj1 = {
+	name:'兰尼斯特',
+  arr:[1,[2,3],4]
+};
+let obj2 = shallowCopy(obj1);
+obj2.name='拜拉席恩';
+obj2.arr[1]=[5,6,7];
+console.log('obj1',obj1);
+//obj1{name:'兰尼斯特',arr:[1,[5,6,7],4]}
+//obj2{name:'拜拉席恩',arr:[1,[5,6,7],4]}
+```
 ------
+#### 1.4.2.2 浅拷贝在实践中如何实现？
 
++ 1. **Object.assign()**方法可以把任意多个源对象自身的可枚举属性拷贝给目标对象，然后返回目标对象。
+```js
+let obj1={
+	person:{
+		name:'kobe',
+		age:41
+	},
+	sports:'basketball'
+};
+let obj2= Object.assign({},obj1);
+obj2.person.name='wade';
+obj2.sports='footbal';
+console.log(obj1);
+// {person:{name:'wade',age:41},sports:'basketball'}
+```
+
++ 2. 函数库**lodash**的_.clone方法
+```js
+	var _ = require('lodash');
+	var obj1 = {
+		a:1,
+		b:{
+			f:{
+				g:1
+			}
+		},
+		c:[1,2,3]
+	};
+	var obj2 = _.clone(obj1);
+	console.log(obj1.b.f===obj2.b.f)//true
+```
+
++ 3. 展开运算符...
+	- es6提供的展开运算符也可以实现浅拷贝。
+```js
+let obj1 = {name:'kobe',address:{x:100,y:110}};
+let obj2 = {...obj1}; // 浅拷贝
+obj1.address.x=200;
+obj1.name='wade';
+console.log('obj2',obj2);
+//obj2 {name:'kobe',address:{x:200,y:110}}
+```
+
++ 4. 针对数组的浅拷贝
+	- **Array.prototype.concat()**
+	- **Array.prototype.slice()**
+```js
+let arr = [1,3,{
+	username:'kobe',
+}];
+let arr2 = arr.concat();
+arr2[2].username='wade';
+console.log(arr);
+//[1,3,{username:'wade'}]
+```
+```js
+let arr = [1,3,{
+	username:'kobe',
+}];
+let arr3 = arr.slice();
+arr3[2].username='wade';
+console.log(arr);
+//[1,3,{username:'wade'}]
+```
+------
+#### 1.4.2.3 深拷贝的原生实现
+> 递归思想
+```js
+//这是一个深拷贝的方法（忽略obj或其属性值是函数的情况）
+function deepCopy(obj){
+  if(obj===null) return obj;
+  if(obj instanceof Date) return new Date(obj);
+  if(obj instanceof RegExp) return new RegExp(obj);
+  if(typeof obj!=='object' && typeof obj!=='function') return obj;// 暂时这样判断为基本类型
+  //!!!
+  let cloneObj = new obj.constructor();
+  for(let key in obj){
+    if(obj.hasOwnProperty(key)){
+      // 递归拷贝
+      cloneObj[key]=deepCopy(obj[key])
+    }
+  }
+  return cloneObj;
+}
+// 验证
+let obj1 = {
+	name:'兰尼斯特',
+  arr:[1,[2,3],4]
+};
+let obj2 = deepCopy(obj1);
+obj2.name='拜拉席恩';
+obj2.arr[1]=[5,6,7];
+console.log('obj1',obj1);
+// obj1 {name:'兰尼斯特',arr:[1,[2,3],4]}
+console.log('obj2',obj2);
+// obj3 {name:'拜拉席恩',arr:[1,[5,6,7],4]}
+```
+------
+#### 1.4.2.4 深拷贝在实践中如何实现？
++ 1. **JSON.parse(JSON.stringify())**
+	- 利用JSON.stringify将对象转换成JSON字符串，再用JSON.parse把字符串解析成对象，这样创建的新对象会开辟新的栈，实现深拷贝。这种方法可以实现数组或对象深拷贝，但是不能处理函数和正则。应为这两者基于JSON.stringify和JSON.parse处理后，得到的正则就不再是正则（变为空对象），得到的函数就不再是函数(变为null)。
+
+```js
+let arr = [1,3,{
+	username:'kobe'
+}];
+let arr4 = JSON.parse(JSON.stringify(arr));
+arr4[2].username = 'wade';
+console.log(arr,arr4);
+```
++ 2. 函数库**lodash** 的_.cloneDeep方法
+```js
+var _ = require('lodash');
+var obj1 = {
+	a:1,
+	b:{
+		f:{
+			g:1
+		}
+	},
+	c:[1,2,3]
+};
+var obj2 = _.cloneDeep(obj1);
+console.log(obj1.b.f===obj2.b.f)
+//false
+```
+
++ 3. 递归实现深拷贝，同时兼顾解决循环引用的问题。
+
+> 详细参考：[如何写出一个惊艳面试官的深拷贝](https://segmentfault.com/a/1190000020255831)
+------
 ### 1.4.3 原型链
 
 #### 1.4.3.1  什么是js中的原型？原型链？有什么特点？
@@ -1227,7 +1443,10 @@ function hasPrototypeProperty(object,name){
 	return !object.hasOwnProperty(name) && (name in object);
 }
 ```
+------
+#### 1.4.3.4  Javascript 中，有一个函数，执行时对象查找时，永远不会去查找原型，这个函数是？
 
++ Object.prototype.hasOwnProperty.所有继承了 Object 的对象都会继承到 hasOwnProperty 方法。这个方法可以用来检测一个对象是否含有特定的自身属性，和in 运算符不同，该方法会忽略掉那些从原型链上继承到的属性。
 ------
 
 ### 1.4.4 继承的多种方式及优缺点。
@@ -1427,8 +1646,22 @@ class Person{
 
 ------
 
+### 1.4.6 Set和Map 数据结构
 
+------
 
+#### 1.4.6.1 比较Set和WeakSet结构？
++ 1. ES6 提供了新的数据结构 Set。它类似于数组，但是**成员的值都是唯一的**，没有重复的值。
++ 2. WeakSet 结构与 Set 类似，也是不重复的值的集合。但是 WeakSet 的**成员只能是对象**，而不能是其他类型的值。WeakSet 中的对象都是**弱引用**，即垃圾回收机制不考虑 WeakSet 对该对象的引用。
+
+------
+
+#### 1.4.6.2 比较Map和WeakMap结构
++ 1.Map 数据结构。它类似于对象，也是键值对的集合，**但是“键”的范围不限于字符串**，各种类型的值（包括对象）都可以当作键。
++ 2.WeakMap 结构与 Map 结构类似，也是用于生成键值对的集合。但是 WeakMap **只接受对象作为键名（ null 除外）**，不接受其他类型的值作为键名。而且 WeakMap 的键名所指向的对象，不计入垃圾回收机制。
+
+> 详细参考：[阮一峰：Set和Map数据结构](https://es6.ruanyifeng.com/#docs/set-map)
+------
 ## 1.5 数组
 
 ### 1.5.1 数组有哪些原生方法？
@@ -1514,6 +1747,20 @@ let colors = ["red","green","blue"];
 let removed = colors.splice(1,1,"yellow","orange");
 console.log(colors);// ["red","yellow","orange","blue"]
 console.log(removed);//["green"] 
+```
+
++ <font color=red>**fill()**</font>🖍方法使用一个给定值填充一个数组中从起始索引到终止索引内的全部元素，不包括终止索引。fill方法会改变原数组。第二和第三个参数可选。
+```js
+const array1 = [1, 2, 3, 4];
+console.log(array1.fill(0, 2, 4));
+// [1, 2, 0, 0]
+console.log(array1);
+// [1, 2, 0, 0]
+
+// fill 方法用于空数组的初始化非常方便。
+const arr = new Array(3).fill(9);
+console.log(arr);
+//[9,9,9]
 ```
 
 #### 1.5.1.4 查
@@ -1635,9 +1882,9 @@ let sum0 = values.reduce((prev,cur,index,array)=>prev+cur,0);
 console.log(sum,sum0);// 21 21
 ```
 
-### 1.5.3 数组的应用场景
+### 1.5.2 数组的应用场景
 
-#### 1.5.3.1 数组去重
+#### 1.5.2.1 数组去重
 
 + 1. 原始双层循环
 ```js
@@ -1713,7 +1960,7 @@ function unique(array){
 > 详细参考: [Javascript专题之数组去重](https://github.com/mqyqingfeng/Blog/issues/27)
 ------
 
-#### 1.5.3.2 数组扁平化
+#### 1.5.2.2 数组扁平化
 
 > 数组扁平化就是将一个嵌套多层的array转换为只有一层的数组。
 
@@ -1762,7 +2009,7 @@ console.log(flatten(arr));
 
 ------
 
-#### 1.5.3.3 求数组的最大（最小值）
+#### 1.5.2.3 求数组的最大（最小值）
 
 > 这里以最大值为例。
 > 基于静态方法（Math.max(参数列表))
@@ -1821,7 +2068,7 @@ console.log(maxArr(arr));//23
 
 ------
 
-#### 1.5.3.4 在数组中查找指定元素
+#### 1.5.2.4 在数组中查找指定元素
 
 > ES6对数组新增了findIndex方法，会返回满足提供的函数的第一个元素的索引，否则返回-1
 
@@ -1846,7 +2093,7 @@ console.log([4,10,23,19].myFindIndex(isBigEnough));//2
 
 ------
 
-#### 1.5.3.5 如何将数组打乱？
+#### 1.5.2.5 如何将数组打乱？
 
 > 基于Math.random() 函数和[sort](#sort)方法
 ```js
@@ -1859,7 +2106,7 @@ console.log(values);
 > 更加精确的乱序算法参考[JavaScript专题之乱序](https://github.com/mqyqingfeng/Blog/issues/51)
 ------
 
-#### 1.5.3.6 比较数组的各种迭代方法？
+#### 1.5.2.6 比较数组的各种迭代方法？
 
 + 1. **for循环**
 	- for 循环的遍历方式与另外两者的差别是最大的，通过代码块来执行循环。在代码块中，需要通过迭代变量来获取当前遍历的元素，如`arr[i]`。
@@ -2358,7 +2605,7 @@ introd('MeiTuan')('骑手')('小吴') // ✅
 
 ## 1.7 Promise 与异步
 
-## 1.7.1定时器
+### 1.7.1定时器
 
 #### 1.7.3.1 setTimeout()
 
@@ -2369,13 +2616,13 @@ let timeoutId = setTimeout(()=>alert('hello world'),1000);
 // 取消超时任务
 clearTimeout(timeoutId);
 ```
-
+------
 #### 1.7.3.2 setInterval()
 
 + **setInterval()**与`setTimeout`类似，只不过指定的任务会每隔一段时间就执行一次，直到取消循环定时或页面卸载。它接收两个参数，要执行的代码和下一次执行任务要等待的时间（ms）。setTimeout()方法也可以返回一个循环定时ID，可以用来在未来某个时间点上取消循环定时。
 + 相对于`setTimeout()`而言，取消定时的能力对setInterval()更重要，如果一直不管它，那么定时任务会一直执行到页面卸载。
 + **setInterval()**在实践中很少在生产环境下使用，因为一个任务和下一个任务开始之间的时间间隔是无法保证的，有些循环定时任务因此可能会被跳过。一般来说最好不要使用setInterval()。
-
+------
 #### 1.7.3.3 定时器函数里的this
 
 + 由setTimeout()调用的代码运行在与所在函数完全分离的执行环境上。这会导致，这些代码中包含的 this 关键字在非严格模式会指向 window (或全局)对象，严格模式下为 undefined，这和所期望的this的值是不一样的。
@@ -2383,6 +2630,22 @@ clearTimeout(timeoutId);
 
 > 更多资料参考：[MDN:setTimeout](https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout)
 
+------
+#### 1.7.3.4 如何用setTimeout实现setInterval?
+> 递归
+```js
+function setInter(fn,ms){
+  let timeOut = (fn,ms)=>{
+    setTimeout(()=>{
+      fn();
+      timeOut(fn,ms);
+    },ms)
+  };
+  timeOut(fn,ms)
+};
+setInter(()=>{console.log('hello world!')},2000);
+```
+>详细资料可以参考：[《setInterval 有什么缺点？》](https://zhuanlan.zhihu.com/p/51995737)
 
 ------
 
@@ -2502,6 +2765,8 @@ Promise.all(promises).then(function(posts){
 
 ### 1.7.4 同步异步与事件循环
 
+#### 1.7.4.1 宏任务微任务与事件循环
+
 
 - 宏任务：macro-task。包括：script(整体代码)，setInterval,setTimeout,setImmediate,I/O,UI rendering。
 - 微任务：micro-task。包括：process.nextTick,Promise(then,catch,finally还有async函数里面的await之后下一行开始的代码。）。
@@ -2516,6 +2781,8 @@ Promise.all(promises).then(function(posts){
 	
 ------
 
+#### 1.7.4.2 线程与进程
+
 + 线程和进程
 	- **进程**是CPU资源分配的最小单位，**线程**是CPU调度的最小单位。进程好比工厂，有单独的专属自己的工厂资源。线程好比工人。一个进程由一个或多个线程组成，线程是一个进程中代码的不同执行路线。一个进程的内存空间是共享的，每个线程都可以用这些共享内存。
 ------
@@ -2524,7 +2791,18 @@ Promise.all(promises).then(function(posts){
 	- **多进程**：同一个时间里，同一个计算机系统中允许两个或两个以上的进程处于运行状态。多进程带来的好处是明显的，比如可以听歌的同时，打开编辑器桥代码。编辑器和听歌软件的进程之间丝毫不会互相干扰。
 	- **多线程**：程序中包含多个执行流，即在一个程序中可以同时运行多个不同的线程来执行不同的任务，也就是说允许单个程序创建多个并行执行的线程来完成各自的任务。
 > 以Chrome浏览器中为例，当你打开一个 Tab 页时，其实就是创建了一个进程，一个进程中可以有多个线程（下文会详细介绍），比如渲染线程、JS 引擎线程、HTTP 请求线程等等。当你发起一个请求时，其实就是创建了一个线程，当请求结束后，该线程可能就会被销毁。
+>
 ------
++ 如何理解js是单线程的，但又可实现异步编程？
+	- js是单线程的，指的是依托于js这门语言在执行的任务在一条线上 ，一个任务执行完了，再能执行下一个任务。对于js来说，不是异步的。
+	- 但是js的宿主环境，比如浏览器是多线程的，浏览器会通过事件驱动的方式，让JS能够异步执行，从而达到单线程进行异步执行的效果。
+------
+
+#### 1.7.4.3 同步与异步
+
++ 同步与异步
+  - 同步，指的是当一个进程在执行某个请求的时候，如果这个请求需要等待一段时间才能返回，那么这个进程会一直等待下去，直到消息返回为止再继续向下执行。
+  - 指的是当一个进程在执行某个请求的时候，如果这个请求需要等待一段时间才能返回，这个时候进程会继续往下执行，不会阻塞等待消息的返回，当消息返回时系统再通知进程进行处理。
 
 + 同步任务与异步任务
 	- 同步任务：主线程上的任务排队执行。
@@ -2536,10 +2814,6 @@ Promise.all(promises).then(function(posts){
 > + JavaScript语言的一大特点就是单线程，也就是说，同一个时间只能做一件事。为了利用多核CPU的计算能力，HTML5提出Web Worker标准，允许JavaScript脚本创建多个线程，但是子线程完全受主线程控制，且不得操作DOM。所以，这个新标准并没有改变JavaScript单线程的本质。
 > + javascript是单线程。单线程就意味着，所有任务需要排队，前一个任务结束，才会执行后一个任务。如果前一个任务耗时很长，后一个任务就不得不一直等着。于是就有一个概念——任务队列。如果排队是因为计算量大，CPU忙不过来，倒也算了，但是很多时候CPU是闲着的，因为IO设备（输入输出设备）很慢（比如Ajax操作从网络读取数据），不得不等着结果出来，再往下执行。于是JavaScript语言的设计者意识到，这时主线程完全可以不管IO设备，挂起处于等待中的任务，先运行排在后面的任务。等到IO设备返回了结果，再回过头，把挂起的任务继续执行下去。
 > + 所有任务可以分成两种，一种是**同步任务**（synchronous），另一种是**异步任务**（asynchronous）。同步任务指的是，在主线程上排队执行的任务，只有前一个任务执行完毕，才能执行后一个任务；异步任务指的是，不进入主线程、而进入"任务队列"（task queue）的任务，只有等主线程任务执行完毕，"任务队列"开始通知主线程，请求执行任务，该任务才会进入主线程执行。
-------
-+ 如何理解js是单线程的，但又可实现异步编程？
-	- js是单线程的，指的是依托于js这门语言在执行的任务在一条线上 ，一个任务执行完了，再能执行下一个任务。对于js来说，不是异步的。
-	- 但是js的宿主环境，比如浏览器是多线程的，浏览器会通过事件驱动的方式，让JS能够异步执行，从而达到单线程进行异步执行的效果。
 ------
 + JS为什么需要异步执行机制？
 	- 因为js里面的网络请求，定时器事件以及事件监听等事件，会消耗大量的时间，如果JS进行单线程执行，如果这些操作一直在浪费时间，就会导致整个页面无法往下执行，页面假死等情况，所以针对此类情况，浏览器为这些耗时较长时间的任务另外开辟了新的线程，所以这些任务都是**异步**的。
@@ -2697,62 +2971,249 @@ setImmediate(function() {
 + 函数节流指的是：一个函数执行一次后，只有大于设定的周期才会执行第二次。
 + 函数节流是为了限制函数触发的频次。即减小单位时间内事件触发的频次。**目标事件的完成是能很清楚地被计算机界定的，只是这个事件被高频触发了**。
 + ✅**节流使用场景**：<u>鼠标不断点击</u>，mousedown事件；鼠标滚动事件，比如是否滑到底部自动加载更多。
++ 代码实现：定义一个节流throttle函数，这个函数接收两个参数，一个是原始的函数，第二个是节流时间，返回一个新的函数。返回出来的新函数，不能丢失原函数的this指向，给原函数传递的参数也不能改变。
 
 #### 1.7.5.2 函数节流的实现
-```js
-function throttle(fun,delay){
-  let last,deferTimer;
-  return function(args){
-    let that = this;
-    let _args = arguments;
-    let now = new Date();
-    if(last && now<last+delay){
-      clearTimeout(deferTimer);
-      deferTimer = setTimeout(function(){
-        last = now;
-        fun.apply(that,_args);
-      })
-    }else{
-      last = now;
-      fun.apply(that,_args);
+```html
+<body>
+  <input type="text">
+  <input type="submit" id="input">
+</body>
+
+<script>
+  let btn = document.getElementById('input');
+  let tSubmit = throttle(submit, 2000) // 页面初始化后throttle函数即刻执行
+  btn.addEventListener('click', tSubmit);
+  function submit() {
+    console.log(1);
+  }
+  // 【节流函数】
+  function throttle(fun, delay) {
+    // begin 一开始表示页面初始化后的即刻时间，如果后续点击即刻执行新函数，那么begin刷新，此时begin表示上次fun函数的执行时间刻度
+    var t = null, begin = new Date().getTime();
+    return function () {
+      // curT 表示节流后返回的新函数“执行”的时间刻度
+      let that = this, args = arguments, curT = new Date().getTime();
+      clearTimeout(t);
+      if (curT - begin >= delay) {
+        fun.apply(that, args);
+        // 初始化时间重新赋值为“点击事件发生后即刻就执行了fun函数的时间”
+        begin = curT;
+      } else {
+        t = setTimeout(function () {
+          fun.apply(that, args);
+        }, delay)
+      }
     }
   }
-}
+</script>
 
 ```
 ------
 
 #### 1.7.5.3 函数防抖(debounce)
 + 函数防抖指的是：一个需要频繁触发的函数，在规定时间内只让**最后一次**生效，前面的不生效。
-+ 函数防抖，针对最后一次触发事件后，在限制时间内，有足够的时间使其成为最后一次的事件触发。**目标事件的完成不能清楚地被计算机界定，它可能随时由于用户的不确定操作而完成确定的事件触发**。
++ 函数防抖，针对最后一次触发事件后，在限制时间内，有足够的时间使其成为最后一次的事件触发。**目标事件的完成时机不能清楚地被计算机界定，目标事件的完成时机取决于用户不确定的高频操作何时有目的地停止**。
 + ✅**防抖使用场景**：<u>search搜索联想</u>，用户不断输入值，用防抖来节约请求资源；window触发size事件时，不断的调整窗口大小会不断地触发这个事件，用防抖来让其只触发一次。
++ 代码实现：定义一个debounce函数，这个函数接收两个参数，一个是初始函数，第二个是防抖时间。返回一个新函数，返回出来的新函数，不能丢失原函数的this指向；给原函数传递的参数也不能改变。
 
-> 详细参考：[函数节流和防抖](https://github.com/ljianshu/Blog/issues/43) 、[薄荷前端：7分钟理解js的节流防抖及使用场景](https://segmentfault.com/a/1190000016261602) 、 [跟着underscore学防抖](https://github.com/mqyqingfeng/Blog/issues/22)、[跟着underscore学节流](https://github.com/mqyqingfeng/Blog/issues/26)
+#### 1.7.5.4 函数防抖的实现
+
+```html
+<body>
+  <input type="text" id="text">
+</body>
+
+<script>
+  let btn = document.getElementById('text');
+  let debSearch = debounce(search, 2000, false)
+  btn.addEventListener('keyup', Search);
+
+  function search(e) {
+    console.log(this.type + '文本框，正在搜索' + e.target.value);
+  }
+	// 【防抖实现】
+  function debounce(fun, time, triggerFirst) {
+    let t = null;
+    return function () {
+      let that = this, args = arguments;
+      clearTimeout(t);
+      // 注意 clearTimeout(t) 之后，只是清除了计时器（要执行的回调），但是计时器的ID还依然存在
+      // triggerFirst true表示初次事件触发立即执行；false表示初次事件触发延迟执行
+      if (triggerFirst) {
+        // t===null 表示在防抖间隔时间之外，fun函数还未执行，需要立即执行它
+        let unExec = !t;
+        t = setTimeout(function () {
+          t = null;// 只要在time间隔时间内，计时器的id都是存在的
+        }, time);
+        if (unExec) {
+          fun.apply(that, args);
+        };
+      } else {
+        t = setTimeout(function () {
+          fun.apply(that, args);
+        }, time)
+      }
+    }
+  }
+</script>
+```
+------
+
+> 详细参考：[函数节流和防抖](https://github.com/ljianshu/Blog/issues/43) 、[函数防抖与节流](https://www.bilibili.com/video/BV1kk4y1B76Z?p=2)、 [跟着underscore学防抖](https://github.com/mqyqingfeng/Blog/issues/22)、[跟着underscore学节流](https://github.com/mqyqingfeng/Blog/issues/26)
 
 ------
 
 
 ## 1.8 代理与反射
 
+### 1.8.1 什么是Proxy？
 
++ Proxy 用于修改某些操作的默认行为，等同于在语言层面做出修改，所以属于一种“元编程”，即对编程语言进行编程。Proxy 可以理解成，在目标对象之前架设一层“拦截”，外界对该对象的访问，都必须先通过这层拦截，因此提供了一种机制，可以对外界的访问进行过滤和改写。Proxy 这个词的原意是代理，用在这里表示由它来“代理”某些操作，可以译为“代理器”。
 
++ 代理是使用Proxy构造函数创建的，这个构造函数接收两个参数：目标对象和处理程序对象。
+
+```js
+  const target = {
+    id:'target';
+  }
+  const handler = {};
+  const proxy = new Proxy(target,handler);
+```
++ 使用代理的主要目的是可以定义捕获器。捕获器是在处理程序对象中定义的“基本操作的拦截器”。每次在代理对象上调用这些基本操作时，代理可以在这些操作传播到目标对象之前先调用捕获器函数，从而拦截并修改相应的行为。
+
+------
+
+### 1.8.2 Reflect对象创建的目的？
+- 1.将 Object 对象的一些明显属于语言内部的方法（比如 Object.defineProperty，放到 Reflect 对象上。
+- 2.修改某些 Object 方法的返回结果，让其变得更合理。
+- 3.让 Object 操作都变成函数行为。
+- 4.Reflect 对象的方法与 Proxy 对象的方法一一对应，只要是 Proxy 对象的方法，就能在 Reflect 对象上找到对应的方法。这就让 Proxy 对象可以方便地调用对应的 Reflect 方法，完成默认行为，作为修改行为的基础。也就是说，不管 Proxy 怎么修改默认行为，你总可以在 Reflect 上获取默认行为。
+------
 ## 1.9 js语言特性与应用技巧
 
+### 1.9.1 如何编写高性能的 Javascript ？
 
+- 1.使用位运算代替一些简单的四则运算。
+- 2.避免使用过深的嵌套循环。
+- 3.不要使用未定义的变量。
+- 4.当需要多次访问数组长度时，可以用变量保存起来，避免每次都会去进行属性查找。
 
+详细资料可以参考：[《如何编写高性能的 Javascript？》](https://zhuanlan.zhihu.com/p/34780474)
+
+------
+
+### 1.9.2 js 延迟加载的方式有哪些？
+
+- js 的加载、解析和执行会阻塞页面的渲染过程，因此我们希望 js 脚本能够尽可能的延迟加载，提高页面的渲染速度。我了解到的几种方式是：
+
+  - 第一种方式是我们一般采用的是将 js 脚本放在**文档的底部**，来使 js 脚本尽可能的在最后来加载执行。
+
+  - 第二种方式是给 js 脚本添加 **defer** 属性，这个属性会让脚本的加载与文档的解析同步解析，然后在文档解析完成后再执行这个脚本文件，这样的话就能使页面的渲染不被阻塞。多个设置了 defer 属性的脚本按规范来说最后是顺序执行的，但是在一些浏览器中可能不是这样。
+
+  - 第三种方式是给 js 脚本添加 **async** 属性，这个属性会使脚本异步加载，不会阻塞页面的解析过程，但是当脚本加载完成后立即执行 js 脚本，这个时候如果文档没有解析完成的话同样会阻塞。多个 async 属性的脚本的执行顺序是不可预测的，一般不会按照代码的顺序依次执行。
+
+  - 第四种方式是**动态创建 DOM 标签**的方式，我们可以对文档的加载事件进行监听，当文档加载完成后再动态的创建 script 标签来引入 js 脚本。
+
+> 详细资料可以参考：[《JS 延迟加载的几种方式》](https://blog.csdn.net/meijory/article/details/76389762)、[《HTML 5 `<script>` `async` 属性》](http://www.w3school.com.cn/html5/att_script_async.asp)
+
+### 1.9.3 把 script 标签放在页面的最底部的 body 封闭之前和封闭之后有什么区别？浏览器会如何解析它们？
+
+详细资料可以参考：
+[《为什么把 script 标签放在 body 结束标签之后 html 结束标签之前？》](https://www.zhihu.com/question/20027966)
+[《从 Chrome 源码看浏览器如何加载资源》](https://zhuanlan.zhihu.com/p/30558018)
+
+------
+### 1.9.4 JS中的命名规则
+
++ 第一个字符必须是字母、下划线（_）或美元符号（$）
++ 余下的字符可以是下划线、美元符号或任何字母或数字字符
++ 一般我们推荐使用驼峰法来对变量名进行命名，因为这样可以与 ECMAScript 内置的函数和对象命名格式保持一致。
+
+------
 # 2. BOM
 
++ BOM(Browser Object Model) 是浏览器对象模型。BOM提供了与网页无关的浏览器功能对象。
 
+## 2.1 window 对象
++ BOM的核心是window对象。即窗口对象。
 
+### 2.1.1 窗口位置
+> 高程4，P362页
++ 窗口对象：现代浏览器提供了**screenLeft**和**screenTop**属性，用于表示窗口相对于屏幕左侧和顶部的位置，返回值的单位是CSS像素。
++ 可以使用moveTo()和moveBy()方法移动窗口。这两个方法接收两个参数，其中moveTo()接收要移动到的新位置的绝对坐标x和y,而moveBy()则接收相对当前位置在两个方向上移动的像素数。
 
+### 2.1.2 窗口大小
+> 高程4，P363页
++ 现代浏览器都支持4个属性。**outerWidth**和**outerHeight**返回浏览器窗口自身的大小。**innerWidth**和**innerHeight**返回浏览器窗口中页面视口的大小（不包含浏览器边框和工具栏）。
++ 可以使用**resizeTo()**和**resizeBy()**方法调整窗口的大小。这两个方法都接收两个参数，resizeTo()接收新的宽度和高度值，而resizeBy()接收宽度和高度各要缩放多少。
 
+### 2.1.3 视口位置
+> 高程4，P364页。
++ 浏览器窗口尺寸通常无法满足完整显示整个页面。度量文档相对于视口滚动距离的属性有两对，返回相等的值。**window.pageXoffset/window.scrollX**和**window.pageYoffset/window.scrollY**。
++ 可以使用**scroll()**、**scrollTo()**和**scrollBy()**方法滚动页面。这三个方法都接收表示相对视口距离的x和y坐标，这两个参数在前两个方法中表示要滚动到的新坐标，在最后一个方法中表示要滚动的距离。
+
+### 2.1.4 导航与打开新窗口
+> 高程4，P365页。
++ **window.open()**方法可以用于导航到指定的URL,也可以用于打开新的浏览器窗口。这个方法接收4个参数：要加载的URL、目标窗口、特性字符串和表示新窗口在浏览器历史记录中是否替代当前加载页面的布尔值。如果window.open()方法的第二个参数是一个已经存在的窗口或窗格(frame)的名字，则会在对应的窗口或窗格中打开URL。
+
+## 2.2 location 对象
+
++ **location**对象是最有用的BOM对象之一，提供了当前窗口中加载文档的信息，以及通常的导航功能，这个对象的独特之处在于它既是window对象的属性，有时document对象的属性。
+
+### 2.2.1 location对象的属性
++ 假设浏览器当前加载的URL是 http://foouser:barpassword@www.wrox.com:80/WileyCDA/?q=javascript#contents ， location 对象的内容如下标所示。
++ 高程4，P372页。
+
+### 2.2.2 通过location对象修改浏览器的地址
++ 1. 最常见的是使用**assign()**方法并传入一个URL. `location.assign('http://www.wrox.com');`,这行代码会立即启动导航到新的URL的操作，同时在浏览器历史记录中增加一条记录。注意此时修改的是浏览器当前加载的页面。
+> 除了location.hash之外，只要修改location的一个属性，就会导致页面重新加载新的URL。
+
++ 2. 如果不希望导航到新的页面后增加历史记录，可以使用**replace()**方法。这个方法接收一个URL参数，但重新加载后不会增加历史记录。等页面重定向到新页面后，“后退”按钮是禁用状态。
+```js
+setTimeout(()=>location.replace("http://www.wrox.com/"),1000)
+```
++ 3. 最后一个修改地址的方法是**reload()**。它能重新加载当前显示的页面。调用reload()而不传参数，页面会以最有效的方式重新加载。也就是说，如果页面上次请求以来没有修改过，浏览器可能会从缓存中加载页面。如果想强制从服务器重新加载，可以给reload()传true参数。
+```js
+location.reload();
+location.reload(true);
+```
+
+## 2.3 navigator对象
+
++ 客户端通过navigator对象识别浏览器。navigator对象上定义了一系列的属性和方法，访问navigator.userAgent, 可以返回浏览器的用户代理字符串，这个属性所有浏览器都支持。
+
+## 2.4 screen对象
+
++ screen对象保存了客户端显示器的信息。
+
+## 2.5 history对象
+
++ history对象表示当前窗口首次使用以来用户的导航历史记录。因为history是window的属性，所以每个window都有history对象。
+
++ **history.go()**方法可以在用户历史记录中沿任何方向导航，可以前进也可以后退。这个方法只接受一个参数，这个参数可以是一个整数，表示前进或后退多少步。负值表示在历史记录中后退，正值表示在历史记录中前进。
+```js
+history.go(-1);//后退一页
+history.go(1);//前进一页
+history.go(0);//刷新当前页面
+```
+
++ **history.back()**和**history.foward()**模拟了了浏览器的后退和前进按钮。分别表示前进一页和后退一页。
++ **history**对象还有一个length属性，表示历史记录中有多少个条目。
+
++ HTML5为history对象添加了方便的**状态管理特性**。hashchange 会在页面URL散变化时触发，开发者可以在此时执行某些操作。而状态管理API则可以让开发者改变浏览器URL而不会重新加载页面。为此，可以使用**history.pushState()**方法。这个方法接收三个参数：一个state对象，一个新状态的标题和一个可选的相对URL。pushState()方法执行后，状态信息就会被推送到历史记录中，浏览器地址栏也会改变以反映新的相对URL。
+```js
+let stateObject = {foo:'bar'};
+history.pushState(stateObject,"my title",'bar.html');
+```
+> 详细资料参考高程4，P381页
 # 3. DOM
 
 
 
-# 4. 事件
+# 4. JS设计模式
 
-
++ 略
 
 # 5. 网络请求
 
