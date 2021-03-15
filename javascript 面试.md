@@ -3207,7 +3207,160 @@ let stateObject = {foo:'bar'};
 history.pushState(stateObject,"my title",'bar.html');
 ```
 > 详细资料参考高程4，P381页
+------
+------
 # 3. DOM
+
++ DOM(Document Object Model) 是HTML和XML文档的编程接口。DOM表示由多层节点构成的文档。
+------
+## 3.1 DOM基础
+### 3.1.1 节点层级
++ 任何HTML文档或XML文档都可以用DOM表示为一个由节点构成的层级结构。document节点表示每个文档的根节点，根节点的唯一子节点是<html>元素（文档元素），即docuemntElement节点。文档元素是最外层的元素，所有其他元素都存在于这个元素之内，每个文档都只能有一个文档元素。
+------
+#### 3.1.1.1 节点类型（熟悉前三种）
++ 每个节点都有**nodeType**属性，表示该节点的类型。节点类型由定义在Node类型上的12个数值常量表示。
++ 前三种是最为常见的节点类型。分别是：
+	- **元素节点**：Node.ELEMENT_NODE(1)  
+	- **属性节点**：Node.ATTRIBUTE_NODE(2)
+	- **文本节点**：Node.TEXT_NODE(3)
+------
+#### 3.1.1.2 三个表示【节点信息】的属性
++ 1. 每个节点都有**nodeType**属性，表示该节点的类型。
++ 2. **nodeName**，保存着节点的名称信息。
++ 3. **nodeValue**，保存着节点的值。
+> 对于元素节点，nodeName 保存元素的标签名，nodeValue的值为null。
+------
+#### 3.1.1.3 七个表示【节点关系】的属性
++ 1. **childNodes**属性或**children**属性，其值是一个类数组的NodeList的实例对象，使用中括号可以访问NodeList 中的元素。
++ 2. **parentNode**属性，指向其DOM树中的父元素。
++ 3. **previousSibling**属性，同级节点的上一个节点。
++ 4. **nextSibling**属性，同级节点的下一个节点。
++ 5. **firstChild**属性，指向childNode中的第一个子节点。
++ 6. **lastChild**属性，指向childNode中的最后一个子节点。
++ 7. **hasChildNodes()**方法，这个方法如果返回true,则说明节点有一个或多个子节点。
++ 8. **contains()**方法，用来判断一个元素是不是另一个元素的后代。contains()方法应该在要搜索的祖先元素上调用，参数是待确定的目标节点。
+```js
+console.log(document.documentElement.contains(document.body));//true
+```
+> **children**属性和**childNodes**属性：如果元素的子节点类型全部是元素类型，那么children和childNodes中包含的节点是一样的。
+
+------
+#### 3.1.1.4 六个操作节点的方法
++ 1. **appendChild()**,用于在childNodes列表末尾添加节点，返回新添加的节点。
++ 2. **insertBefore()**,接收两个参数：要插入的节点和参照节点。用于把节点放到childNodes中的特定位置而不是末尾。
++ 3. **replaceChild()**,接收两个参数：要插入的节点和要替换的节点。要替换的节点会被返回，并从文档树中完全移除，要插入的节点取而代之。
++ 4. **removeChild()**, 接收一个参数，即要被移除的节点，被移除的节点会被返回。
++ 5. **cloneNode()**,接收一个布尔值参数，表示是否执行深复制。用于创建调用这个方法的节点的一个完全相同的副本。
++ 6. **normalize()**，处理文档子树中的文本节点。由于解析器实现的差异或DOM操作等原因，可能会出现并不包含文本的文本节点，或者文本节点之间互为同胞关系。在节点上调用normalize()方法，会检测这个节点的所有子节点，从中搜索上述两种情形，如果发现空文本节点，则将其删除；如果两个同胞节点相邻，则将其合并为一个文本节点。
+------
+### 3.1.2 元素类型
++ Element类型是最常见的类型。表示XML或HTML的元素。
++ nodeType值为1，nodeName值为元素的标签名，nodeValue的值为null。
+------
+#### 3.1.2.1 元素的标准属性
++ 1. **id**, 元素在文档中的唯一标识符。
++ 2. **title**, 包含元素的额外信息，通常以提示条形式展示。
++ 3. **lang**, 元素内容的语言代码。
++ 4. **dir**, 语言的书写方向（”ltr"表示左到右，“rtl"表示右到左)。
++ 5. **className**, 相当于class属性，用于指定元素的CSS类。
+------
+#### 3.1.2.2 与元素的属性相关的方法
++ 1. **getAttribute()**,接收属性名，获得其属性值。注意，传给getAttribute()的属性名与实际的属性名是一致的。
+```js
+let div = document.getElementById('myDiv');
+console.log(div.getAttribute('class'));//bd
+```
++ 2. **setAttribute()**,接收两个参数：要设置的属性名和属性值。如果属性已存在，就会以指定值替换原来的值。
++ 3. **removeAttribute()**,接收属性名，用于从元素中删除属性。会把整个属性完全从元素中去掉。
+------
+#### 3.1.2.3 如何创建元素?
++ 使用**document.createElement()**方法创建新元素。接收一个参数，即要创建元素的标签名。
+> 要把创建的元素添加到文档树，可以使用`appendChild()`、`insertBefore()`或`replaceChild()`。
+------
+
+### 3.1.3 属性类型
++ 技术层面，**属性**是存在于元素attributes属性中的节点。
++ nodeType值为2，nodeName值为属性名，nodeValue值为属性值。
++ 属性节点尽管是节点的一种，却不认为是DOM文档树的一部分。
++ 可以使用**document.createAttribute()**方法创建新的Attr节点，参数为属性名。
+------
+### 3.1.4 文本类型
++ Text节点由Text类型表示，包含按照字面解释的纯文本，也可能包含转义后的HTML字符，但不包含HTML代码。
++ nodeType值为3，nodeName值为”#text",nodeValue值为节点中所包含的文本。
++ 可以使用**document.createTextNode()**来创建新的文本节点，接收一个参数，即要插入节点的文本。
+------
+## 3.5 DOM编程
+
+### 3.5.1 动态脚本
++ 两种方式通过<script>标签为网页添加脚本：引入外部文件和直接插入源代码。
+> 注意，通过innerHTML属性创建的<script>元素永远不会执行。
+### 3.5.2 动态样式
++ CSS样式在HTML中可以通过两个元素加载：<link>元素用于包含CSS外部文件，<style>元素用于添加嵌入样式。
+
+------
+### 3.5.3 获取元素的API
+#### 3.5.3.1 只暴露在document对象上的API
++ ① **document.getElementById()**,接收一个参数，即要获取元素的ID，如果找到了就返回这个元素，没有找到就返回null。
++ ② **document.getElementsByTagName()**,接收一个参数，即要获取元素的标签名，返回一个NodeList实例。
+#### 3.5.3.2 暴露在document对象和所有HTML元素实例上的API。
++ ③ **querySelector()**方法接收`CSS选择符参数`，返回匹配该模式的第一个后代元素，如果没有匹配项则返回null。
++ ④ **querySelectorAll()**方法接收`CSS选择符参数`，返回匹配到的所有节点组成的NodeList实例。
++ ⑤ **getElementsByClassName()**方法接收一个参数（类名），即包含一个或多个类名的字符串，返回类名中包含相应类的元素的NodeList实例。如果提供了多个类名，则顺序无关紧要。
+------
+## 3.6 HTML5
++ HTML5为标准的DOM提供了大量扩展。
+------
+### 3.6.1 自定义数据属性
++ HTML5允许给元素指定非标准的属性，但要使用前缀data-以便告诉浏览器，这些属性是自定义属性。
++ 定义了自定义属性后，可以使用dataset属性来访问。
++ 要注意在HTML中的下划线命名法，对应JS里面要使用驼峰命名来对应。
+```html
+<div id="myDiv" data-appId="1234" data-my-name="Nicholas"> </div>
+<script>
+	let div = document.getElementById('myDiv');
+  let appId = div.dataset.appId;
+  let myName = div.dataset.myName;
+</script>
+```
+------
+### 3.6.2 扩展DOM
+#### 3.6.2.1 插入标记
++ HTML5标准：**innerHTML**和**outerHTML**。
+	- 读取**innerHTML**属性，会返回元素所有后代的HTML字符串，包括元素、注释和文本节点，而写入innerHTML属性，则会根据提供的字符串值以新的DOM子树替代元素中原来包含的所有节点。
+	- 读取**outerHTML**属性，会返回调用它的元素本身（及所有后代元素）的HTML字符串。
++ 未入选的标准：**innerText**和**outerText**
+	- 读取**innerText**，会按照深度优先的顺序将子树中的所有文本节点的值拼接起来。在写入值时，innerText会移除元素的所有后代并插入一个包含该值的文本节点。
+	- 读取**outerText**，会和**innerText**返回同样的内容。但在写入文本值时，outerText就大不相同了，写入文本值时，outerText会移除替换掉整个元素。
+------
+
+## 3.7 DOM2和DOM3
+### 3.7.1 存取元素的样式
++ 任何支持style属性的HTML元素在JS中都会有一个对应的style属性。其中**只包含直接由HTML元素的 style属性**为元素设置的所有样式信息，但不包含通过层叠机制从文档样式或外部样式中继承来的样式。HTML style属性中的CSS属性在JS中的style对象中有对应的属性。因为在CSS中属性名使用连字符表示法，所以在JS中这些属性必须转换为驼峰大小写形式。
+```js
+let myDiv = document.getElementById('MyDiv');
+myDiv.style.backgroundColor='red';
+myDiv.style.width='100px';
+myDiv.style.height='200px';
+```
+------
+### 3.7.2 计算样式
+
++ style对象中包含支持style属性的元素为这个属性设置的样式信息，但不包含从其他样式表层叠继承的同样影响该元素的样式信息。
++ DOM2 在document.defaultView中增加了**getComputedStyle()**方法。这个方法接收两个参数：要取得计算样式的元素和伪元素的字符串(如：":after")。如果不需要查询伪元素，则第二个参数可以传null。getComputedStyle()方法返回一个CSSStyleDeclaration对象（同style属性的类型），包含元素的计算样式。
++ 关于计算样式，在所有的浏览器中计算样式都是只读的，不能修改getComputedStyle()方法返回的对象。
+> 更多内容参考：高程4，P469页。
+------
+
+### 3.7.3 元素尺寸
+#### 3.7.3.1 偏移尺寸
+> 高程4. P473页
+#### 3.7.3.2 客户端尺寸
+> 高程4. P474页
+#### 3.7.3.3 滚动尺寸
+> 高程4. P475页
+------
+
+## 3.8 事件
 
 
 
