@@ -3230,7 +3230,7 @@ history.pushState(stateObject,"my title",'bar.html');
 + 3. **nodeValue**，保存着节点的值。
 > 对于元素节点，nodeName 保存元素的标签名，nodeValue的值为null。
 ------
-#### 3.1.1.3 七个表示【节点关系】的属性
+#### 3.1.1.3 八个表示【节点关系】的属性
 + 1. **childNodes**属性或**children**属性，其值是一个类数组的NodeList的实例对象，使用中括号可以访问NodeList 中的元素。
 + 2. **parentNode**属性，指向其DOM树中的父元素。
 + 3. **previousSibling**属性，同级节点的上一个节点。
@@ -3245,7 +3245,7 @@ console.log(document.documentElement.contains(document.body));//true
 > **children**属性和**childNodes**属性：如果元素的子节点类型全部是元素类型，那么children和childNodes中包含的节点是一样的。
 
 ------
-#### 3.1.1.4 六个操作节点的方法
+#### 3.1.1.4 六个【操作节点】的方法
 + 1. **appendChild()**,用于在childNodes列表末尾添加节点，返回新添加的节点。
 + 2. **insertBefore()**,接收两个参数：要插入的节点和参照节点。用于把节点放到childNodes中的特定位置而不是末尾。
 + 3. **replaceChild()**,接收两个参数：要插入的节点和要替换的节点。要替换的节点会被返回，并从文档树中完全移除，要插入的节点取而代之。
@@ -3362,20 +3362,237 @@ myDiv.style.height='200px';
 
 ## 3.8 事件
 
++ Javascript与HTML的交互是通过事件实现的，事件代表文档或浏览器窗口中某个有意义的时刻。
++ **事件流**：事件流描述了页面接收事件的顺序。
+------
+### 3.8.1 三种事件流
++ **事件冒泡**：IE事件流被称为事件冒泡。这是因为事件被定义为从最具体的元素（文档树中最深的节点）开始触发，然后向上传播至没有那么具体的元素。
++ **事件捕获**：Netscape提出了事件捕获。事件捕获的意思是最不具体的节点应该先收到事件，而最具体的节点应该最后收到事件。
++ **DOM事件流**：DOM2规范规定，事件流分为3个阶段：事件捕获，到达目标和事件冒泡。
+------
+### 3.8.2 事件处理程序
+#### 3.8.2.1 注册和移除事件处理程序的两种方式：
++ 1.  传统方式是把一个函数赋值给DOM元素的一个事件处理程序属性。比如`onclick`。通过把事件处理程序的属性值设置为null，就可以移除事件。
+```js
+// 注册
+let btn = document.getElementById('myId');
+btn.onclick=function(){
+	console.log('Clicked');
+}
+//  移除
+btn.onclick=null;
+```
 
++ 2.  DOM2为事件处理程序定义了两个方法：**addEventListener()和removeEventListener()** 。这两个方法暴露在所有的DOM节点上，它们接收三个参数：事件名，事件处理函数和一个布尔值，true表示在捕获阶段调用事件处理程序，false(默认值)表示在冒泡阶段调用事件处理程序。
+```js
+let btn = document.getElementById('myBtn');
+btn.addEventListener("click",()=>{
+	console.log(this.id);
+},false);
+//---
+let handler = function(){
+	console.log(this.id);
+};
+btn.addEventListener('click',handler,false);
+btn.removeEventListener('click',handler,false);
+```
++ ✅比较两种添加事件处理程序的方式？
+	- 1. `element.onclick`添加的事件处理程序只会在事件流的冒泡阶段被处理。而`addEventListener()`添加的事件处理程序可以通过定义第三个参数来决定在事件流的哪个阶段处理事件程序。
+	- 2. 使用`addEventListener()`注册事件的主要优势是可以为同一个事件添加多个事件处理程序。
+	- 3. 通过`addEventListener()`添加的事件处理程序只能使用`removeEventListener()`并传入与添加时同样的参数来移除。所以使用`addEventListener()`添加的匿名函数无法被移除。
+------
+#### 3.8.2.2 还有哪种事件处理程序的注册方式？
++ 通过直接在HTML元素的属性上注册事件处理程序
+```html
+<input type="button" value="Click Me" onclick="console.log(event,type)">
+```
+------
+### 3.8.4 事件对象
++ DOM发生事件时，所有相关信息都会被收集并存储在一个名为`event`的对象中。
++ 事件对象包含与特定事件相关的属性和方法。不同的事件生成的事件对象也会包含不同的属性和方法。
+------
+#### 3.8.4.1 列举一些事件对象的公共属性和方法
++ 1. **currentTarget** ,表示事件处理程序所在的元素。
++ 2. **target** ,表示事件目标，它指向触发事件的最底层节点。
++ 3. **preventDefault()**方法，用于阻止特定事件的默认动作，可以用`return false;`来替代。
++ 4. **stopPropagation()**方法，用于立即阻止事件流在DOM结构中传播，取消后续的事件捕获或冒泡。
++ 5. **eventPhase**属性，用于确定该事件流当前所处的阶段。如果事件处理程序在捕获阶段被调用，`eventPhase`值为1；如果事件处理程序在目标上被调用，`eventPhase`的值为2；如果事件处理程序在冒泡阶段被调用，则`eventPhase`等于3。
+------
 
-# 4. JS设计模式
+### 3.8.5 事件类型
+#### 3.8.5.1 用户界面事件
++ 1. **load**: 当”目标“完全加载后触发。”目标看“可以是window，也可以是普通元素，也可以是窗套<frameset>（当所有窗格<frame>都加载完后触发）。
++ 2. **unload**: 当”目标“完全卸载后触发。`upload`事件一般是在从一个页面导航到另一个页面时触发，最常用于清理引用，以避免内存泄露。
++ 3. **resize**: 浏览器窗口被缩放到新高度或宽度时，触发`resize`事件。这个事件在window上触发。
++ 4. **scroll**: 反映了页面中相应元素的变化。
+------
+#### 3.8.5.2 焦点事件
++ 1. **blur**: 当元素失去焦点时触发。这个事件不冒泡。
++ 2. **focus**: 当元素获得焦点时触发。这个事件不冒泡。
++ 3. **focusout**: 当元素失去焦点时触发。支持事件冒泡。
++ 4. **focusin**: 当元素获得焦点时触发。支持事件冒泡。
+------
+#### 3.8.5.3 鼠标事件
++ 1. **click**: 单击鼠标左键或按键盘回车键时触发。
++ 2. **dbclick**: 双击鼠标左键触发。
++ 3. **mousedown**: 用户按下任意鼠标键时触发。
++ 4. **mouseenter**: 把鼠标光标从元素外部移入元素内部时触发。不冒泡。不在光标经过后代元素时触发。
++ 5. **mouseleave**: 把鼠标光标从元素内部移到元素外部时触发。不冒泡。不在光标经过后代元素时触发。
++ 6. **mousemove**: 鼠标光标在元素上移动时反复触发。
++ 7. **mouseout**: 鼠标光标从一个元素移动到另一个元素时触发。移到的元素可以是原始元素的外部元素，也可以是原始元素的子元素。
++ 8. **mouseover**: 把鼠标光标从元素内部移入元素内部时触发。
++ 9. **mouseup**: 用户释放鼠标键时触发。
+-------
+#### 3.8.5.4 键盘与输入事件
++ 1. **keydown**: 用户按下键盘上某个键时触发，持续按住重复触发。
++ 2. **keypress**: 用户按下键盘上某个键并产生字符时触发，持续按住重复触发。ESC键也会触发。DOM3推荐使用`textInput`事件。
++ 3. **keyup**: 用户释放键盘上某个键时触发。
++ 4. **textInput**: 当字符被输入到可编辑区域时触发。textInput只有在新字符被插入时才会触发。
+------
+#### 3.8.5.5 HTML5事件
+> 高程4 P523
 
-+ 略
+------
+### 3.8.6 事件委托
++ **事件委托**本质上是利用了浏览器事件冒泡的机制。因为事件在冒泡过程中会上传到父节点，并且父节点可以通过事件对象获取到目标节点，<u>因此可以把子节点的监听函数定义在父节点上，由父节点的监听函数统一处理多个子元素的事件，这种方式称为事件代理</u>。
++ 使用事件代理我们可以不必要为每一个子元素都绑定一个监听事件，这样减少了内存上的消耗。并且使用事件代理我们还可以实现事件的动态绑定，比如说新增了一个子节点，我们并不需要单独地为它添加一个监听事件，它所发生的事件会交给父元素中的监听函数来处理。
+> 详细资料可以参考：[《JavaScript 事件委托详解》](https://zhuanlan.zhihu.com/p/26536815)
+------
 
 # 5. 网络请求
 
+## 5.1 JSON
+
+### 5.1.1 JSON语法
+
++ JSON 是一种通用的数据格式，基于文本，优于轻量，用于交换数据。它不是编程语言。JSON出现后，迅速成为Web服务的事实序列化标准。
++ JSON语法支持3中类型的值，简单值（包括字符串、数值、布尔值及null，不包括undefined)，对象和数组。
++ JSON字符串必须用双引号。
++ 与Javsscript对象字面量相比，JSON有两处不同。首先，它没有变量声明；其次，没有分号。JSON对象中的属性名必须要用双引号包围起来。
++ 对象和数组通常会作为JSON数组的顶级结构，以便创建大型复杂数据结构。
+------
+### 5.1.2 JSON对象
+
++ ES5增加了JSON全局对象，可以正式解析JSON。
+
+#### 5.1.2.1 JSON序列化函数
++ **JSON.stringify()**可以把一个JS对象，序列化成一个JSON字符串。默认情况下，JSON.stringify()会输出不包含空格或缩进的JSON字符串。
+```js
+let book = {
+	title:"Professinal Javascript",
+	authors:[
+		"Nicholas C. Zakas",
+		"Matt Frisbie"
+	],
+	edition:4,
+	year:2017
+};
+let jsonText = JSON.stringify(book);
+console.log(jsonText);
+//{"title":"Professional Javscript","author":["Nicholas C. Zakas","Matt Frisibie],"edition":4,"year":2017}}
+```
++ **JSON.stringify()**还可以额外接收两个参数。第一个额外参数是个过滤器，可以是数组或函数；第二个额外参数是用于缩进结果JSON字符串的选项，如果这个参数是数值，表示每一级缩进的空格数，如果是字符串，那么JSON字符串中就会使用这个字符串而不是空格来表示缩进。单独或组合使用这些参数可以更好地控制JSON序列化。
+------
+#### 5.1.2.2 JSON解析函数
++ **JSON.parse()**函数可以接收一个JSON字符串，解析成响应的JS值。
++ **JSON.parse()**函数也可以额外接收一个参数。该参数是一个函数（还原函数）。还原函数接收两个参数，属性名和属性值，另外也需要返回值。
+------
+
+## 5.2 网络请求
++ Ajax(Asynchronous Javascript+XML)即异步JS+XML技术。使用Ajax技术可以**在从服务器获取数据的同时不刷新页面**。
++ Ajax通信与数据格式无关。
+------
+### 5.2.1 XHR对象
++ XHR（XMLHttpRequest）对象把Ajax推向了历史的舞台。
++ 所有现代浏览器都支持通过`XMLHttpRequest`构造函数原生支持XHR对象。
+```js
+let xhr = new XMLHttpRequest();
+```
++ 使用XHR对象，首先要调用**open()**方法，这个方法接收三个参数：请求类型（‘get’，‘post’等），请求URL，以及表示请求是否异步的布尔值。
++ **send()**方法接收一个参数，作为请求体发送的数据。如果不需要发送请求体，则必须传null。
++ 收到响应后，XHR对象的**responseText**属性会被填充上作为响应体返回的文本。**status**属性会被填充上响应的HTTP状态码。首先检查`status`属性以确保响应成功返回，一般来说HTTP状态码为2XX表示成功，此时`responseText`属性中会有内容。如果状态码是304，表示资源未被修改过，是从浏览器缓存中直接拿取的。
++ XHR对象有一个**readyState**属性，表示当前处在请求/响应过程的哪个阶段。当这个属性的值为4时，表示已经收到所有响应，可以使用了。每次`readyState`从一个值变为另一个值，都会触发**readyStateChange**事件，可以借此机会检查`readyState`的值。
++ 每个HTTP请求和响应都会携带一些头部字段。默认情况下，XHR请求会发送如下字段：`Cookie`,`Host`等。如果需要发送额外的请求头部，可以使用**setRequestHeader()**方法。这个方法接收两个参数：头部字段的名称和值。为保证请求头部字段的值被发送，必须在`open()`之后，`send()`之前调用`setRequestHeader()`。服务器通过读取自定义头部可以确定适当的操作。
++ 可以使用**getRequestHeader()**方法从XHR对象获取响应头部，只要传入响应对象的名称即可。
+------
+#### 5.2.1.1 GET请求
++ **GET**请求是最常用的请求方法，用于向服务器查询某些信息。必要时，需要在GET请求后面添加查询字符串参数。
++ 如下所示为一个设置了自定义头部（可选）的GET请求。
+```js
+let xhr = new XMLHttpRequest();
+xhr.onreadystatechange = function(){
+	if(xhr.readyState===4){
+		if(xhr.status>=200&&xhr.status<300||xhr.status==304){
+			alert(xhr.responseText);
+		}else{
+			alert("Request was unsuccessful:"+xhr.status);
+		}
+	}
+};
+xhr.open("get","example.php",true);
+xhr.setRequestHeader("MyHeader","MyValue");
+xhr.send(null);
+```
+------
+#### 5.2.1.2 POST请求
++ **POST**请求是最常用的请求方法，用于向服务器发送应该保存的数据。每个POST请求都应该在请求体中携带要提交的数据。
++ 如下所示为一个设置了自定义头部（必选**Content-Type**，设为**“application/x-www-form-urlencoded"**）的POST请求。
+```js
+let xhr = new XMLHttpRequest();
+function submitData(){
+  xhr.onreadystatechange = function(){
+    if(xhr.readyState===4){
+      if(xhr.statu>=200&&xhr.status<300||xhr.status===304){
+        alert(xhr.responseText);
+      }else{
+        alert("Request was unsuccessful:"+ xhr.status);
+      }
+    }
+  }
+};
+xhr.open("post","postexample.php",true);
+xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+let form = document.getElementById("user-info");
+xhr.send(serialize(form));
+// 来自ID为”user-info"的表单中的数据被序列化后发送给了服务器。
+```
+------
+### 5.2.2 进度事件
++ **load**事件
+
+------
+### 5.2.3 跨域资源共享
+
+------
+### 5.2.4 替代性跨域技术
+
+#### 5.2.4.1 图片探测
+
+------
+#### 5.2.4.2 JSONP
+
+------
+### 5.2.5 Fetch API
 
 
+------
+### 5.2.6 Web Socket
+
+
+------
 # 6. 客户端存储
 
+## 6.1 Cookie
 
+------
+## 6.2 Web Storage
 
+### 6.2.1 sessionStorage
+
+------
+### 6.2.2 localStorage
+
+------
 # 7. 模块化
 
 
