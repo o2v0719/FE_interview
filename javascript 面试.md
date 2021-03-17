@@ -3459,11 +3459,11 @@ btn.removeEventListener('click',handler,false);
 > 详细资料可以参考：[《JavaScript 事件委托详解》](https://zhuanlan.zhihu.com/p/26536815)
 ------
 
-# 5. 网络请求
+# 4. 网络请求
 
-## 5.1 JSON
+## 4.1 JSON
 
-### 5.1.1 JSON语法
+### 4.1.1 JSON语法
 
 + JSON 是一种通用的数据格式，基于文本，优于轻量，用于交换数据。它不是编程语言。JSON出现后，迅速成为Web服务的事实序列化标准。
 + JSON语法支持3中类型的值，简单值（包括字符串、数值、布尔值及null，不包括undefined)，对象和数组。
@@ -3471,11 +3471,11 @@ btn.removeEventListener('click',handler,false);
 + 与Javsscript对象字面量相比，JSON有两处不同。首先，它没有变量声明；其次，没有分号。JSON对象中的属性名必须要用双引号包围起来。
 + 对象和数组通常会作为JSON数组的顶级结构，以便创建大型复杂数据结构。
 ------
-### 5.1.2 JSON对象
+### 4.1.2 JSON对象
 
 + ES5增加了JSON全局对象，可以正式解析JSON。
 
-#### 5.1.2.1 JSON序列化函数
+#### 4.1.2.1 JSON序列化函数
 + **JSON.stringify()**可以把一个JS对象，序列化成一个JSON字符串。默认情况下，JSON.stringify()会输出不包含空格或缩进的JSON字符串。
 ```js
 let book = {
@@ -3493,16 +3493,16 @@ console.log(jsonText);
 ```
 + **JSON.stringify()**还可以额外接收两个参数。第一个额外参数是个过滤器，可以是数组或函数；第二个额外参数是用于缩进结果JSON字符串的选项，如果这个参数是数值，表示每一级缩进的空格数，如果是字符串，那么JSON字符串中就会使用这个字符串而不是空格来表示缩进。单独或组合使用这些参数可以更好地控制JSON序列化。
 ------
-#### 5.1.2.2 JSON解析函数
+#### 4.1.2.2 JSON解析函数
 + **JSON.parse()**函数可以接收一个JSON字符串，解析成响应的JS值。
 + **JSON.parse()**函数也可以额外接收一个参数。该参数是一个函数（还原函数）。还原函数接收两个参数，属性名和属性值，另外也需要返回值。
 ------
 
-## 5.2 网络请求
+## 4.2 网络请求
 + Ajax(Asynchronous Javascript+XML)即异步JS+XML技术。使用Ajax技术可以**在从服务器获取数据的同时不刷新页面**。
 + Ajax通信与数据格式无关。
 ------
-### 5.2.1 XHR对象
+### 4.2.1 XHR对象
 + XHR（XMLHttpRequest）对象把Ajax推向了历史的舞台。
 + 所有现代浏览器都支持通过`XMLHttpRequest`构造函数原生支持XHR对象。
 ```js
@@ -3515,7 +3515,7 @@ let xhr = new XMLHttpRequest();
 + 每个HTTP请求和响应都会携带一些头部字段。默认情况下，XHR请求会发送如下字段：`Cookie`,`Host`等。如果需要发送额外的请求头部，可以使用**setRequestHeader()**方法。这个方法接收两个参数：头部字段的名称和值。为保证请求头部字段的值被发送，必须在`open()`之后，`send()`之前调用`setRequestHeader()`。服务器通过读取自定义头部可以确定适当的操作。
 + 可以使用**getRequestHeader()**方法从XHR对象获取响应头部，只要传入响应对象的名称即可。
 ------
-#### 5.2.1.1 GET请求
+#### 4.2.1.1 GET请求
 + **GET**请求是最常用的请求方法，用于向服务器查询某些信息。必要时，需要在GET请求后面添加查询字符串参数。
 + 如下所示为一个设置了自定义头部（可选）的GET请求。
 ```js
@@ -3534,7 +3534,7 @@ xhr.setRequestHeader("MyHeader","MyValue");
 xhr.send(null);
 ```
 ------
-#### 5.2.1.2 POST请求
+#### 4.2.1.2 POST请求
 + **POST**请求是最常用的请求方法，用于向服务器发送应该保存的数据。每个POST请求都应该在请求体中携带要提交的数据。
 + 如下所示为一个设置了自定义头部（必选**Content-Type**，设为**“application/x-www-form-urlencoded"**）的POST请求。
 ```js
@@ -3557,56 +3557,56 @@ xhr.send(serialize(form));
 // 来自ID为”user-info"的表单中的数据被序列化后发送给了服务器。
 ```
 ------
-### 5.2.2 进度事件
+### 4.2.2 进度事件
 + **load**事件
 
 ------
-### 5.2.3 跨域资源共享
+### 4.2.3 跨域资源共享
 
 ------
-### 5.2.4 替代性跨域技术
+### 4.2.4 替代性跨域技术
 
-#### 5.2.4.1 图片探测
-
-------
-#### 5.2.4.2 JSONP
+#### 4.2.4.1 图片探测
 
 ------
-### 5.2.5 Fetch API
-
+#### 4.2.4.2 JSONP
 
 ------
-### 5.2.6 Web Socket
+### 4.2.5 Fetch API
 
 
 ------
-# 6. 客户端存储
+### 4.2.6 Web Socket
 
-## 6.1 Cookie
 
 ------
-## 6.2 Web Storage
+# 5. 客户端存储
 
-### 6.2.1 sessionStorage
-
-------
-### 6.2.2 localStorage
+## 5.1 Cookie
 
 ------
-# 7. 模块化
+## 5.2 Web Storage
+
+### 5.2.1 sessionStorage
+
+------
+### 5.2.2 localStorage
+
+------
+# 6. 模块化
 
 
 
-# 8. 工程化
+# 7. 工程化
 
-## 8.1 Git
-
-
-
-## 8.2 Webpack
+## 7.1 Git
 
 
 
-# 9.Vue
+## 7.2 Webpack
+
+
+
+# 8.Vue
 
 
