@@ -3498,9 +3498,10 @@ console.log(jsonText);
 + **JSON.parse()**函数也可以额外接收一个参数。该参数是一个函数（还原函数）。还原函数接收两个参数，属性名和属性值，另外也需要返回值。
 ------
 
-## 4.2 网络请求
+## 4.2 网络请求的前端实现
 + Ajax(Asynchronous Javascript+XML)即异步JS+XML技术。使用Ajax技术可以**在从服务器获取数据的同时不刷新页面**。
 + Ajax通信与数据格式无关。
++ 传统的Ajax技术指的就是通过XHR对象实现的不刷新页面获取数据的技术。
 ------
 ### 4.2.1 XHR对象
 + XHR（XMLHttpRequest）对象把Ajax推向了历史的舞台。
@@ -3508,7 +3509,7 @@ console.log(jsonText);
 ```js
 let xhr = new XMLHttpRequest();
 ```
-+ 使用XHR对象，首先要调用**open()**方法，这个方法接收三个参数：请求类型（‘get’，‘post’等），请求URL，以及表示请求是否异步的布尔值。
++ 使用<span id="xhrasync">XHR对象</span>，首先要调用**open()**方法，这个方法接收三个参数：请求类型（‘get’，‘post’等），请求URL，以及表示请求是否异步的布尔值。
 + **send()**方法接收一个参数，作为请求体发送的数据。如果不需要发送请求体，则必须传null。
 + 收到响应后，XHR对象的**responseText**属性会被填充上作为响应体返回的文本。**status**属性会被填充上响应的HTTP状态码。首先检查`status`属性以确保响应成功返回，一般来说HTTP状态码为2XX表示成功，此时`responseText`属性中会有内容。如果状态码是304，表示资源未被修改过，是从浏览器缓存中直接拿取的。
 + XHR对象有一个**readyState**属性，表示当前处在请求/响应过程的哪个阶段。当这个属性的值为4时，表示已经收到所有响应，可以使用了。每次`readyState`从一个值变为另一个值，都会触发**readyStateChange**事件，可以借此机会检查`readyState`的值。
@@ -3558,25 +3559,406 @@ xhr.send(serialize(form));
 ```
 ------
 ### 4.2.2 进度事件
-+ **load**事件
+
++ 客户端和服务端之间的通信过程，有6个与进度相关的事件API。每次请求都会首先触发loadstart事件，之后是一个或多个progress事件，接着是error、abort或load中的一个，最后以loadend事件结束。
+> 这些事件最初只针对XHR对象，现在也推广到了其他类似的API。
+
+#### 4.2.2.1 load事件
++ **load**事件用于替代`readystatechange`事件。<u>load事件在响应接收完成后立即触发</u>。这样就不用检查`readystate`的属性了。
+```js
+let xhr = new XMLHttpRequest();
+xhr.onload=function(){
+	if((xhr.status>=200&&xhr.status<300)||xhr.status===304){
+		alert(xhr.responseText);
+	}else{
+		alert("Request was unsuccessful:"+xhr.status);
+	}
+};
+xhr.open("get","altevents.php",true);
+xhr.send(null);
+```
 
 ------
 ### 4.2.3 跨域资源共享
 
++ **同源策略**：默认情况下，XHR只能访问与发起请求的页面在同一个域内的资源。这个安全限制可以防止某些恶意行为。协议、域名和端口号必须完全一致，浏览器采用了这样的安全策略，即同源策略。违背同源策略的通信就是跨域。
+
++ **跨域资源共享CORS**：（Cross-Origin Resource Sharing）定义了浏览器与服务器如何实现跨源通信。CORS背后的基本思路是使用自定义的HTTP头部允许浏览器和服务器之间相互了解，以确定请求或响应应该成功还是失败。
+
+  - 对于简单的请求，比如GET或POST请求，没有自定义头部，而且请求体是text/plain类型，这样的请求在发送时会有一个额外的头部叫Origin。Origin头部包含发送请求页面的源（协议、域名和端口），以便服务器确定是否为其提供响应。
+
+  ```
+  Origin:http://www.nczonline.net
+  ```
+
+  - 如果服务器决定响应请求，那么应该发送 `Access-Control-Allow-Origin`头部（后端代码实现），包含相同的源或者如果资源是公开的，那么就包含“*”。
+
+  ```
+  Access-Control-Allow-Origin:http://www.oczonline.net
+  ```
+
++ **跨域XHR对象**：现代浏览器通过`XMLHttpRequest`对象原生支持CORS。在访问不同源的资源时，这个行为会被自动触发。要向不同域的源发送请求，可以使用标准XHR对象并给`open()`方法传入一个绝对URL。
+
+  - 出于安全考虑，跨域XHR对象也施加了一些额外限制:
+    + 不能使用`setRequestHeader()`设置自定义头部。
+    + 不能发动和接收cookie。
+    + `getAllResponseHeaders()`方法始终返回空字符串。
+```js
+let xhr = new XMLHttpRequest():
+xhr.onreadystatechange=function(){
+	if(xhr.readyState===4){
+		if((xhr.status>=200&&xhr.status<300)||xhr.status===304){
+			alert(xhr.responseText);
+		}else{
+			alert("Request was unsuccessful:"+xhr.status);
+		}
+	}
+};
+// 给open方法传入绝对URL
+xhr.open("get","http://www.somewhere-else.com/page/",true);
+xhr.send(null);
+```
+
 ------
 ### 4.2.4 替代性跨域技术
 
++ `CORS`出现之前，实现跨源Ajax通信是有些麻烦的。开发者需要依赖能够执行跨源请求的DOM特性，在不使用XHR对象的情况下发送某种类型的请求。虽然CORS已经得到广泛支持，但这些技术仍然没有过时，因为它们不需要修改服务器。
+
 #### 4.2.4.1 图片探测
+
++ 图片探测是利用<img>标签实现跨域通信的最早的一种技术。任何页面都可以跨域加载图片而不必担心限制，这也是在线广告追踪的主要方式。可以动态创建图片，然后通过他们的`onload`和`onerror`事件处理程序得知何时收到响应。
++ 图片探测频繁用于跟踪用户在页面上点击操作或动态显示广告。当然，图片探测的缺点是只能发送`GET`请求和无法获取服务器响应的内容。这也是只能利用图片探测实现浏览器与服务器单向通信的原因。
+```js
+let img = new Image();
+img.onload = img.onerror=function(){
+	alert("Done");
+};
+// 设置完src属性后请求就开始了
+img.src="http://www.example.com/test?name=Nicholas";
+// 请求中发送了一个name参数
+```
 
 ------
 #### 4.2.4.2 JSONP
 
++ JSONP是“JSON with padding”的简写，是在web服务上流行的一种JSON变体。
+
++ JSONP格式包含两个部分：回调和数据。回调是在页面收到响应之后应该调用的函数，通常回调函数的名称是通过请求来动态指定的。而数据就是作为参数传给回调函数的JSON数据。下面是一个典型的JSONP请求
+
+  ```
+  http://freegeoip.net/json/?callback=handleResponse
+  ```
++ **JSONP**是通过动态创建<script>元素并为src属性指定跨域URL实现的。此时的<script>元素与<img>元素类似，能够不受限制地从其他域加载资源。
+```js
+function handleResponse(response){
+	console.log(`You're at IP address ${response.id},which is in ${response.city},${response.region_name}`);
+};
+let script = document.createElement("script");
+//【跨域请求数据】，拿到请求回来的数据后使用handleResponse函数处理
+script.src="http://freegeoip.net/json?callback=handleResponse";
+document.body.insertBefore(script,document.body.firstChild);
+```
++ 使用JSONP的优缺点？
+  - JSON简单易用，相比于图片探测，使用JSONP可以直接访问响应，实现浏览器与服务器之间的双向通信。
+  - JSONP是从不同的域拉取可执行代码，如果这个域中存在恶意代码，此时除了完全删除JSONP也没有其他办法。在使用不受控的web服务时，要确保是可以信任的。第二个缺点是不好确定JSONP请求是否失败，虽然HTML5规定了<script>元素的`onerror`事件处理程序，但还没有被任何浏览器实现。
 ------
 ### 4.2.5 Fetch API
 
++ **Fetch API** 是一个获取资源的接口，它能执行XHR对象的所有任务，是下一代Ajax技术（或者说用来替代传统的Ajax技术）。XHR对象可以选择<a href="#xhrasync">异步或同步</a>，而`Fetch API`必须是异步。
 
++ Fetch API和XHR对象没有关系，而是原生js。
+
++ `fetch()`方法暴露在全局作用域中，包括主页面执行线程，模块和工作线程。调用这个方法，浏览器会向给定的URL发送请求。
+
+#### 4.2.5.1 Fetch API的基本用法
+
++ （1）分派请求：
+
+  - **fetch()** 只有一个必需的参数，URL。这个方法返回一个Promise实例对象。
+
+  - 请求资源完成，资源可用时，promise对象会被处理成`Response对象`。通过这个对象可以获取相应的资源。
+  ```js
+  fetch('bar.txt')
+  	.then((response)=>{
+  		console.log(response)
+  	});
+  // Response {type:"basic",url:......}
+  ```
+  
++ (2) 读取响应：
+
+  - 读取响应的最简单方式是获取纯文本内容，需要调用`text()`方法。`text()`方法返回一个promise对象，这个对象表示取得资源的完整内容。
+  - `json()`方法返回一个promise对象，将获取到的数据转换成JSON
+
+  ```js
+  fetch('bar.txt')
+  	.then((response)=>response.text())
+  	.then((data)=>console.log(data));
+  
+  fetch('http://localhost:3000/json')
+  	.then(response=>response.json())
+  	.then(data=>{
+    	var obj = JSON.parse(data);
+    	console.log(obj.uname);
+  })
+  ```
+
++ (3) 处理状态码和请求失败
+
+  - Fetch API支持通过Response 的**status**（状态码）和**statusText**（状态文本）属性来检查响应状态。成功获取响应的请求通常会产生值为200的状态；请求不存在的资源会产生值为404的状态码；请求的URL如果抛出服务器错误会产生值为500的状态码；跟随重定向时，响应对象的`redirected`属性会被设置为true，而状态码仍然是200。
+  - 违反CORS、无网络连接、HTTPS配置错误及其他浏览器/网络策略问题都会导致响应对象被rejected
+  - 可以通过url属性检查通过`fetch()`发送请求时的使用的**完整URL**。
+  ```js
+  fetch('//qux.com/bar')
+  	.then((response)=>{
+  		console.log(response.status);//200
+  		console.log(response.statusText);//OK
+  		console.log(response.ok);//true
+  		console.log(response.url);//https://qux.com/bar
+  	},err=>console.log(err));
+  ```
++ (4) 只使用URL时，fetch()会发送GET请求，只包含最低限度的请求头。要进一步配置如何发送请求，需要传入第二个参数init对象。init对象里面可以配置请求头（headers）、请求方法（method）及cookies等。详见4.2.5.2。
 ------
-### 4.2.6 Web Socket
+
+#### 4.2.5.2 Fetch常见的请求模式（参数配置）
+
++ （1）**GET**请求
+	- 通过url？的形式传参
+	```js
+	fetch("http://localhost:3000/books?id=123",{
+		// get请求可以省略不写 默认是GET
+		method:'get'
+	})
+	.then(data=>data.text())
+	.then(data=>console.log(data));
+	```
+	- 通过/ 的形式传参(/id=456和后台配置有关)
+	```js
+	fetch("http://localhost/books/456")
+	.then(data=>data.text())
+	.then(data=>console.log(data));
+	```
++ (2) **DELETE** 请求
+	- 删除id=789的项
+	```js
+	fetch("http://localhost:3000/books/789",{
+		method:'delete'
+	})
+	.then(data=>data.text())
+	.then(console.log(data));
+	```
++ (3) **POST** 请求
+	- 请求体直接传string
+	```js
+	fetch('http://localhost:3000/books',{
+		method:'post',
+		body:'uname=lisi&pwd=123',
+		headers:{
+			'Content-Type':'application/x-www-form-urlencoded'
+		}
+	}).then(data=>data.text()).then(data=>console.log(data))
+	```
+	- 请求体传序列化的对象
+	```js
+	fetch('http://localhost:3000/books',{
+		method:'post',
+		body:JSON.stringify({
+			uname:'zhangsan',
+			pwd:'456'
+		}),
+		headers:{
+			'Content-Type':'application/x-www-form-urlencoded'
+		}
+	}).then(data=>data.json()).then(data=>console.log(data))
+	```
++ (4) **PUT**请求
+	- 修改id是123的项
+	```js
+	fetch('http://localhost:3000/books/123',{
+		method:'put',
+		body:JSON.stringify({
+			uname:'zhangsan',
+			pwd:'asdvdf'
+		}),
+		headers:{
+			'Content-Type':'application/json'
+		}
+	}).then(data=>data.json()).then(data=>console.log(data))
+	```
+------
+### 4.2.6 axios库
+
++ `axios`是一个基于promise的一个HTTP库，可以用在浏览器和node.js中。
++ 可以使用`npm`包安装。
+```bash
+npm install axios
+```
+```js
+import axios from 'axios';
+// ...
+```
+> 更多内容参考：[axios中文文档](http://www.axios-js.com/zh-cn/docs/)
+------
+#### 4.2.6.1 axios库的特性
++ 从浏览器中创建XHR对象
++ 从node.js中创建http请求
++ 支持promise API
++ 支持拦截请求和响应
++ 能转换请求数据和相应数据
++ 自动转换JSON数据
++ 取消请求
++ 客户端支持犯防御XSRF
+------
+#### 4.2.6.2 axios库的常见使用模式？
+
++ (1) **GET**请求
+	- get 不传参
+	```js
+	axios.get('http://localhost:3000/adata')
+		.then(resp=>
+	        // 注意data属性是固定用法，用于获取后台的实际数据
+	        console.log(resp.data))
+	```
+	- get传参：以url?的形式传参
+	```js
+	axios.get('http://localhost:3000/axios?id=123')
+		.then(resp=>console.log(resp.data))
+	```
+	- get传参：以restful形式url传参
+	```js
+	axios.get('http://localhost:3000/axios/123')
+		.then(resp=>console.log(resp.data))
+	```
+	- get传参：以params对象形式传参
+	```js
+	axios.get('http://localhost:3000/axios',{
+		params:{
+			id:789
+		}
+	}).then(resp=>console.log(resp.data))
+	```
++ (2) **DELETE**请求
+	- **DELETE**请求的传参格式和GET请求一致
+	```js
+	axios.delete('http://localhost:3000/axios',{
+		params:{
+			id:111
+		}
+	}).then(resp=>console.log(resp.data))
+	```
++ (3) **POST**请求
+	- post传参：init对象
+	```js
+	axios.post('http://localhost:300/axios',{
+		uname:'lisi',
+		pwd:123
+	}).then(resp=>console.log(resp.data))
+	```
+	- post传参：使用一个URLSearchParams类型的对象传参
+	```js
+	var params = new URLSearchParams();
+	params.append('uname','zhangsan');
+	params.append('pwd','1111');
+	axios.post('http://localhost:3000/axios',params)
+		.then(resp=>console.log(resp.data))
+	```
++ (4) **PUT**请求
+	- put请求的传参格式与post请求一样
+	```js
+	axios.put('http://localhost:3000/axios/123',{
+		uname:'lisi',
+		pwd:'3432'
+	}).then(resp=>console.log(resp.data))
+	```
+------
+#### 4.2.6.3 axios 全局配置
+
++ 配置baseURL。
+```js
+// 配置一个公用的基准URL
+axios.defaults.baseURL="https://api.example.com"
+```
++ 配置超时时间:如果请求超过了指定时间(ms)，请求将被中断
+```js
+axios.defaults.timeout=2500;
+```
++ 配置token头
+```js
+axios.defaults.headers.common['Authorization']=AUTH_TOKEN;
+```
++ 配置公共的post请求的自定义请求头
+```js
+axios.defaults.post['Content-Type']='application/x-www-form-urlencoded';
+```
+----
+
+#### 4.2.6.4 axios 拦截器
++ 请求拦截器
+	- 请求发送前进行一些操作，例如在每个请求体里加上token，统一处理后以后再更改也非常容易。
+	```js
+	axios.interceptors.request.use(config=>{
+		console.log(config.url);
+		// 任何请求都会走到这里，发送请求前要做的事情
+		config.headers.mytoken='nihao';
+		// 这里一定要return 否则不成功
+		return config;
+	},err=>console.log(err))
+	```
++ 响应拦截器
+	- 接收到响应后进行一些操作，例如在服务器返回登陆状态失效，需要重新登陆的时候，跳转到登录页。
+	```js
+	axios.interceptors.response.use(resp=>{
+		// 接收到响应要做些什么
+		var data = resp.data;
+		return data;
+	},err=>console.log(err));
+	```
+### 4.2.7 Web Socket
+
+#### 4.2.7.1 什么是Web Socket？使用Web Socket有什么优缺点？
+
++ Web Socket 是一个在单个TCP连接上进行全双工、双向的**通信协议**。
+
++ Web Socket不能通过标准HTTP服务器实现，必须使用支持该协议的**专有服务器**。
+
++ Web Socket使用了自定义的协议，URL方案稍有变化：要使用`ws://`和`wss://`,分别表示不安全的连接和安全的连接。
+
++ 使用自定义协议而非HTTP协议的好处是，客户端与服务器端之间可以发送非常少的数据，不会对HTTP造成任何负担。使用更小的数据包让Web Socket非常适合带宽和延迟问题比较明显的移动应用。使用自定义协议的缺点是，定义协议的时间，比定义JS API要长。Web Socket得到了所有主流浏览器的支持。
+
++ Web Socket **不受同源策略的限制**。可以打开到任意站点的连接，至于是否与来自特定源的页面通信，则完全取决于服务器。
+
+#### 4.2.7.2 如何使用Web Socket建立网络连接？
+
++ 浏览器会在初始化Web Socket对象后立即建立连接。Web Socket也有一个`readyState`属性表示当前状态。这个值和XHR中的不一样。
+	- WebSocket.OPENING(0):连接正在建立。
+	- WebSocket.OPEN(1):连接已建立。
+	- WebSocket.CLOSING(2):连接正在关闭。
+	- WebSocket.CLOSE(3):连接已关闭。
+	
++ 任何时候都可以使用`close()`方法关闭Web Socket连接。
+
++ 要向服务器发送数据，使用`send()`方法并传入一个字符串、ArrayBuffer或Blob.
+
++ Web Socket对象在连接生命周期中有可能触发3个其他事件。
+	- open:在连接成功时触发。
+	- error:发生错误时触发，连接无法存续。
+	- close:连接关闭时触发。
+```js
+let socket = new WebSocket('ws://www.exmple.com/server.php');
+socket.send("Hello World");
+socket.onclose=function(){
+  alert("Connection closed");
+}
+socket.close();
+```
+
+-------
+
+## 4.3 网络请求面试题
+
+### 4.3.1 你了解哪些跨域解决方案？
+
+
 
 
 ------
