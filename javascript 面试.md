@@ -651,11 +651,11 @@ function format2(number) {
 + this 提供了一种更优雅的方式来”隐式传递”一个对象引用，因此可以将API设计得更加简洁并且易于复用。在js中，this的存在，使得函数可以自动引用合适的上下文对象。
 + this 是在运行时进行绑定的。this的绑定和函数的声明位置没有任何关系，只取决于函数的调用方式。
 + this 是执行上下文中的一个属性，它指向最后一次**调用**这个方法的对象。在实际开发中，this 的指向可以通过下面的顺序（四种调用模式）来判断。
-	- （1）构造器调用，函数是否在new中调用（new绑定）。如果一个函数用 new 调用时，函数执行前会新创建一个对象，this 指向这个新创建的对象。
+	- (1) 构造器调用，函数是否在new中调用（new绑定）。如果一个函数用 new 调用时，函数执行前会新创建一个对象，this 指向这个新创建的对象。
 	```js
 	var bar = new foo()
 	```
-	- （2）函数是否通过call、apply、bind（显示绑定）调用。如果是，this绑定的是指定的对象。
+	- (2) 函数是否通过call、apply、bind（显示绑定）调用。如果是，this绑定的是指定的对象。
 	```js
 	var bar = foo.call(obj1);
 	```
@@ -3442,6 +3442,10 @@ btn.removeEventListener('click',handler,false);
 + 7. **mouseout**: 鼠标光标从一个元素移动到另一个元素时触发。移到的元素可以是原始元素的外部元素，也可以是原始元素的子元素。
 + 8. **mouseover**: 把鼠标光标从元素内部移入元素内部时触发。
 + 9. **mouseup**: 用户释放鼠标键时触发。
+
+> mouseover 和 mouseenter 的区别？
+> >当鼠标移动到元素上时就会触发 mouseenter 事件，类似 mouseover，它们两者之间的差别是 mouseenter 不会冒泡。由于 mouseenter 不支持事件冒泡，导致在一个元素的子元素上进入或离开的时候会触发其 mouseover 和 mouseout 事件，但是却不会触发 mouseenter 和 mouseleave 事件。
+> >详细资料可以参考：[《mouseenter 与 mouseover 为何这般纠缠不清？》](https://github.com/qianlongo/zepto-analysis/issues/1)
 -------
 #### 3.8.5.4 键盘与输入事件
 + 1. **keydown**: 用户按下键盘上某个键时触发，持续按住重复触发。
@@ -3581,7 +3585,7 @@ xhr.send(null);
 ------
 ### 4.2.3 跨域资源共享
 
-+ **同源策略**：默认情况下，XHR只能访问与发起请求的页面在同一个域内的资源。这个安全限制可以防止某些恶意行为。协议、域名和端口号必须完全一致，浏览器采用了这样的安全策略，即同源策略。违背同源策略的通信就是跨域。
++ **同源策略**：默认情况下，XHR只能访问与发起请求的页面在同一个域内的资源。这个安全限制可以防止某些恶意行为。**协议、域名和端口号必须完全一致**，浏览器采用了这样的安全策略，即同源策略。违背同源策略的通信就是跨域。
 
 + **跨域资源共享CORS**：（Cross-Origin Resource Sharing）定义了浏览器与服务器如何实现跨源通信。CORS背后的基本思路是使用自定义的HTTP头部允许浏览器和服务器之间相互了解，以确定请求或响应应该成功还是失败。
 
@@ -3596,10 +3600,12 @@ xhr.send(null);
   ```
   Access-Control-Allow-Origin:http://www.oczonline.net
   ```
+> 对于开发者来说，CORS通信与同源的AJAX通信没有差别，代码完全一样。浏览器一旦发现AJAX请求跨源，就会自动添加一些附加的头信息，有时还会多出一次附加的请求，但用户不会有感觉。CORS需要浏览器和服务器同时支持。CORS需要浏览器和服务器同时支持。因此，实现CORS通信的关键是服务器。只要服务器实现了CORS接口，就可以跨源通信。
+>
+> > 更多内容参考：[阮一峰：CORS详解](http://www.ruanyifeng.com/blog/2016/04/cors.html)
 
 + **跨域XHR对象**：现代浏览器通过`XMLHttpRequest`对象原生支持CORS。在访问不同源的资源时，这个行为会被自动触发。要向不同域的源发送请求，可以使用标准XHR对象并给`open()`方法传入一个绝对URL。
-
-  - 出于安全考虑，跨域XHR对象也施加了一些额外限制:
+- 出于安全考虑，跨域XHR对象也施加了一些额外限制:
     + 不能使用`setRequestHeader()`设置自定义头部。
     + 不能发动和接收cookie。
     + `getAllResponseHeaders()`方法始终返回空字符串。
@@ -3659,8 +3665,9 @@ script.src="http://freegeoip.net/json?callback=handleResponse";
 document.body.insertBefore(script,document.body.firstChild);
 ```
 + 使用JSONP的优缺点？
-  - JSON简单易用，相比于图片探测，使用JSONP可以直接访问响应，实现浏览器与服务器之间的双向通信。
+  - JSON简单易用，相比于图片探测，使用JSONP可以直接访问响应，实现浏览器与服务器之间的双向通信。JSONP只适用于get请求。
   - JSONP是从不同的域拉取可执行代码，如果这个域中存在恶意代码，此时除了完全删除JSONP也没有其他办法。在使用不受控的web服务时，要确保是可以信任的。第二个缺点是不好确定JSONP请求是否失败，虽然HTML5规定了<script>元素的`onerror`事件处理程序，但还没有被任何浏览器实现。
+> 详细资料可以参考：[《原生 jsonp 具体实现》](https://www.cnblogs.com/zzc5464/p/jsonp.html)、[《jsonp 的原理与实现》](https://segmentfault.com/a/1190000007665361#articleHeader1)
 ------
 ### 4.2.5 Fetch API
 
@@ -3958,26 +3965,230 @@ socket.close();
 
 ### 4.3.1 你了解哪些跨域解决方案？
 
++ 1. 图片探测：任何页面使用<img>元素都可以跨域加载图片而不必担心限制，这也是在线广告追踪的主要方式。
+  
++ 2. JSONP：它的主要原理是通过动态构建 script  标签来实现跨域请求，因为浏览器对 script 标签的引入没有跨域的访问限制 。通过在请求的 url 后指定一个回调函数，然后服务器在返回数据的时候，构建一个 json 数据的包装，这个包装就是回调函数，然后返回给前端，前端接收到数据后，因为请求的是脚本文件，所以会直接执行，这样我们先前定义好的回调函数就可以被调用，从而实现了跨域请求的处理。这种方式只能用于 get 请求。支持老式浏览器，可以向不支持CORS的网站请求数据。
+  
++ 3. CORS: CORS 是一个 W3C 标准，全称是"跨域资源共享"。CORS 需要浏览器和服务器同时支持，它允许浏览器向跨源服务器，发出[`XMLHttpRequest`](http://www.ruanyifeng.com/blog/2012/09/xmlhttprequest_level_2.html)请求，从而克服了AJAX只能[同源](http://www.ruanyifeng.com/blog/2016/04/same-origin-policy.html)使用的限制。现代浏览器都支持该功能，因此我们只需要在服务器端配置就行。浏览器将 CORS 请求分成两类：简单请求和非简单请求。
+	- 对于简单请求，浏览器直接发出 CORS 请求。具体来说，就是会在头信息之中，增加一个 `Origin` 字段。`Origin` 字段用来说明本次请求来自哪个源(协议、域名和端口)。服务器根据这个值，决定是否同意这次请求。对于如果 `Origin` 指定的源，不在许可范围内，服务器会返回一个正常的 HTTP 回应。浏览器发现，这个回应的头信息没有包含 `Access-Control-Allow-Origin` 字段，就知道出错了，从而抛出一个错误，ajax 不会收到响应信息。如果成功的话会包含一些以 Access-Control- 开头的字段。
+	
+	- 非简单请求，浏览器会先发出一次`预检请求`，来判断该域名是否在服务器的白名单中，如果收到肯定回复后才会发起请求。
+	> 现代浏览器通过XML对象原生支持CORS。在尝试访问不同源的请求时，这个行为会被自动触发。要向不同域的源发送请求时，可以使用标准的XHR对象并给open()方法传入一个绝对的URL。
 
-
++ 4. 使用`Web Socket`协议：Web Socket协议是一个自定义的协议，不受同源策略的限制。
++ 5. 让服务器来代理跨域的访问请求，有跨域请求时发送请求给后端服务器，让后端代为请求，然后最后将获取的结果发返回。服务器向服务器发送请求不受同源策略的限制。
 
 ------
 # 5. 客户端存储
 
 ## 5.1 Cookie
 
++ HTTP cookie通常叫做cookie，是一个HTTP的规范。是服务器提供的一种用于维护会话信息状态的数据，通过服务器发送到浏览器，浏览器保存在本地，当下一次有同源的请求时，将保存的cookie添加到请求头，发送给服务器。可以用来实现记录用户登录状态等的功能。cookie一般存储不超过4KB（4096个字节）的数据，并且只能被同源的网页所共享访问。
+
++ Cookie的构成：
+
+  - 服务器端可以使用 `Set-Cookie` 的响应头部来配置 cookie 信息。一条cookie 包括了7个参数，如：名称`name`、值 `value`、域`domain`、路径`path`、过期时间`expires` 、安全标志`secure`和`HTTP-only`。domain 和 path 一起限制了 cookie 能够被哪些 url 访问。secure 规定了 cookie 只能在确保安全的情况下传输，HttpOnly 规定了这个 cookie 只能被服务器访问，不能使用 js 脚本访问。
+
+    ```http
+    HTTP/1.1 200 OK
+    Content-Type:text/html
+    Set-Cookie:name=value;expires=Mon,22-Jan-07 07:10:24 GMT;domain=.wrox.com;path=/ ; secure
+    Other-header:other-header-value
+    ```
+	- 浏览器存储会话信息，在之后的每个请求中通过HTTP头部`cookie`再将它们发送回服务器。注意，域，路径，过期时间和secure标志用于高速浏览器在什么情况下应该在请求中包含cookie。这些参数并不会随请求发送给服务器，实际发送的只有cookie的名/值对。
+	  ```http
+	  GET /index.js1 HTTP/1.1
+	  Cookie:name=value
+	  Other-header:other-header-value
+	  ```
+> 详细资料可以参考：[《HTTP cookies》 ](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Cookies)、[《聊一聊 cookie》 ](https://segmentfault.com/a/1190000004556040)   
+
 ------
 ## 5.2 Web Storage
 
++ Web Storage规范的两个目标：
+  - 提供在**cookie之外**的存储会话数据的途径；
+  - 提供**跨会话持久化存储大量数据**的机制。
++ Web Storage第二版定义了两个对象:`localStorage`和`sessionStorage`。`localStorage`是永久存储机制，`sessionStorage`是跨回话的存储机制。这两种API提供了在浏览器中不受页面刷新影响而存储数据的方式。
++ Storage 类型
+	- Storage类型用于保存名/值对，直至存储空间上限。Storage实例增加了一些方法和属性：
+		+ clear():删除所有值
+		+ getItem(name):取得给定name的值
+		+ key(index):取得给定数值位置的名称
+		+ removeItem(name):删除给定name的名/值对
+		+ setItem(name,value):设置给定的那么的值
+		+ length:确定Storage对象中保存了多少名/值对
+	- Storage类型只能存储字符串
+------
 ### 5.2.1 sessionStorage
-
++ `sessionStorage`对象是`Storage`类型的实例。
++ `sessionStorage` 对象**只存储会话数据**，这意味着数据只会存储到浏览器关闭。根浏览器关闭会消失的会话`cookie`类似。存储在`sessionStorage`中的数据不受页面刷新影响，可以在浏览器崩溃并重启后恢复。
++ 给`sessionStorage`对象添加数据
+```js
+// 使用方法
+sessionStorage.setItem("name","Nicholas");
+// 使用属性赋值
+sessionStorage.book=”Professional Javascript";
+```
++ 读取`sessionStorage`对象上的数据
+```js
+// 使用方法
+let name = sessionStorage.getItem("name");
+//使用属性获取
+let book = sessionStorage.getItem("book");
+```
++ 删除`sessionStorage`对象上的数据
+```js
+// 使用delete删除
+delete sessionStorage.name;
+// 使用方法删除值
+sessionStorage.removeItem("book");
+```
 ------
 ### 5.2.2 localStorage
-
++ `localStorage`对象是`Storage`类型的实例。
++ `localStorage`是客户端**持久存储数据**的机制。要访问同一个`localStorage`对象，页面必须来之用一个域，相同的端口和相同的协议。
++ `localStorage`对象的使用方法同`sessionStorage`。
++ 存储在`localStorage`对象上的数据会保留到通过Javascript删除或者用户清除浏览器缓存。`localStorage`对象上的数据不受页面刷新的影响，也不会因为关闭窗口、标签页或重启浏览器而丢失。  
+------
+### 5.2.3 存储事件
++ 每当Storage对象发生变化时，都会在文档上触发`storage`事件。对于`sessionStorage`和`localStorage`上的任何更改都会触发`storage`事件。但是storage事件不会区分两者。
+------
+### 5.2.4 限制
++ Web Storage的限制取决于特定的浏览器。一般来说，客户端数据的大小限制是按照每个源（协议、域名和端口）来设置的，因此每个源有固定大小的数据存储空间。
++ 不同浏览器给`localStorage`和`sessionStorage`设置了不同的空间限制，大多数限制为每个源5MB。
 ------
 # 6. 模块化
+## 6.1 模块化开发怎么理解？
++ 一个模块是实现一个特定功能的一组方法。在最开始的时候，js 只实现一些简单的功能，所以并没有模块的概念，但随着程序越来越复杂，代码的模块化开发变得越来越重要。由于函数具有独立作用域的特点，最原始的写法是使用函数来作为模块，几个函数作为一个模块，但是这种方式容易造成全局变量的污染，并且模块间没有联系。后面提出了对象写法，通过将函数作为一个对象的方法来实现，这样解决了直接使用函数作为模块的一些缺点，但是这种办法会暴露所有的所有的模块成员，外部代码可以修改内部属性的值。现在最常用的是立即执行函数的写法，通过利用闭包来实现模块私有作用域的建立，同时不会对全局作用域造成污染。
+> 详细资料可以参考：[《浅谈模块化开发》](https://juejin.im/post/5ab378c46fb9a028ce7b824f) 、[《Javascript 模块化编程（一）：模块的写法》](http://www.ruanyifeng.com/blog/2012/10/javascript_module.html)、[《前端模块化：CommonJS，AMD，CMD，ES6》](https://juejin.im/post/5aaa37c8f265da23945f365c)、[《Module 的语法》](http://es6.ruanyifeng.com/#docs/module)、[《JS 模块加载器加载原理是怎么样的？》](https://www.zhihu.com/question/21157540)
 
+## 6.2 四种模块化规范
+### 6.2.1 CommonJS
++ CommonJS规范主要用于在服务器端实现模块化代码组织。以同步的方式来引入模块的，因为在服务端文件都存储在本地磁盘，所以读取非常快，所以以同步的方式加载没有问题。
++ CommonJS模块定义需要使用`require()`指定依赖，使用`module.exports`对象定义自己的公共API。
+```js
+// 定义一个模块A
+var moduleB = require('./moduleB');
+module.exports = {
+	stuff:moduleB.doStuff();
+};
+```
++ 所有CommonJS风格的实现共同之处是模块不会指定自己的标识符，它们的标识符由其模块文件层级中的位置决定。指向模块定义的路径可能引用一个目录，也可能是一个JS文件。
++ 在Node环境中，使用`import`命令加载CommonJS模块
+```js
+import mA from './modulA';
+//mA = {
+	stuff:moduleB.doStuff();
+}
+```
+------
+### 6.2.2 AMD
++ AMD(异步模块定义-Asynchronous Module Definition)模块定义系统以浏览器为目标执行环境，需要考虑网络延迟的问题。
++ AMD的一般策略是让模块声明自己的依赖，而运行在浏览器中的模块系统会按需获取依赖，并在依赖加载完成后立即执行依赖它们的模块。
++ AMD模块实现的核心是用函数包装模块定义。这样可以防止声明全局变量，并允许加载器库控制何时加载模块。
++ AMD方案，采用异步加载的方式来加载模块，模块的加载不影响后面语句的执行，所有依赖这个模块的语句都定义在一个回调函数里，等到加载完成后再执行回调函数。`require.js`实现了 AMD 规范。
++ 与CMD不同，AMD支持可选地为模块指定字符串标识符。
+```js
+// ID为“moduleA”的模块定义。moduleA依赖moduleB
+define('moduleA',['moduleB'],function(moduleB){
+	return{
+		stuff:moduleB.doStuff();
+	}
+})
+```
++ AMD也支持`require`和`exports`对象，通过它们可以在AMD模块工厂函数内部定义CommonJS风格的模块。可以像请求模块一样请求它们。
+```js
+define('moduleA',['require','exports'],function(require,exports){
+	var moduleB = require('moduleB');
+	exports.stuff=moduleB.doStuff();
+})
+```
+------
+### 6.2.3 CMD
++ CMD(通用模块定义-Common Module Definition)同AMD一样，也是为了解决异步模块加载的问题而出现的规范。
++ CMD规范中，一个模块就是一个文件。
+```js
+define(function(require,exports,module){
+	// 模块代码
+	// require是可以把其他模块导入进来的一个参数;而exports是可以把模块内的一些属性和方法导出的;module 是一个对象，上面存储了与当前模块相关联的一些属性和方法。
+})
+```
++ CMD推崇就近依赖，只有在用到某个模块的时候再去require。
+------
+#### 6.2.3.1 AMD与CMD规范的区别？
++ 1. 在模块定义时对依赖的处理不同。AMD 推崇**依赖前置**，在定义模块的时候就要声明其依赖的模块。而 CMD 推崇**就近依赖**，只有在用到某个模块的时候再去 require。
 
++ 2. 第二个方面是对依赖模块的执行时机处理不同。AMD 在依赖模块加载完成后就直接执行依赖模块，依赖模块的执行顺序和我们书写的顺序不一定一致。而 CMD在依赖模块加载完成后并不执行，只是下载而已，等到所有的依赖模块都加载好后，进入回调函数逻辑，遇到 require 语句的时候才执行对应的模块，这样模块的执行顺序就和我们书写的顺序保持一致了。
+```js
+// AMD 默认推荐
+define(["./a", "./b"], function(a, b) {
+  // 依赖必须一开始就写好
+  a.doSomething();
+  // 此处略去 100 行
+  b.doSomething();
+  // ...
+});
+
+// CMD
+define(function(require, exports, module) {
+  var a = require("./a");
+  a.doSomething();
+  // 此处略去 100 行
+  var b = require("./b"); // 依赖可以就近书写
+  b.doSomething();
+  // ...
+});
+```
+> 详细资料可以参考：[《前端模块化，AMD 与 CMD 的区别》](https://juejin.im/post/5a422b036fb9a045211ef789)
+------
+### 6.2.4 ES6 模块化
++ ES6最大的一个改进就是引入了模块化规范，是集AMD和CommonJS之大成者。
++ ES6模块化的设计思想是尽量静态化，使得编译时就能确定模块的依赖关系，以及输入输出的变量。CommonJS和AMD模块都只能在运行时确定这些东西。
++ ES6的模块自动采用严格模式。
++ 模块标签
+	- 带有`type="module"`属性的\<script>标签会告诉浏览器相关代码应该作为模块执行，而不是作为传统的脚本执行。
+	- 解析到\<script type="module">标签后会立即下载模块文件，但执行会延迟到文档解析完成。\<script type="module">标签在页面中出现的顺序就是它们的执行顺序。
+	- 给模块添加`async`属性：不仅模块的执行顺序不再与\<script>标签在页面中的顺序绑定，模块也不会等待文档解析完成才执行。
++ 模块导出
+	- `export`关键字用于声明一个值(可以是变量、函数或类）为命名导出。导出语句必须在模块顶级，不能嵌套在某个块中。
+	```js
+	export const foo = 'foo';
+	```
+	- 命名导出，可以在同一行内执行变量声明。
+	- 可以用`export`命令加大括号指定一组需要导出的值。使用`as`关键字重命名对外接口。
+	```js
+	export {foo,bar};
+	export {v1 as streamV1};
+	```
+	- 默认导出，使用`default`关键字讲一个值声明为默认导出，摸个模块只能有一个默认导出。指定默认导出后，这个模块本身就是被导出的值。
+	```js
+	const foo='foo';
+	export default foo;
+	// 等同于
+	// export {foo as default};
+	```
++ 模块导入
+	- 模块可以通过使用`import`关键字使用其他模块导出的值。与`export`类似，import必须出现在模块的顶级。
+	
+	- `import`语句具有提升效果，但还是推荐把导入语句放到模块顶部位置。
+	
+	- 多次执行同一句`import`命令只会执行一次。
+	
+	- `from`后的模块标识符可以是相对于当前模块的相对路径，也可以是指向模块文件的绝对路径。它必须是字符串，不能是动态计算的结果。
+	- 可以使用
+	- 如果在浏览器中通过标识符原生加载模块，则文件名必须带有`.js`扩展名。
+	```js
+	import foo from './foo.js';
+	import bar, {baz, bat as bag} from './foo.js';
+	import foo, * as Foo from './foo.js'
+	```
+------
+#### 6.2.4.1 CommonJS和ES6的模块化差异？
+- 1.CommonJS 模块输出的是一个值的拷贝，ES6 模块输出的是值的引用。CommonJS 模块输出的是值的拷贝，也就是说，一旦输出一个值，模块内部的变化就影响不到这个值。ES6 模块的运行机制与 CommonJS 不一样。JS 引擎对脚本静态分析的时候，遇到模块加载命令 import，就会生成一个只读引用。等到脚本真正执行时，再根据这个只读引用，到被加载的那个模块里面去取值。
+
+- 2.CommonJS 模块是运行时加载，ES6 模块是编译时输出接口。CommonJS 模块就是对象，即在输入时是先加载整个模块，生成一个对象，然后再从这个对象上面读取方法，这种加载称为“运行时加载”。而 ES6 模块不是对象，它的对外接口只是一种静态定义，在代码静态解析阶段就会生成。
+------
 
 # 7. 工程化
 
