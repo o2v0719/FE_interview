@@ -4197,11 +4197,137 @@ define(function(require, exports, module) {
 
 ## 7.1 Git
 
+### 7.1.1下载安装
 
++ 从git官网下载安装包，安装完毕后就可以使用命令行的 git 工具，在开始菜单里找到"Git"->"Git Bash"，会弹出 Git 命令窗口，你可以在该窗口进行 Git 相关命令行的操作。
 
+> 具体可参考https://www.runoob.com/git/git-install-setup.html
+------
+### 7.1.2 全局配置环境
+
++ 配置个人用户名和电子邮箱
+
+```bash
+git config –globle user.name “runoob”
+git config –globle user.email text@runoob.com
+```
+
++ 配置完毕后，可以通过$ git config –list命令查看所有的配置信息。也可直接查询某个环境变量的信息。
+
+```bash
+git config user.name
+git config user.email
+```
+------
+### 7.1.3 查看工作区状态
+
+```bash
+git status
+```
+
+- 状态一：修改了没有添加到缓存区（红色），此时可以通过git diff 查看修改了的内容，“-”号是修改前，“+”号是修改后，第一个加号后修改的前一行。第二个加号是修改的内容。
+- 状态二：修改了添加到缓存区（绿色）
+- 状态三：On branch master nothing to commit, work tree clean 表明无修改内容
+------
+### 7.1.4 添加文件到git仓库
+
++ 分两步：
+	- 把修改的修改添加到版本库里的暂存区，可以单独添加某个文件，可多次使用
+	- 把暂存区的所有内容提交到当前分支，提交的说明一定要写（字符串加双引号）
+
+```bash
+git add <file>
+git commit -m <message>
+```
+------
+### 7.1.5 本地同步更新远程分支
+
+```bash
+git pull
+```
++ 如果项目是多人合作的，那么就需要在拉去别人更新的代码合并到本地。Git会自动合并本地代码。
+------
+### 7.1.6 把仓库中的代码推送到远程分支
+
+```bash
+git push
+```
+------
+### 7.1.7 撤销修改
+
+- 场景一：修改了文件但是未被add
+
+```bash
+git checkout -- <file>
+```
+
+- 场景二：修改了工作区内容，还添加到了暂存区时，想丢弃修改，分两步
+
+```bash
+git reset HEAD <file> 就回到了场景一
+git checkout -- <file>
+```
+
+- 场景三：修改文件已被commit,但是没有推送到远程库，想要撤销本次提交，只能切换版本
+
+```bash
+git reset --hard HEAD^
+```
+
+### 7.1.8 从远程分支拉取项目
+
+```bash
+git clone SSH/HTTPS地址 -b <分支名>
+```
+------
+### 7.1.9 分支管理
+
++ 当前分支作业时
+
+```
+1)查看分支：git branch
+2)创建分支：git branch <name>
+3)切换分支：git checkout <name>
+4)创建+切换分支：git checkout -b <name>
+5)合并某分支到当前分支：git merge <name>
+6)删除分支git branch -d <name>
+```
+
++ 临时切换分支作业时
+
+```
+1)暂存分支工作状态： git stash [注意：stash命令必须是在已经add之后或已经commit之后]
+2)查看分支存储的工作状态： git stash list
+3)恢复分支工作状态： git stash apply
+4)删除分支存储的工作状态：git stash drop
+5)恢复并删除分支存储工作状态：git stash pop
+```
+
++ 切换远程分支：当前分支branch1工作，现在需要在分支branch2上工作，则需要切换
+
+```bash
+git fetch origin branch2(分支名)
+git checkout branch2
+```
+-------
+###  7.1.10 常见面试题
+#### 7.1.10.1 git 与 svn 的区别在哪里？
++  git 和 svn 最大的区别在于 git 是分布式的，而 svn 是集中式的。因此我们不能再离线的情况下使用 svn。如果服务器出现问题，我们就没有办法使用 svn 来提交我们的代码。
+svn 中的分支是整个版本库的复制的一份完整目录，而 git 的分支是指针指向某次提交，因此 git 的分支创建更加开销更小并且分支上的变化不会影响到其他人。svn 的分支变化会影响到所有的人。svn 的指令相对于 git 来说要简单一些，比 git 更容易上手。
+> 详细资料可以参考: 
+>  [《常见工作流比较》](https://github.com/geeeeeeeeek/git-recipes/wiki/3.5-%E5%B8%B8%E8%A7%81%E5%B7%A5%E4%BD%9C%E6%B5%81%E6%AF%94%E8%BE%83)、[《对比 Git 与 SVN，这篇讲的很易懂》](https://juejin.im/post/5bd95bf4f265da392c5307eb)、[《GIT 与 SVN 世纪大战》](https://blog.csdn.net/github_33304260/article/details/80171456)、[《Git 学习小记之分支原理》](https://www.jianshu.com/p/e8ad60710017)
+------
+#### 7.1.10.2 git pull 和 git fetch 的区别？
++   git fetch 只是将远程仓库的变化下载下来，并没有和本地分支合并。git pull 会将远程仓库的变化下载下来，并和当前分支合并。
+>  [《详解 git pull 和 git fetch 的区别》](https://blog.csdn.net/weixin_41975655/article/details/82887273)
+------
+#### 7.1.10.2 git rebase 和 git merge 的区别
++  git merge 和 git rebase 都是用于分支合并，关键在 commit 记录的处理上不同。git merge 会新建一个新的 commit 对象，然后两个分支以前的 commit 记录都指向这个新 commit 记录。这种方法会保留之前每个分支的 commit 历史。git rebase 会先找到两个分支的第一个共同的 commit 祖先记录，然后将提取当前分支这之后的所有 commit 记录，然后将这个 commit 记录添加到目标分支的最新提交后面。经过这个合并后，两个分支合并后的 commit 记录就变为了线性的记录了。
+> [《git rebase 和 git merge 的区别》](https://www.jianshu.com/p/f23f72251abc)、[《git merge 与 git rebase 的区别》](https://blog.csdn.net/liuxiaoheng1992/article/details/79108233)
+------
 ## 7.2 Webpack
 
-
+> 尚硅谷PDF
 
 # 8.Vue
 
