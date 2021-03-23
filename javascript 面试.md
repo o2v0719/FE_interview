@@ -756,7 +756,8 @@ objSayColor();// blue
 Function.prototype.myCall = function(context){
   // 【1】判断调用myCall这个函数的对象（函数abc）（这个对象[函数abc]被this指向了：this的隐式调用）：
   if(typeof this !== 'function'){
-    console.error('type error')
+    throw new TypeError('Error');
+    return;
   };
   let result = null;
   // 【2】获取参数(abc需要的参数）： 第一个参数为this绑定的对象，从第二个参数开始截取
@@ -784,8 +785,8 @@ Function.prototype.myCall = function(context){
 Function.prototype.myApply = function(context){
   // 【1】判断调用myCall这个函数的对象（函数abc）（这个对象[函数abc]被this指向了：this的隐式调用）：
   if(typeof this !== 'function'){
-    throw new TypeError('Error')
-    return
+    throw new TypeError('Error');
+    return;
   };
   let result = null;
   // 【2】判断 context 是否存在，如果未传入则为 window
@@ -2828,7 +2829,7 @@ async function async1(){
 	await async2(); 					 // 相当于new Promise(async2())
 	console.log('async1 end'); // 相当于promise实例后的then方法
 };
-async funciton async2(){
+async function async2(){
   // async2里面没有异步代码
 	console.log('async2')
 };
@@ -3445,6 +3446,7 @@ btn.removeEventListener('click',handler,false);
 
 > mouseover 和 mouseenter 的区别？
 > >当鼠标移动到元素上时就会触发 mouseenter 事件，类似 mouseover，它们两者之间的差别是 mouseenter 不会冒泡。由于 mouseenter 不支持事件冒泡，导致在一个元素的子元素上进入或离开的时候会触发其 mouseover 和 mouseout 事件，但是却不会触发 mouseenter 和 mouseleave 事件。
+> >
 > >详细资料可以参考：[《mouseenter 与 mouseover 为何这般纠缠不清？》](https://github.com/qianlongo/zepto-analysis/issues/1)
 -------
 #### 3.8.5.4 键盘与输入事件
@@ -3973,7 +3975,7 @@ socket.close();
 	- 对于简单请求，浏览器直接发出 CORS 请求。具体来说，就是会在头信息之中，增加一个 `Origin` 字段。`Origin` 字段用来说明本次请求来自哪个源(协议、域名和端口)。服务器根据这个值，决定是否同意这次请求。对于如果 `Origin` 指定的源，不在许可范围内，服务器会返回一个正常的 HTTP 回应。浏览器发现，这个回应的头信息没有包含 `Access-Control-Allow-Origin` 字段，就知道出错了，从而抛出一个错误，ajax 不会收到响应信息。如果成功的话会包含一些以 Access-Control- 开头的字段。
 	
 	- 非简单请求，浏览器会先发出一次`预检请求`，来判断该域名是否在服务器的白名单中，如果收到肯定回复后才会发起请求。
-	> 现代浏览器通过XML对象原生支持CORS。在尝试访问不同源的请求时，这个行为会被自动触发。要向不同域的源发送请求时，可以使用标准的XHR对象并给open()方法传入一个绝对的URL。
+	> 现代浏览器通过XHR对象原生支持CORS。在尝试访问不同源的请求时，这个行为会被自动触发。要向不同域的源发送请求时，可以使用标准的XHR对象并给open()方法传入一个绝对的URL。
 
 + 4. 使用`Web Socket`协议：Web Socket协议是一个自定义的协议，不受同源策略的限制。
 + 5. 让服务器来代理跨域的访问请求，有跨域请求时发送请求给后端服务器，让后端代为请求，然后最后将获取的结果发返回。服务器向服务器发送请求不受同源策略的限制。
@@ -3987,7 +3989,7 @@ socket.close();
 
 + Cookie的构成：
 
-  - 服务器端可以使用 `Set-Cookie` 的响应头部来配置 cookie 信息。一条cookie 包括了7个参数，如：名称`name`、值 `value`、域`domain`、路径`path`、过期时间`expires` 、安全标志`secure`和`HTTP-only`。domain 和 path 一起限制了 cookie 能够被哪些 url 访问。secure 规定了 cookie 只能在确保安全的情况下传输，HttpOnly 规定了这个 cookie 只能被服务器访问，不能使用 js 脚本访问。
+	- 服务器端可以使用 `Set-Cookie` 的响应头部来配置 cookie 信息。一条cookie 包括了7个参数，如：名称`name`、值 `value`、域`domain`、路径`path`、过期时间`expires` 、安全标志`secure`和`HTTP-only`。domain 和 path 一起限制了 cookie 能够被哪些 url 访问。secure 规定了 cookie 只能在确保安全的情况下传输，HttpOnly 规定了这个 cookie 只能被服务器访问，不能使用 js 脚本访问。
 
     ```http
     HTTP/1.1 200 OK
@@ -3995,6 +3997,7 @@ socket.close();
     Set-Cookie:name=value;expires=Mon,22-Jan-07 07:10:24 GMT;domain=.wrox.com;path=/ ; secure
     Other-header:other-header-value
     ```
+
 	- 浏览器存储会话信息，在之后的每个请求中通过HTTP头部`cookie`再将它们发送回服务器。注意，域，路径，过期时间和secure标志用于高速浏览器在什么情况下应该在请求中包含cookie。这些参数并不会随请求发送给服务器，实际发送的只有cookie的名/值对。
 	  ```http
 	  GET /index.js1 HTTP/1.1
@@ -4078,9 +4081,9 @@ module.exports = {
 + 在Node环境中，使用`import`命令加载CommonJS模块
 ```js
 import mA from './modulA';
-//mA = {
-	stuff:moduleB.doStuff();
-}
+// mA = {
+// 	 stuff:moduleB.doStuff();
+// }
 ```
 ------
 ### 6.2.2 AMD
