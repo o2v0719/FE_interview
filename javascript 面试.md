@@ -5276,9 +5276,9 @@ npx  webpack-dev-server
 	- nosources-source-map: 在外部生成`.map`文件。可以看到错误代码的准确信息，但是没有任何源代码信息。
 	- cheap-source-map: 在外部生成`.map`文件。可以看到错误代码的准确信息，和源代码的错误位置，只能精确到行。
 	- cheap-module-source-map: 在外部生成`.map`文件。可以看到错误代码的准确信息，和源代码的错误位置。module会将loader的source map 加入。
-
-+ <img src="./0_pictures/sourcemap.png" alt="img20" style="zoom:65%;" />
-
+<div aling="center">
+	<img src="./0_pictures/sourcemap.png" alt="img20" style="zoom:65%;" />
+</div>
 + 修改配置文件
 ```js
 //...代码同上
@@ -5296,7 +5296,7 @@ devtool:'source-map'
 
 ------
 #### 7.2.5.3 oneOf优化配置
-+ 针对单个源文件，module.rules 里面的规则都会检测一遍，这样会比较浪费性能。可以把只需要检测处理一次的loader 放到rules 数组里面。
++ 针对单个源文件，module.rules 里面的规则都会检测一遍，这样会比较浪费性能。可以把只需要检测处理一次的loader 放到rules 数组里面,这样只要成功匹配一个loader并完成检测后，就不再检测其余loader。
 + oneOf 用来优化的打包速度。
 ```js
 // ...生产环境代码省略
@@ -5349,5 +5349,7 @@ module.exports = {
 # 8.Vue
 
 
+
+```
 
 ```
