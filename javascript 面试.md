@@ -3472,7 +3472,7 @@ btn.removeEventListener('click',handler,false);
 ### 4.1.1 JSON语法
 
 + JSON 是一种通用的数据格式，基于文本，优于轻量，用于交换数据。它不是编程语言。JSON出现后，迅速成为Web服务的事实序列化标准。
-+ JSON语法支持3中类型的值，简单值（包括字符串、数值、布尔值及null，不包括undefined)，对象和数组。
++ JSON语法支持3种类型的值，简单值（包括字符串、数值、布尔值及null，不包括undefined)，对象和数组。
 + JSON字符串必须用双引号。
 + 与Javsscript对象字面量相比，JSON有两处不同。首先，它没有变量声明；其次，没有分号。JSON对象中的属性名必须要用双引号包围起来。
 + 对象和数组通常会作为JSON数组的顶级结构，以便创建大型复杂数据结构。
@@ -4326,9 +4326,1028 @@ svn 中的分支是整个版本库的复制的一份完整目录，而 git 的�
 > [《git rebase 和 git merge 的区别》](https://www.jianshu.com/p/f23f72251abc)、[《git merge 与 git rebase 的区别》](https://blog.csdn.net/liuxiaoheng1992/article/details/79108233)
 ------
 ## 7.2 Webpack
-
+> 主要基于Webpack4
 > 尚硅谷PDF
+
+### 7.2.1 Webpack 简介
+
+#### 7.2.1.1 Webpack是什么？
+
++ Webpack 是一种前端资源构建工具，一个静态模块打包器。在Webpack看来，前端的所有资源文件（js、json、css、less、img、html......)都会作为模块处理。它将根据模块的依赖关系进行静态分析，打包生成对应的静态资源（bundle）。
+------
+#### 7.2.1.2 Webpack的五个核心概念
+
++  (1) **Entry** : 指示以哪个文件为入口起点开始打包，分析构建内部依赖图。
++  (2) **Output** : 指示webpack打包后的资源bundles输出到什么位置，以及如何命名。
++  (3) **Loader** : Loader 让webpack能够去处理那些非Javascript文件（webpack自身职能理解Javscript）。
++  (4) **Plugins** : Plugins(插件)可以用于执行范围更广的任务。插件的范围包括，从打包优化和压缩，一直到重新定义环境中的变量等。
++  (5) **Mode** : Mode(模式) 指示webpack使用响应的模式来打包。
+	- development : 会将DefinePlugin中 process.env.NODE_ENV 的值设置为development。适合本地调试代码。
+	- production :  会将DefinePlugin中的process.env.NODE_ENV 的值设置为production。适合优化上线代码。
+-------
+#### 7.2.2 Webpack的基本使用
+
++  1. 初始化 package.json
+```bash
+npm init
+```
++ 2. 下载并安装webpack
+```bash
+# 推荐本地安装，-D 写入devDependencies
+npm install webpack webpack-cli -D 
+```
++ 3. 功能
+	- webpack能编译打包js和json文件
+	- webpack能将es6的模块化语法转换成浏览器能识别的语法
+	- webpack能压缩代码
+------
+### 7.2.3 开发环境配置
+> 自定义webpack配置要依托于自己在项目根目录创建的文件`webpack.config.js`。
++ webpack构建工具基于nodejs平台运行，模块化默认使用`commonJS`。
+#### 7.2.3.1 基础配置
++ 配置内容`webpack.config.js`
+```js
+const {resolve} = require('path') // node 内置核心模块，是一个用来拼接绝对路径的方法。
+module.exports={
+  entry:'./src/js/index.js', // 入口文件
+  output:{
+    filename:'./built.js', // 输出文件名
+    path: resolve(__dirname,'build/js') // __dirname 表示当前文件的绝对路径
+  },
+  mode:'development' //开发环境
+}
+```
++ 运行指令
+```bash
+webpack
+```
+------
+#### 7.2.3.2 打包CSS样式
+
++ 下载安装`Loader`包
+```bash
+# 这里处理.css和.less 文件
+npm i css-loader style-loader less-loader less -D
+```
++ Loader 功能介绍
+	- `css-loader`: 将css文件变成commonJS模块加载到js中，里面是样式字符串，通过eval函数来识别引用。
+	- `style-loader`: 创建\<style>标签，将js中的样式资源插入到标签中，并添加到\<heade>标签下生效。
+	- `less-loader`: 将less编译成css文件。注意要依托于`less`。
++ 配置内容`webpack.config.js`
+```js
+const {resolve} = require('path');
+module.exports = {
+  entry:'./src/index.js',
+  output:{
+    filename:'built.js',
+    path:resolve(__dirname,'build')
+  },
+  // 配置loader
+  module:{
+    rules:[
+      // 不同类型的文件要配置不同的loader来处理
+      {
+        test:/\.css$/,
+        use:[
+          // 多个loader从下往上执行
+          'style-loader',
+          'css-loader'
+        ]
+      },
+      {
+        test:/\.less$/,
+        use:[
+          'style-loader',
+          'css-loader',
+          'less-loader'
+        ]
+      }
+    ]
+  },
+  plugins:[],
+  mode:'development'
+}
+```
++ 运行指令
+```bash
+webpack
+```
+------
+#### 7.2.3.3 打包HTML资源
++ 下载安装`plugin`
+```bash
+# npm5之后，--save 可写可不写，安装包时默认会修改package.json
+npm install --save -D html-webpack-plugin
+```
++ `plugin`功能介绍：
+	- html-webpack-plugin：默认会创建一个空的html，自动引入打包输出的所有资源（js、css），可以配置一个模板html文件， 实现依托模板打包资源的功能。
++ 配置内容`webpack.config.js`
+```js
+const {resolve} = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+  entry:'./src/index.js',
+  output:{
+    filename:'built.js',
+    path:resolve(__dirname,'build')
+  },
+  module:{
+    rules:[
+      // 配置loader
+    ]
+  },
+  // 配置plugins
+  plugins:[
+    new HtmlWebpackPlugin({
+      template:'./src/index.html'
+    })
+  ],
+  mode:'development'
+}
+```
++ 运行指令
+```bash
+webpack
+```
+------
+#### 7.2.3.4 打包图片资源
++ 下载安装`loader`
+```bash
+npm install html-loader url-loader file-loader -D
+```
++ loader功能介绍
+	- 针对css中`background-img`引入的图片，使用`url-loader`处理,但`url-loader`依赖于`file-loader`。
+	- 针对html中直接使用<img> 标签引入的图片，使用`html-loader`处理。
++ 配置内容`webpack.config.js`。
+```js
+const {resolve} = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+  entry:'./src/index.js',
+  output:{
+    filename:'built.js',
+    path:resolve(__dirname,'build')
+  },
+  module:{
+    rules:[
+      {
+        test:/\.less$/,
+        use:[
+          'style-loader','css-loader','less-loader'
+        ]
+      },
+//----------------------------------------------------------      
+      // 处理CSS引入的图片
+      {
+        test:/\.(jpg|png|gif)$/,
+        loader:'url-loader',
+        options:{
+          limit:8*1024, //8kb以下的图片会被处理成base64
+          name:'[hash:10].[ext]',// 给文件重命名，取图片的hash前10位，并取文件原始扩展名
+        }
+      },
+      // 处理html里img标签引入的图片
+      {
+        test:/\.html$/,
+        loader:'html-loader'
+      }
+//--------------------------------------------------------------      
+    ]
+  },
+  plugins:[
+    new HtmlWebpackPlugin({
+      template:'./src/index.html'
+    })
+  ],
+  mode:'development'
+}
+```
++ 运行指令
+```bash
+webpack
+```
+------
+#### 7.2.3.5 打包其他资源
++ 打包除js、css、html、less之外的资源。比如，针对静态字体文件。
++ loader:`file-loader`。
++ 配置内容`webpack.config.js`。
+```js
+const {resolve} = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+  entry:'./src/index.js',
+  output:{
+    filename:'built.js',
+    path:resolve(__dirname,'build')
+  },
+  module:{
+    rules:[
+      {
+        test:/\.css$/,
+        use:[
+          'style-loader','css-loader'
+        ]
+      },
+//----------------------------------------------------------      
+      // 打包其他资源
+      {
+        exclude:/\.（css|js|html|less)$/,
+        loader:'file-loader',
+        options:{
+          name:'[hash:10].[ext]'
+        }
+      },
+//--------------------------------------------------------------      
+    ]
+  },
+  plugins:[
+    new HtmlWebpackPlugin({
+      template:'./src/index.html'
+    })
+  ],
+  mode:'development'
+}
+```
++ 运行指令
+```bash
+webpack
+```
+------
+#### 7.2.3.6 开发服务器devServer
++ devServer 用来完成自动化，可以自动化编译，自动打开浏览器。
++ devServer 只会在内存中编译打包，用于开发环境测试代码。不会有任何输出。
++ 依赖包：`webpack-dev-server`
++ 配置内容`webpack.config.js`：
+```js
+const {resolve} = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+  entry:'./src/index.js',
+  output:{
+    filename:'built.js',
+    path:resolve(__dirname,'build')
+  },
+  module:{
+    rules:[
+      {
+        test:/\.css$/,
+        use:[
+          'style-loader','css-loader'
+        ]
+      },
+      {
+        exclude:/\.（css|js|html|less)$/,
+        loader:'file-loader',
+        options:{
+          name:'[hash:10].[ext]'
+        }
+      },    
+    ]
+  },
+  plugins:[
+    new HtmlWebpackPlugin({
+      template:'./src/index.html'
+    })
+  ],
+  mode:'development',
+  devServer:{
+    contentBase:resolve(__dirname,'build'), //构建后路径
+    compress:true,// 启动gzip压缩代码
+    port:3000, //启动端口号
+    open:true, // 自动打开浏览器
+  }
+}
+```
++ 运行指令
+```bash
+# 本地启动，启动后会一致运行
+npx webpack-dev-server
+```
+------
+#### 7.2.3.7 完整的开发环境配置✅
++ 实现打包样式、HTML、图片及其他资源，并配置devServer以自动化测试代码。
+
+```js
+const {resolve} = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+  entry:'./src/index.js',
+  output:{
+    filename:'built.js',
+    path:resolve(__dirname,'build')
+  },
+  module:{
+    rules:[
+      {
+        test:/\.css$/,
+        use:['style-loader','css-loader']
+      },
+      {
+        test:/\.less$/,
+        use:['style-loader','css-loader','less-loader']
+      },
+      {
+        test:/\.(jpg|png|gif)$/,
+        loader:'url-loader',
+        options:{
+          limit:8*1024, 
+          name:'[hash:10].[ext]',
+          outputPath:'imgs'
+        }
+      },
+      {
+        test:/\.html$/,
+        loader:'html-loader'
+      }
+      {
+        exclude:/\.(css|js|html|less|jpg|png|gif)$/,
+        loader:'file-loader',
+        options:{
+          name:'[hash:10].[ext]',
+          outputPath:'media'
+        }
+      }, 
+    ]
+  },
+  plugins:[
+    new HtmlWebpackPlugin({
+      template:'./src/index.html'
+    })
+  ],
+  mode:'development',
+  devServer:{
+    contentBase:resolve(__dirname,'build'), //构建后路径
+    compress:true,// 启动gzip压缩代码
+    port:3000, //启动端口号
+    open:true, // 自动打开浏览器
+  }
+}
+```
++ 运行指令
+```bash
+# 本地启动，启动后会一致运行
+npx webpack-dev-server
+```
+------
+### 7.2.4 生产环境配置
+
+#### 7.2.4.1 提取CSS为独立文件
+
++ 生产环境css要打包成单独的文件，而不再把css通过<style>标签嵌入html中。所以不再使用`style-loader`。
+
++ 使用`MiniCssExtractPlugin.loader`可以将js中的css剥离出来形成单独的css文件。
+
++ 下载安装插件
+```bash
+npm install -S -D mini-css-extract-plugin
+```
++ 配置内容`webpack.config.js`
+```js
+const {resolve} = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+module.exports = {
+  entry:'./src/index.js',
+  output:{
+    filename:'built.js',
+    path:resolve(__dirname,'build')
+  },
+  module:{
+    rules:[
+      {
+        test:/\.css$/,
+        use:[
+          // 取代style-loader，将css从js中剥离出来，形成独立文件
+          MiniCssExtractPlugin.loader,
+          // 将css文件整合到js中
+          'css-loader'
+        ]
+      },
+      
+    ]
+  },
+  plugins:[
+    new HtmlWebpackPlugin({
+      template:'./src/index.html'
+    }),
+    new MiniCssExtractPlugin({
+    // 对输出的css重命名
+      filename:'css/built.css'
+    })
+  ],
+  mode:'production'
+}
+```
++ 运行指令
+```bash
+webpack
+```
+------
+#### 7.2.4.2 CSS兼容性处理
+
++ `postcss`是一个用 JavaScript 工具和插件转换 CSS 代码的工具。
++ 使用`postcss`对css兼容性处理，要依赖两个包，`postcss-loader`和`postcss-preset-env`。
++ 下载安装包。
+```bash
+npm install -S -D postcss-loader postcss-reset-env
+```
++ 配置内容`webpack.config.js`
+```js
+const { resolve } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+// 设置nodejs的环境变量
+// process.env.NODE_ENV = 'development';
+module.exports = {
+  entry:'./src/index.js',
+  output:{
+    filename:'built.js',
+    path:resolve(__dirname,'build')
+  },
+  module:{
+    rules:[
+      {
+        test:/\.css$/,
+        use:[
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          {
+            loader:'postcss-loader',
+            options:{
+              ident:'postcss',
+              plugins:()=>{
+                // postcss的插件
+                // postcss-preset-env：帮助postcss找到package.json中的browerslist里面的配置，通过配置加载指定的css兼容性样式
+                require('postcss-preset-env')()
+              }
+            }
+          }
+        ]
+      },
+    ]
+  },
+  plugins:[
+    new HtmlWebpackPlugin({
+      template:'./src/index.html'
+    }),
+    new MiniCssExtractPlugin({
+    // 对输出的css重命名
+      filename:'css/built.css'
+    })
+  ],
+  mode:'development'
+}
+```
++ 修改`package.json`。
+```json
+//......
+"browerslist":{
+  // 如果使用开发模式，需要改变node环境变量。
+	"development":[
+		"last 1 chrom version",
+		"last 1 firefox version",
+		"last 1 safari version"
+	],
+  // 默认针对生产环境
+  "production":[
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ]
+}
+```
++ 运行指令
+```bash
+webpack
+```
+------
+#### 7.2.4.3 压缩CSS
+
++ 下载安装依赖插件Plugin
+```bash
+npm install -S -D optimize-css-assets-webpack-plugin
+```
++ 配置内容`webpack.config.js`
+```js
+const { resolve } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCssAssetWebpackPlugin = require('optimize-css-assets-webpack-plugin');
+
+// 设置nodejs的环境变量
+// process.env.NODE_ENV = 'development';
+module.exports = {
+  entry:'./src/index.js',
+  output:{
+    filename:'built.js',
+    path:resolve(__dirname,'build')
+  },
+  module:{
+    rules:[
+      {
+        test:/\.css$/,
+        use:[
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          {
+            loader:'postcss-loader',
+            options:{
+              ident:'postcss',
+              plugins:()=>{
+                require('postcss-preset-env')()
+              }
+            }
+          }
+        ]
+      },
+    ]
+  },
+  plugins:[
+    new HtmlWebpackPlugin({
+      template:'./src/index.html'
+    }),
+    new MiniCssExtractPlugin({
+      filename:'css/built.css'
+    }),
+    // 压缩css的插件
+    new OptimizeCssAssetWebpackPlugin()
+  ],
+  mode:'production'
+}
+```
++ 运行指令
+```bash
+webpack
+```
+
+------
+#### 7.2.4.4 js语法检查
++ 下载安装包
+```bash
+npm install --S -D eslint-loader  eslint  eslint-config-airbnb-base  eslint-plugin-import
+```
++ 修改配置文件
+```js
+const { resolve } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCssAssetWebpackPlugin = require('optimize-css-assets-webpack-plugin');
+
+// 设置nodejs的环境变量
+// process.env.NODE_ENV = 'development';
+module.exports = {
+  entry:'./src/index.js',
+  output:{
+    filename:'built.js',
+    path:resolve(__dirname,'build')
+  },
+  module:{
+    rules:[
+      {
+        test:/\.js$/,
+        // 排除检查node_modules文件夹
+        excluede:/node_modules/,
+        loader:'eslint-loader',
+        options:{
+        	// 自动修复eslint的错误
+        	fix:true
+        }
+      },
+    ]
+  },
+  plugins:[
+    new HtmlWebpackPlugin({
+      template:'./src/index.html'
+    }),
+    new MiniCssExtractPlugin({
+      filename:'css/built.css'
+    }),
+    // 压缩css的插件
+    new OptimizeCssAssetWebpackPlugin()
+  ],
+  mode:'production'
+}
+```
++ 修改`package.json' 。避免检查第三方库。
+```json
+"eslintConfig":{
+	"extends":"airbnb-base",
+	"env":{
+		"browser":true
+	}
+}
+```
++ 设置不被eslint检查的代码
+```js
+// index.js 某一行代码不做eslint检查
+//eslint-disable-next-line
+console.log(111);
+```
++ 运行指令
+```bash
+webpack
+```
+------
+#### 7.2.4.5 js兼容性处理
++ 下载依赖安装包
+```bash
+npm instal -D babel-loader @babel/core @babel/preset-env @babel/polyfill core-js
+```
+> 基本js兼容性处理: @babel/preset-env , 如：不能转换promise
+> 全部js兼容性处理: @babel/polyfill  ， 需要引入所有兼容性代码，体积太大
+> 按需做兼容性处理：按需加载，基于core-js
+
++ 修改配置文件
+```js
+const { resolve } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+  entry:'./src/index.js',
+  output:{
+    filename:'built.js',
+    path:resolve(__dirname,'build')
+  },
+  module:{
+    rules:[
+      {
+        test:/\.js$/,
+        // 排除检查node_modules文件夹
+        excluede:/node_modules/,
+        loader:'babel-loader',
+        options:{
+        	// 预设：指示babel做怎么样的兼容性处理(基于core-js实现按需加载)
+        	presets:[
+        		'@babel/preset-env',
+        		{
+        		  // 【按需加载】
+        		  useBuiltIns:'usage',
+        		  // 【指定core-js 版本】
+        		  corejs:{
+        			  version:3
+        		  },
+        		  // 【兼容性做到哪个版本的浏览器】
+        		  target:{
+        		    chrome:'60',
+        		    firefox:'60',
+        		    ie:'9',
+        		    safari:'10',
+        		    edge:'17'
+        		  }
+        		}
+        	]
+        }
+      },
+    ]
+  },
+  plugins:[
+    new HtmlWebpackPlugin({
+      template:'./src/index.html'
+    }),
+    new MiniCssExtractPlugin({
+      filename:'css/built.css'
+    }),
+    // 压缩css的插件
+    new OptimizeCssAssetWebpackPlugin()
+  ],
+  mode:'production'
+}
+```
++ 运行指令
+```bash
+webpack
+```
+------
+#### 7.2.4.6 js压缩
++ 生产环境下会自动压缩js代码。
++ 修改配置文件
+```js
+const { resolve } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+  entry:'./src/index.js',
+  output:{
+    filename:'built.js',
+    path:resolve(__dirname,'build')
+  },
+  plugins:[
+    new HtmlWebpackPlugin({
+      template:'./src/index.html'
+    })
+  ],
+  // 生产环境下自动压缩js代码
+  mode:'production'
+}
+```
++ 运行指令
+```bash
+webpack
+```
+------
+#### 7.2.4.7 HTML压缩
++ 借助html-webpack-plugin，配置`html-webpack-plugin`
++ 修改配置文件
+```js
+const { resolve } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+module.exports = {
+  entry:'./src/index.js',
+  output:{
+    filename:'built.js',
+    path:resolve(__dirname,'build')
+  },
+  plugins:[
+    new HtmlWebpackPlugin({
+      template:'./src/index.html',
+      // 压缩html代码
+      minify:{
+        // 移除空格
+        collapseWhitespace:true,
+        // 移除注释
+        removeComments:true
+      }
+    })
+  ],
+  // 生产环境下自动压缩js代码
+  mode:'production'
+}
+```
++ 运行指令
+```bash
+webpack
+```
+------
+#### 7.2.4.8 完整的生产环境配置✅
+```js
+const { resolve } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCssAssetWebpackPlugin = require('optimize-css-assets-webpack-plugin');
+
+// 设置nodejs的环境变量
+// process.env.NODE_ENV = 'development';
+
+// 把可以复用的loader剥离出来
+const commonCssLoader = [
+	MiniCssExtractPlugin.loader,
+	'css-loader',
+	{
+	  // 在package.json中定义browerslist
+	  loader:'postcss-loader',
+	  options:{
+	    ident:'postcss',
+	    plugins:()=>[require('postcss-preset-env')()]
+	  }
+	}
+];
+
+module.exports = {
+  entry:'./src/index.js',
+  output:{
+    filename:'built.js',
+    path:resolve(__dirname,'build')
+  },
+  module:{
+    rules:[
+      {
+        test:/\.css$/,
+        use:[...commonCssLoader]
+      },
+      {
+        test:/\.less$/,
+        use:[...commonCssLoader,'less-loader']
+      },
+      // 当一个文件需要被多个loader处理，那么一定要指定loader执行的先后顺序
+      // ****js语法检查****
+      {
+        test:/\.js$/,
+        excluede:/node_modules/,
+        // 【当前loader优先执行】
+        loader:'eslint-loader',
+        options:{
+        	fix:true
+        }
+      },
+      // *****js兼容性处理*****
+      {
+        test:/\.js$/,
+        excluede:/node_modules/,
+        loader:'babel-loader',
+        options:{
+        	presets:[
+        		'@babel/preset-env',
+        		{
+        		  useBuiltIns:'usage',
+        		  corejs:{
+        			  version:3
+        		  },
+        		  target:{
+        		    chrome:'60',
+        		    firefox:'50'
+        		  }
+        		}
+        	]
+        }
+      },
+      {
+        test:/\.(jpg|png|gif)$/,
+        loader:'url-loader',
+        options:{
+          limit:8*1024, 
+          name:'[hash:10].[ext]',
+          outputPath:'imgs'
+        }
+      },
+      {
+        test:/\.html$/,
+        loader:'html-loader'
+      },
+      {
+        exclude:/\.(css|js|html|less|jpg|png|gif)$/,
+        loader:'file-loader',
+        options:{
+          outputPath:'media'
+        }
+      }, 
+    ]
+  },
+  plugins:[
+    new HtmlWebpackPlugin({
+      template:'./src/index.html',
+      minify:{
+        collaspseWhitespace:true,
+        removeComments:true
+      }
+    }),
+    new MiniCssExtractPlugin({
+      filename:'css/built.css'
+    }),
+    // 压缩css的插件
+    new OptimizeCssAssetWebpackPlugin()
+  ],
+  mode:'production'
+}
+```
+
+------
+### 7.2.5 优化配置
+
++ 开发环境性能优化: 
+	- 优化打包构建速度;(HMR)
+	- 优化代码调试;(SourceMap)
+
++ 生产环境性能优化：
+	- 优化打包构建速度
+	- 优化代码运行的性能
+
+#### 7.2.5.1 HMR
++  **HMR**（hot module replacement), 即**模块热替换**：一个模块发生变化，只会重新打包这个模块，而不是打包所有，极大地提升代码的构建速度。
+	- css样式文件：可以使用HMR；
+	- js文件：默认无法使用HMR，需要修改js代码，添加支持HMR的代码；
+	```js
+	// !只能在处理非入口js文件时实现HMR
+	if(module.hot){
+		// module.hot 为true，说明开启了HMR功能，让HMR功能生效
+		module.hot.accept('./print.js',function(){
+		  // 监听print.js文件的变化，一旦发生变化，其他模块默认不会重新打包构建。
+		  print()
+		})
+	}
+	```
+	- html文件: 默认无法使用HMR , 不需要做HMR功能。
+	
++ 修改配置文件
+```js
+const { resolve } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+module.exports = {
+  // 入口文件要把html文件引入，可以解决html不能热更新的问题
+	entry:['./src/js/index.js','./src/index.html'],
+	output:{
+    filename:'js/built.js',
+    path:resolve(__dirname,'build');
+	},
+	module:{
+		rules:[
+		 //......
+		]
+	},
+	plugins:[
+	  // plugins 的配置
+	  new HtmlWebpackPlugin({
+	    template:'./src/index.html'
+	  })
+	],
+	mode:'development',
+	devServer:{
+	  contentBase:resolve(__dirname,'build'),
+	  compress:true,
+	  port:3000,
+	  open:true,
+	  // 开启HMR功能，
+	  // 当修改了webpack配置，新配置想要生效，必须重新启动webpack服务
+	  hot:true
+	}	
+}
+```
++ 运行指令
+```bash
+npx  webpack-dev-server
+```
+------
+#### 7.2.5.2 source-map
++ **source-map**提供了从源代码到构建后代码的映射技术。如果构建后的代码出错，那么可以通过映射关系追踪到源代码的错误。
+	- 开发环境，要考虑调试友好，一般使用 `eval-source-map`。
+	- 生产环境，不使用内联，一般使用`source-map`或`cheap-module-source-map`。如果要全部隐藏打包后的代码和源代码，可以使用`nosources-source-map` ，只隐藏源代码，显示构建后的代码的错误，可以使用`hidden-source-map`。
++ 几种source-map的映射模式：
+  \[inline -|hidden -|eval -] \[nosources -] [cheap-[module-]] source-map
+	- source-map : 在外部生成`.map`文件。可以看到错误代码的准确信息和源代码的错误位置。
+	- inline-source-map: source-map 代码内联，只生成一个内联的source-map代码。可以看到错误代码的准确信息和源代码的错误位置。
+	- hidden-source-map：在外部生成`.map`文件。不能追踪源代码错误，只能提示到构建后代码的错误位置。
+	- eval-source-map：source-map 代码内联，每个文件都声称对应的source-map代码，都在eval中。可以看到错误代码的准确信息和源代码的错误位置。
+	- nosources-source-map: 在外部生成`.map`文件。可以看到错误代码的准确信息，但是没有任何源代码信息。
+	- cheap-source-map: 在外部生成`.map`文件。可以看到错误代码的准确信息，和源代码的错误位置，只能精确到行。
+	- cheap-module-source-map: 在外部生成`.map`文件。可以看到错误代码的准确信息，和源代码的错误位置。module会将loader的source map 加入。
+
++ <img src="./0_pictures/sourcemap.png" alt="img20" style="zoom:65%;" />
+
++ 修改配置文件
+```js
+//...代码同上
+mode:'development',
+devServer:{
+	 contentBase:resolve(__dirname,'build'),
+	 compress:true,
+	 port:3000,
+	 open:true,
+	 hot:true
+},
+// 开启source-map
+devtool:'source-map'
+```
+
+------
+#### 7.2.5.3 oneOf优化配置
++ 针对单个源文件，module.rules 里面的规则都会检测一遍，这样会比较浪费性能。可以把只需要检测处理一次的loader 放到rules 数组里面。
++ oneOf 用来优化的打包速度。
+```js
+// ...生产环境代码省略
+module.exports = {
+	//...
+	module:{
+		rulse:[
+			{
+				test:/\.js$/,
+				exclude:/node_modules/,
+				enforce:'pre',
+				loader:'eslint-loader',
+				options:{
+				  fix:true
+			  }
+		  },
+      {
+        // oneOf里面的loader 只会过一次
+        oneOf:[
+          {
+            test:/\.css$/,
+            use:[...commonCssLoader]
+          },
+          {
+            test:/\.less$/,
+            use:[...commonCssLoader,'less-loader']
+          },
+          // ......
+        ]
+      }
+		]
+	}
+  // ...
+}
+```
+------
+
+------
+### 7.2.6 配置详情
+
+------
+### 7.2.7 面试题
+
+#### 7.2.7.1 谈谈你对webpack的理解
+
++ Webpack 是一个模块打包工具，可以使用Webpack管理模块依赖，并编译出各模块所需要的静态文件。它能够很好地管理、打包Web开发中所用到的HTML、Javascript、CSS以及各种静态文件（图片、字体等），让开发过程更加高效。对于不同类型的资源，webpack有对应的模块加载器。Webpack模块打包器会分析模块间的依赖关系，最后生成了优化且合并后的静态资源。
+
++ 
 
 # 8.Vue
 
 
+
+```
