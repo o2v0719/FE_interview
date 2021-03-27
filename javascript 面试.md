@@ -5276,10 +5276,10 @@ npx  webpack-dev-server
 	- nosources-source-map: 在外部生成`.map`文件。可以看到错误代码的准确信息，但是没有任何源代码信息。
 	- cheap-source-map: 在外部生成`.map`文件。可以看到错误代码的准确信息，和源代码的错误位置，只能精确到行。
 	- cheap-module-source-map: 在外部生成`.map`文件。可以看到错误代码的准确信息，和源代码的错误位置。module会将loader的source map 加入。
-<div aling="center">
+<div align="center">
 	<img src="./0_pictures/sourcemap.png" alt="img20" style="zoom:65%;" />
 </div>
-+ 修改配置文件
++  修改配置文件
 ```js
 //...代码同上
 mode:'development',
