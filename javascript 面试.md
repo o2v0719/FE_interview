@@ -3247,10 +3247,10 @@ console.log(document.documentElement.contains(document.body));//true
 
 ------
 #### 3.1.1.4 六个【操作节点】的方法
-+ 1. **appendChild()**,用于在childNodes列表末尾添加节点，返回新添加的节点。
-+ 2. **insertBefore()**,接收两个参数：要插入的节点和参照节点。用于把节点放到childNodes中的特定位置而不是末尾。
-+ 3. **replaceChild()**,接收两个参数：要插入的节点和要替换的节点。要替换的节点会被返回，并从文档树中完全移除，要插入的节点取而代之。
-+ 4. **removeChild()**, 接收一个参数，即要被移除的节点，被移除的节点会被返回。
++ 1. **appendChild()**,用于在childNodes列表末尾**添加**节点，返回新添加的节点。
++ 2. **insertBefore()**,接收两个参数：要**插入**的节点和参照节点。用于把节点放到childNodes中的特定位置而不是末尾。
++ 3. **replaceChild()**,接收两个参数：要插入的节点和要替换的节点。要**替换**的节点会被返回，并从文档树中完全移除，要插入的节点取而代之。
++ 4. **removeChild()**, 接收一个参数，即要被**移除**的节点，被移除的节点会被返回。
 + 5. **cloneNode()**,接收一个布尔值参数，表示是否执行深复制。用于创建调用这个方法的节点的一个完全相同的副本。
 + 6. **normalize()**，处理文档子树中的文本节点。由于解析器实现的差异或DOM操作等原因，可能会出现并不包含文本的文本节点，或者文本节点之间互为同胞关系。在节点上调用normalize()方法，会检测这个节点的所有子节点，从中搜索上述两种情形，如果发现空文本节点，则将其删除；如果两个同胞节点相邻，则将其合并为一个文本节点。
 ------
@@ -4894,45 +4894,45 @@ npm install --S -D eslint-loader  eslint  eslint-config-airbnb-base  eslint-plug
 ```
 + 修改配置文件
 ```js
-const { resolve } = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCssAssetWebpackPlugin = require('optimize-css-assets-webpack-plugin');
+  const { resolve } = require('path');
+  const HtmlWebpackPlugin = require('html-webpack-plugin');
+  const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+  const OptimizeCssAssetWebpackPlugin = require('optimize-css-assets-webpack-plugin');
 
-// 设置nodejs的环境变量
-// process.env.NODE_ENV = 'development';
-module.exports = {
-  entry:'./src/index.js',
-  output:{
-    filename:'built.js',
-    path:resolve(__dirname,'build')
-  },
-  module:{
-    rules:[
-      {
-        test:/\.js$/,
-        // 排除检查node_modules文件夹
-        excluede:/node_modules/,
-        loader:'eslint-loader',
-        options:{
-        	// 自动修复eslint的错误
-        	fix:true
-        }
-      },
-    ]
-  },
-  plugins:[
-    new HtmlWebpackPlugin({
-      template:'./src/index.html'
-    }),
-    new MiniCssExtractPlugin({
-      filename:'css/built.css'
-    }),
-    // 压缩css的插件
-    new OptimizeCssAssetWebpackPlugin()
-  ],
-  mode:'production'
-}
+  // 设置nodejs的环境变量
+  // process.env.NODE_ENV = 'development';
+  module.exports = {
+    entry: './src/index.js',
+    output: {
+      filename: 'built.js',
+      path: resolve(__dirname, 'build')
+    },
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          // 排除检查node_modules文件夹
+          excluede: /node_modules/,
+          loader: 'eslint-loader',
+          options: {
+            // 自动修复eslint的错误
+            fix: true
+          }
+        },
+      ]
+    },
+    plugins: [
+      new HtmlWebpackPlugin({
+        template: './src/index.html'
+      }),
+      new MiniCssExtractPlugin({
+        filename: 'css/built.css'
+      }),
+      // 压缩css的插件
+      new OptimizeCssAssetWebpackPlugin()
+    ],
+    mode: 'production'
+  }
 ```
 + 修改`package.json' 。避免检查第三方库。
 ```json
@@ -4965,59 +4965,61 @@ npm instal -D babel-loader @babel/core @babel/preset-env @babel/polyfill core-js
 
 + 修改配置文件
 ```js
-const { resolve } = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+  const { resolve } = require('path');
+  const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-module.exports = {
-  entry:'./src/index.js',
-  output:{
-    filename:'built.js',
-    path:resolve(__dirname,'build')
-  },
-  module:{
-    rules:[
-      {
-        test:/\.js$/,
-        // 排除检查node_modules文件夹
-        excluede:/node_modules/,
-        loader:'babel-loader',
-        options:{
-        	// 预设：指示babel做怎么样的兼容性处理(基于core-js实现按需加载)
-        	presets:[
-        		'@babel/preset-env',
-        		{
-        		  // 【按需加载】
-        		  useBuiltIns:'usage',
-        		  // 【指定core-js 版本】
-        		  corejs:{
-        			  version:3
-        		  },
-        		  // 【兼容性做到哪个版本的浏览器】
-        		  target:{
-        		    chrome:'60',
-        		    firefox:'60',
-        		    ie:'9',
-        		    safari:'10',
-        		    edge:'17'
-        		  }
-        		}
-        	]
-        }
-      },
-    ]
-  },
-  plugins:[
-    new HtmlWebpackPlugin({
-      template:'./src/index.html'
-    }),
-    new MiniCssExtractPlugin({
-      filename:'css/built.css'
-    }),
-    // 压缩css的插件
-    new OptimizeCssAssetWebpackPlugin()
-  ],
-  mode:'production'
-}
+  module.exports = {
+    entry: './src/index.js',
+    output: {
+      filename: 'built.js',
+      path: resolve(__dirname, 'build')
+    },
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          // 排除检查node_modules文件夹
+          excluede: /node_modules/,
+          loader: 'babel-loader',
+          options: {
+            // 预设：指示babel做怎么样的兼容性处理(基于core-js实现按需加载)
+            presets: [
+              [
+                '@babel/preset-env',
+                {
+                  // 【按需加载】
+                  useBuiltIns: 'usage',
+                  // 【指定core-js 版本】
+                  corejs: {
+                    version: 3
+                  },
+                  // 【兼容性做到哪个版本的浏览器】
+                  target: {
+                    chrome: '60',
+                    firefox: '60',
+                    ie: '9',
+                    safari: '10',
+                    edge: '17'
+                  }
+                }
+              ]
+            ]
+          }
+        },
+      ]
+    },
+    plugins: [
+      new HtmlWebpackPlugin({
+        template: './src/index.html'
+      }),
+      new MiniCssExtractPlugin({
+        filename: 'css/built.css'
+      }),
+      // 压缩css的插件
+      new OptimizeCssAssetWebpackPlugin()
+    ],
+    mode: 'production'
+  }
 ```
 + 运行指令
 ```bash
@@ -5087,114 +5089,113 @@ webpack
 ------
 #### 7.2.4.8 完整的生产环境配置✅
 ```js
-const { resolve } = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCssAssetWebpackPlugin = require('optimize-css-assets-webpack-plugin');
+  const { resolve } = require('path');
+  const HtmlWebpackPlugin = require('html-webpack-plugin');
+  const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+  const OptimizeCssAssetWebpackPlugin = require('optimize-css-assets-webpack-plugin');
 
-// 设置nodejs的环境变量
-// process.env.NODE_ENV = 'development';
 
-// 把可以复用的loader剥离出来
-const commonCssLoader = [
-	MiniCssExtractPlugin.loader,
-	'css-loader',
-	{
-	  // 在package.json中定义browerslist
-	  loader:'postcss-loader',
-	  options:{
-	    ident:'postcss',
-	    plugins:()=>[require('postcss-preset-env')()]
-	  }
-	}
-];
+  process.env.NODE_ENV = 'development';
 
-module.exports = {
-  entry:'./src/index.js',
-  output:{
-    filename:'built.js',
-    path:resolve(__dirname,'build')
-  },
-  module:{
-    rules:[
-      {
-        test:/\.css$/,
-        use:[...commonCssLoader]
-      },
-      {
-        test:/\.less$/,
-        use:[...commonCssLoader,'less-loader']
-      },
-      // 当一个文件需要被多个loader处理，那么一定要指定loader执行的先后顺序
-      // ****js语法检查****
-      {
-        test:/\.js$/,
-        excluede:/node_modules/,
-        // 【当前loader优先执行】
-        loader:'eslint-loader',
-        options:{
-        	fix:true
-        }
-      },
-      // *****js兼容性处理*****
-      {
-        test:/\.js$/,
-        excluede:/node_modules/,
-        loader:'babel-loader',
-        options:{
-        	presets:[
-        		'@babel/preset-env',
-        		{
-        		  useBuiltIns:'usage',
-        		  corejs:{
-        			  version:3
-        		  },
-        		  target:{
-        		    chrome:'60',
-        		    firefox:'50'
-        		  }
-        		}
-        	]
-        }
-      },
-      {
-        test:/\.(jpg|png|gif)$/,
-        loader:'url-loader',
-        options:{
-          limit:8*1024, 
-          name:'[hash:10].[ext]',
-          outputPath:'imgs'
-        }
-      },
-      {
-        test:/\.html$/,
-        loader:'html-loader'
-      },
-      {
-        exclude:/\.(css|js|html|less|jpg|png|gif)$/,
-        loader:'file-loader',
-        options:{
-          outputPath:'media'
-        }
-      }, 
-    ]
-  },
-  plugins:[
-    new HtmlWebpackPlugin({
-      template:'./src/index.html',
-      minify:{
-        collaspseWhitespace:true,
-        removeComments:true
+  const commonCssLoader = [
+    MiniCssExtractPlugin.loader,
+    'css-loader',
+    {
+      // 在package.json中定义browerslist
+      loader: 'postcss-loader',
+      options: {
+        ident: 'postcss',
+        plugins: () => [require('postcss-preset-env')()]
       }
-    }),
-    new MiniCssExtractPlugin({
-      filename:'css/built.css'
-    }),
-    // 压缩css的插件
-    new OptimizeCssAssetWebpackPlugin()
-  ],
-  mode:'production'
-}
+    }
+  ];
+
+  module.exports = {
+    entry: './src/index.js',
+    output: {
+      filename: 'built.js',
+      path: resolve(__dirname, 'build')
+    },
+    module: {
+      rules: [
+        {
+          test: /\.css$/,
+          use: [...commonCssLoader]
+        },
+        {
+          test: /\.less$/,
+          use: [...commonCssLoader, 'less-loader']
+        },
+        // 当一个文件需要被多个loader处理，那么一定要指定loader执行的先后顺序
+        // ****js语法检查****
+        {
+          test: /\.js$/,
+          excluede: /node_modules/,
+          // 【当前loader优先执行】
+          loader: 'eslint-loader',
+          options: {
+            fix: true
+          }
+        },
+        // *****js兼容性处理*****
+        {
+          test: /\.js$/,
+          excluede: /node_modules/,
+          loader: 'babel-loader',
+          options: {
+            presets: [
+              '@babel/preset-env',
+              {
+                useBuiltIns: 'usage',
+                corejs: {
+                  version: 3
+                },
+                target: {
+                  chrome: '60',
+                  firefox: '50'
+                }
+              }
+            ]
+          }
+        },
+        {
+          test: /\.(jpg|png|gif)$/,
+          loader: 'url-loader',
+          options: {
+            limit: 8 * 1024,
+            name: '[hash:10].[ext]',
+            outputPath: 'imgs'
+          }
+        },
+        {
+          test: /\.html$/,
+          loader: 'html-loader'
+        },
+        {
+          exclude: /\.(css|js|html|less|jpg|png|gif)$/,
+          loader: 'file-loader',
+          options: {
+            outputPath: 'media'
+          }
+        },
+      ]
+    },
+    plugins: [
+      new HtmlWebpackPlugin({
+        template: './src/index.html',
+        minify: {
+          collaspseWhitespace: true,
+          removeComments: true
+        }
+      }),
+      new MiniCssExtractPlugin({
+        filename: 'css/built.css'
+      }),
+      // 压缩css的插件
+      new OptimizeCssAssetWebpackPlugin()
+    ],
+    mode: 'production'
+  }
 ```
 
 ------
@@ -5208,55 +5209,56 @@ module.exports = {
 	- 优化打包构建速度
 	- 优化代码运行的性能
 
-#### 7.2.5.1 HMR
+#### 7.2.5.1 HMR(开发环境)
 +  **HMR**（hot module replacement), 即**模块热替换**：一个模块发生变化，只会重新打包这个模块，而不是打包所有，极大地提升代码的构建速度。
++  HMR基于devServer，只能使用在开发环境。
 	- css样式文件：可以使用HMR；
 	- js文件：默认无法使用HMR，需要修改js代码，添加支持HMR的代码；
 	```js
 	// !只能在处理非入口js文件时实现HMR
-	if(module.hot){
-		// module.hot 为true，说明开启了HMR功能，让HMR功能生效
-		module.hot.accept('./print.js',function(){
-		  // 监听print.js文件的变化，一旦发生变化，其他模块默认不会重新打包构建。
-		  print()
-		})
-	}
+if (module.hot) {
+    // module.hot 为true，说明开启了HMR功能，让HMR功能生效
+    module.hot.accept('./print.js', function () {
+      // 监听print.js文件的变化，一旦发生变化，其他模块默认不会重新打包构建。
+      print()
+    })
+  }
 	```
 	- html文件: 默认无法使用HMR , 不需要做HMR功能。
 	
 + 修改配置文件
 ```js
-const { resolve } = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-module.exports = {
-  // 入口文件要把html文件引入，可以解决html不能热更新的问题
-	entry:['./src/js/index.js','./src/index.html'],
-	output:{
-    filename:'js/built.js',
-    path:resolve(__dirname,'build');
-	},
-	module:{
-		rules:[
-		 //......
-		]
-	},
-	plugins:[
-	  // plugins 的配置
-	  new HtmlWebpackPlugin({
-	    template:'./src/index.html'
-	  })
-	],
-	mode:'development',
-	devServer:{
-	  contentBase:resolve(__dirname,'build'),
-	  compress:true,
-	  port:3000,
-	  open:true,
-	  // 开启HMR功能，
-	  // 当修改了webpack配置，新配置想要生效，必须重新启动webpack服务
-	  hot:true
-	}	
-}
+  const { resolve } = require('path');
+  const HtmlWebpackPlugin = require('html-webpack-plugin');
+  module.exports = {
+    // 入口文件要把html文件引入，可以解决html不能热更新的问题
+    entry: ['./src/js/index.js', './src/index.html'],
+    output: {
+      filename: 'js/built.js',
+      path: resolve(__dirname, 'build');
+    },
+    module: {
+      rules: [
+        //......
+      ]
+    },
+    plugins: [
+      // plugins 的配置
+      new HtmlWebpackPlugin({
+        template: './src/index.html'
+      })
+    ],
+    mode: 'development',
+    devServer: {
+      contentBase: resolve(__dirname, 'build'),
+      compress: true,
+      port: 3000,
+      open: true,
+      // 开启HMR功能，
+      // 当修改了webpack配置，新配置想要生效，必须重新启动webpack服务
+      hot: true
+    }
+  }
 ```
 + 运行指令
 ```bash
@@ -5276,22 +5278,25 @@ npx  webpack-dev-server
 	- nosources-source-map: 在外部生成`.map`文件。可以看到错误代码的准确信息，但是没有任何源代码信息。
 	- cheap-source-map: 在外部生成`.map`文件。可以看到错误代码的准确信息，和源代码的错误位置，只能精确到行。
 	- cheap-module-source-map: 在外部生成`.map`文件。可以看到错误代码的准确信息，和源代码的错误位置。module会将loader的source map 加入。
+
 <div align="center">
 	<img src="./0_pictures/sourcemap.png" alt="img20" style="zoom:65%;" />
 </div>
+
 +  修改配置文件
+
 ```js
 //...代码同上
-mode:'development',
-devServer:{
-	 contentBase:resolve(__dirname,'build'),
-	 compress:true,
-	 port:3000,
-	 open:true,
-	 hot:true
-},
-// 开启source-map
-devtool:'source-map'
+mode: 'development',
+    devServer: {
+    contentBase: resolve(__dirname, 'build'),
+      compress: true,
+        port: 3000,
+          open: true,
+            hot: true
+  },
+  // 开启source-map
+  devtool: 'source-map'
 ```
 
 ------
@@ -5301,7 +5306,11 @@ devtool:'source-map'
 ```js
 // ...生产环境代码省略
 module.exports = {
-	//...
+	entry: './src/js/index.js',
+  output: {
+      filename: 'js/built.js',
+      path: resolve(__dirname, 'build');
+  },
 	module:{
 		rulse:[
 			{
@@ -5333,9 +5342,530 @@ module.exports = {
 }
 ```
 ------
+#### 7.2.5.4 缓存
++ 同HMR功能类似，为了避免生产环境下局部模块代码的改动引发全部代码的重新构建，需要开启**缓存**。生产环境下不可以使用HMR。
+	- `babel缓存`:针对js文件，直接配置`cateDirectory：true`
+	- 文件资源缓存：通过**hash值**给构建代码重命名，避免部分缓存失效。
+  + \[hash:10]: 每次webpack构建时都会生成一个唯一的hash值, 但是js和css会使用同一hash值，这时，如果只改动一个文件，会导致所有缓存都失效。
+	  + \[chunkhash:10]: 根据chunk生成的hash值，如果打包来源于同一个chunk，那么hash值时一样的，但是此时js和css的hash值还是一样的，因为css是在js中被引入的，同属一个chunk。
+	  + \[contenthash:10]: ✅根据文件的内容来生成hash值，不同的文件hash值一定不一样。
+	
++ 修改配置文件
+```js
+// 生产环境代码省略
+  module.exports = {
+    entry: './src/js/index.js',
+    output: {
+       // 【产出代码重命名加十位哈希值】
+       filename: 'js/built.[contenthash:10].js',
+       path: resolve(__dirname, 'build');
+    },
+    module: {
+      rulse: [
+        {
+          test: /\.js$/,
+          exclude: /node_modules/,
+          enforce: 'pre',
+          loader: 'eslint-loader',
+          options: {
+            fix: true
+          }
+        },
+        {
+          // oneOf里面的loader 只会过一次
+          oneOf: [
+            {
+              test: /\.css$/,
+              use: [...commonCssLoader]
+            },
+            {
+              test: /\.less$/,
+              use: [...commonCssLoader, 'less-loader']
+            },
+            // *****js兼容性处理*****
+            {
+              test: /\.js$/,
+              excluede: /node_modules/,
+              loader: 'babel-loader',
+              options: {
+                presets: [
+                  [
+                    '@babel/preset-env',
+                    {
+                      useBuiltIns: 'usage',
+                      corejs: {
+                        version: 3
+                      },
+                      target: {
+                        chrome: '60',
+                        firefox: '50'
+                      }
+                    }
+                  ]
+                ]
+              }
+            },
+          ]
+        }
+      ]
+    },
+     plugins: [
+      new HtmlWebpackPlugin({
+        template: './src/index.html',
+        minify: {
+          collaspseWhitespace: true,
+          removeComments: true
+        }
+      }),
+      new MiniCssExtractPlugin({
+        // 【产出css重命名十位哈希值】
+        filename: 'css/built.[contenthash:10].css'
+      }),
+      new OptimizeCssAssetWebpackPlugin()
+    ],
+    // 【production】环境自动开启tree shaking
+    mode: 'production'
+  }
+```
 
 ------
+#### 7.2.5.5 tree shaking
++ **tree shaking**, 可以去除无用的代码，减小构建代码的体积。
++ 满足使用前提，tree shaking功能自动开启。
+	- 使用ES6模块化
+	- 开启production环境
+
++ 配置文件如7.2.5.4所示。
++ 修改package.json
+```json
+// 所有代码都没有副作用，都可以进行tree shaking 。 可能会把css / @babel、polyfill文件删掉。
+//  "sideEffects":false
+
+//  让css等文件不经过tree shaking处理
+  "sideEffects":["*.css","*.less"]
+```
+------
+#### 7.2.5.6 code split
++ 代码分割技术主要针对js代码。
++ Demo1: 多入口`entry`对象. 
+```js
+module.exports = {
+  entry:{
+    // 一个入口对应输出一个bundle
+    index:'./src/js/index.js',
+    test:'./src/js/test.js'
+  },
+  output:{
+    //避免打包出来的多个js文件命名冲突，使用[name]: 取文件名
+    filename: 'js/[name].[contenthash:10].js',
+    path:resolve(__dirname,'build')
+  },
+  plugins: [
+      new HtmlWebpackPlugin({
+        template: './src/index.html',
+        minify: {
+          collaspseWhitespace: true,
+          removeComments: true
+        }
+      }),
+  ]
+}
+```
++ Demo2 : `optimization`， 将`node_modules`中的 代码单独打包成一个chunk输出。自动分析多入口chunk中，有没有公共的文件，如果有会打包成单独一个chunk。
+```js
+
+module.exports = {
+  entry:{
+    // 一个入口对应输出一个bundle
+      // index 代码引入jquery
+    index:'./src/js/index.js',
+      // test 代码引入jquery
+    test:'./src/js/test.js'
+  },
+  output:{
+    //避免打包出来的多个js文件命名冲突，使用[name]: 取文件名
+    filename: 'js/[name].[contenthash:10].js',
+    path:resolve(__dirname,'build')
+  },
+  plugins: [
+      new HtmlWebpackPlugin({
+        template: './src/index.html',
+        minify: {
+          collaspseWhitespace: true,
+          removeComments: true
+        }
+      }),
+  ],
+  // jquery 实际只被打包了一次
+  optimization:{
+    splitChunks: {
+      chunks:'all'
+    }
+  }
+}
+```
+
++ Demo3 : 通过js代码，让某个文件被单独打包成一个chunk。
+```js
+// index.js
+// es10 的import 语法
+// webpackChunkName固定打包名字
+import (/*webpackChunkName:'test'*/'./text.js')
+  .then(({mul,count})=>{
+    // eslint-disable-next-line
+    console.log(mul(2*5))
+  })
+  .catch(()=>{
+    // eslint-disable-next-line
+    console.log('加载失败')
+  })
+// 配置文件同Demo2
+```
+
+------
+#### 7.2.5.7 懒加载和预加载。
++ **懒加载**：触发事件再加载；**预加载**：浏览器空闲后偷偷加载，但有兼容性问题。
+
++ 在js代码内部实现懒加载。
+```js
+// index.js
+console.log('index.js文件被加载了');
+document.getElmentById('btn').onclick = function(){
+  // 懒加载~
+  // 预加载 prefetch: 会在使用之前，提前加载js文件
+  import(/*webpackChunkName:'test',webpackPrefetch:true*/'./test')
+  .then(({mul})=>{
+    console.log(mul(4,5))
+  })
+}
+```
+------
+#### 7.2.5.8 离线可访问技术
+
++ PWA，(Progressive Web App) 渐进式网络开发应用程序，也即离线可访问技术。加载过一次后，断网后再刷新也能保留一定的页面资源。
++ PWA依托库`workbox`.
++ 下载安装包插件
+```bash
+npm install -D workbox-webpack-plugin
+```
++ 修改配置文件
+```js
+const {resolve} = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin');
+const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
+
+//...
+module.exports = {
+  entry:'./src/js/index.js',
+  output:{
+    filename:'js/built.[contenthash:10].js',
+    path:resolve(__dirname,'build')
+  },
+  module:{
+    rules:[
+      //...
+    ]
+  },
+  plugins:[
+    //...
+    new WorkboxWebpackPlugin.GenerateSW({
+      // 1. 帮助serviceWorker快速启动
+      // 2. 删除旧的serviceWorker
+      //  生成一个serviceworker配置文件
+      clientsClaim:true,
+      skipWaiting:truW
+    })
+  ],
+  mode:'production',
+  devtool:'source-map'
+}
+```
++ js 中注册serviceWorker,处理兼容性问题
+```js
+// index.js
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker
+      .register('/service-worker.js')
+      .then(()=>{
+       //eslint-disable-next-line
+      console.log('注册成功')
+    })
+      .catch(()=>{
+        //eslint-disable-next-line
+      console.log('sw注册失败')
+    })
+  })
+}
+```
++ eslint  不认识window、 navigator全局变量，需要修改`package.json`中的eslintConfig配置。Note：serviceWorker代码必须运行在服务器上。
+```json
+// package.json
+//...
+"eslintConfig":{
+  "extends":"airbnb-base",
+  "env":{
+    // 支持浏览器端的全局变量
+    "browser":true
+  }
+},
+"sideEffects":[
+ "*.css"
+]
+```
+------
+#### 7.2.5.9 多进程打包
+
++ 使用`thread-loader`对`babel`使用多进程打包.
++ 开启多进程打包有利有弊，进程启动大概为600ms，进程通信也有开销，只有工作消耗时间比较长，才需要多进程打包。
++ 下载安装包`thread-loader`
+```bash
+npm install -D thread-loader
+```
++ 修改配置文件
+```js
+  const { resolve } = require('path');
+  const HtmlWebpackPlugin = require('html-webpack-plugin');
+  const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+  const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin');
+  const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
+  process.env.NODE_ENV = 'development';
+  const commonCssLoader = [
+    MiniCssExtractPlugin.loader,
+    'css-loader',
+    {
+      // 在package.json中定义browerslist
+      loader: 'postcss-loader',
+      options: {
+        ident: 'postcss',
+        plugins: () => [require('postcss-preset-env')()]
+      }
+    }
+  ];
+
+  module.exports = {
+    entry: './src/index.js',
+    output: {
+      filename: 'built.js',
+      path: resolve(__dirname, 'build')
+    },
+    module: {
+      rules: [
+        {
+          test: /\.css$/,
+          use: [...commonCssLoader]
+        },
+        {
+          test: /\.less$/,
+          use: [...commonCssLoader, 'less-loader']
+        },
+        {
+          /* js语法检查 */
+          // 在package.json中eslintConfig --> airbnb
+          test: /\.js$/,
+          exclude: /node_modules/,
+          // 优先执行
+          enforce: 'pre',
+          loader: 'eslint-loader',
+          options: {
+            fix: true,
+          },
+        },
+        {
+          test: /\.js$/,
+          excluede: /node_modules/,
+          use: [
+            {
+              loader: 'thread-laoder',
+              options: {
+                workers: 2
+              }
+            },
+            {
+              loader: 'babel-loader',
+              options: {
+                presets: [
+                  [
+                    '@babel/preset-env',
+                    {
+                      useBuiltIns: 'usage',
+                      corejs: {
+                        version: 3
+                      },
+                      target: {
+                        chrome: '60',
+                        firefox: '50'
+                      }
+                    }
+                  ]
+                ],
+                cacheDirectory: true
+              }
+            }
+          ]
+        },
+        {
+          test: /\.(jpg|png|gif)$/,
+          loader: 'url-loader',
+          options: {
+            limit: 8 * 1024,
+            name: '[hash:10].[ext]',
+            outputPath: 'imgs'
+          }
+        },
+        {
+          test: /\.html$/,
+          loader: 'html-loader'
+        },
+        {
+          exclude: /\.(css|js|html|less|jpg|png|gif)$/,
+          loader: 'file-loader',
+          options: {
+            outputPath: 'media'
+          }
+        },
+      ]
+    },
+    plugins: [
+      new HtmlWebpackPlugin({
+        template: './src/index.html',
+        minify: {
+          collaspseWhitespace: true,
+          removeComments: true
+        }
+      }),
+      new MiniCssExtractPlugin({
+        filename: 'css/built.css'
+      }),
+      // 压缩css的插件
+      new OptimizeCssAssetWebpackPlugin(),
+      new WorkboxWebpackPlugin.GenerateSW({
+        clientsClaim: true,
+        skipWaiting: true
+      })
+    ],
+    mode: 'production',
+    // ...
+  }
+```
+------
+#### 7.2.5.10 externals 
++ 配置externals，可以避免某些包被打包构建，比如通过CDN引入的jquery
+
++ 修改配置文件
+```js
+  const { resolve } = require('path');
+  const HtmlWebpackPlugin = require('html-webpack-plugin');
+  
+  module.exports = {
+    entry: './src/index.js',
+    output: {
+      filename: 'built.js',
+      path: resolve(__dirname, 'build')
+    },
+    module: {
+      rules: [
+        //...
+      ]
+    },
+    plugins: [
+      new HtmlWebpackPlugin({
+        template: './src/index.html'
+      }),
+    ],
+    mode: 'production',
+    // 拒绝jQuery被打包进来
+    externals:{
+      jquery:'jQuery'
+    }
+  }
+```
+------
+#### 7.2.5.11 dll
++ 使用dll技术（Dynamic Link Library)，对某些库（第三方库：jquery，react，vue...)进行单独打包，当运行`webpack`命令时，会默认查找`webpack.config.js`文件。我们需要配置运行`webpack.dll.js`文件，命令`webpack --config webpack.dll.js`。
+
++ 文件关系
+
+  <div align="center">
+  	<img src="./0_pictures/webpack-dll.png" alt="img20" style="zoom:65%;" />
+  </div>
+
++ 修改配置文件`webpack.dll.js` 。 这个文件定义需要单独打包的库。
+```js
+const { resolve } = require('path')
+const webpack = require('webpack')
+
+module.exports = {
+  entry: {
+    // 最终打包生成的[name] -->jquery
+    //         ['jquery'] --> 要打包的库是jquery
+    jquery: ['jquery'],
+  },
+  output: {
+    filename: '[name].js',
+    path: resolve(__dirname, 'dll'),
+    library: '[name]_[hash]', // 打包的库里面向外暴露出去的内容叫什么名字
+  },
+  plugins: [
+    //  打包生成一个manifest.json文件 -->提供和jquery映射
+    new webpack.DllPlugin({
+      name: '[name]_[hash]', // 映射库的暴露的内容名称
+      path: resolve(__dirname, 'dll/manifest.json'), // 输出文件路径
+    }),
+  ],
+  mode: 'production',
+}
+```
++ 安装插件`add-asset-html-webpack-plugin`
+```bash
+npm i -D add-asset-html-webpack-plugin
+```
++ 修改配置文件 `webpack.config.js`
+```js
+const { resolve } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
+const AddAssetHtmlWebpackPlugin = require('add-asset-html-webpack-plugin');
+module.exports = {
+  entry: './src/index.js',
+  output: {
+    filename: 'built.js',
+    path: resolve(__dirname, 'build'),
+  },
+  module: {
+    rules: [
+      //loader的配置
+    ],
+  },
+  plugins: [
+    //plugins的配置
+    new HtmlWebpackPlugin({
+      template: './src/index.html',
+    }),
+    // 告诉webpack哪些库不参与打包，同时使用时的名称也得变
+    new webpack.DllReferencePlugin({
+      manifest: resolve(__dirname, 'dll/manifest.json'),
+    }),
+    // 将某个文件(jquery)打包输出出去，并在html中自动引入该资源
+    new AddAssetHtmlWebpackPlugin({
+      filepath: resolve(__dirname, 'dll/jquery.js'),
+    }),
+  ],
+  mode: 'development',
+};
+```
+------
 ### 7.2.6 配置详情
+
+待补充
+
+------
+
+### 7.2.7 Webpack5
+
+待补充
 
 ------
 ### 7.2.7 面试题
@@ -5344,12 +5874,110 @@ module.exports = {
 
 + Webpack 是一个模块打包工具，可以使用Webpack管理模块依赖，并编译出各模块所需要的静态文件。它能够很好地管理、打包Web开发中所用到的HTML、Javascript、CSS以及各种静态文件（图片、字体等），让开发过程更加高效。对于不同类型的资源，webpack有对应的模块加载器。Webpack模块打包器会分析模块间的依赖关系，最后生成了优化且合并后的静态资源。
 
-+ 
++ Webpack 具有五个核心的概念，分别是 Entry（入口）、Output（输出）、loader 、 Plugins（插件）和mode（模式）。
+
++ Entry 是 webpack 的入口起点，它指示 webpack 应该从哪个模块开始着手，来作为其构建内部依赖图的开始。
+
++ Output 属性告诉 webpack 在哪里输出它所创建的打包文件，也可指定打包文件的名称，默认位置为 ./dist。
+
++ loader 可以理解为 webpack 的编译器，它使得 webpack 可以处理一些非 JavaScript 文件。在对 loader 进行配置的时候，test 属性，标志有哪些后缀的文件应该被处理，是一个正则表达式。use 属性，指定 test 类型的文件应该使用哪个 loader 进行预处理。常用的 loader 有 css-loader、style-loader 等。
+
++ 插件可以用于执行范围更广的任务，包括打包、优化、压缩、搭建服务器等等，要使用一个插件，一般是先使用 npm 包管理器进行安装，然后在配置文件中引入，最后将其实例化后传递给 plugins 数组属性。
++ mode 可以设定当前环境是生产环境(production)还是开发环境(development)。
+------
+#### 7.2.7.2 说说webpack的作用？
++ **模块打包**。可以将不同模块的文件打包整合在一起，并且保证它们之间的引用正确，执行有序。利用打包我们就可以在开发的时候根据我们自己的业务自由划分文件模块，保证项目结构的清晰和可读性。
++ **编译兼容**。在前端的“上古时期”，手写一堆浏览器兼容代码一直是令前端工程师头皮发麻的事情，而在今天这个问题被大大的弱化了，通过webpack的`Loader`机制，不仅仅可以帮助我们对代码做polyfill，还可以编译转换诸如.less, .vue, .jsx这类在浏览器无法识别的格式文件，让我们在开发的时候可以使用新特性和新语法做开发，提高开发效率。
++ **能力扩展**。通过webpack的`Plugin`机制，我们在实现模块化打包和编译兼容的基础上，可以进一步实现诸如按需加载，代码压缩等一系列功能，帮助我们进一步提高自动化程度，工程效率以及打包输出的质量。
+
+> 更多内容参考: [《当面试官问Webpack的时候他想知道什么》](https://juejin.cn/post/6943468761575849992)
 
 # 8.Vue
+## 面试题
+#### 8.1 什么是MVVM？比之MVC有什么区别？
++ MVC、MVP 和 MVVM 是三种常见的软件架构设计模式，主要通过分离关注点的方式来组织代码结构，优化我们的开发效率。
++ MVC 通过分离 Model、View 和 Controller 的方式来组织代码结构。其中 View 负责页面的显示逻辑，Model 负责存储页面的业务数据，以及对相应数据的操作。并且 View 和 Model 应用了观察者模式，当 Model 层发生改变的时候它会通知有关 View 层更新页面。Controller 层是 View 层和 Model 层的纽带，它主要负责用户与应用的响应操作，当用户与页面产生交互的时候，Controller 中的事件触发器就开始工作了，通过调用 Model 层，来完成对 Model 的修改，然后 Model 层再去通知 View 层更新。
++ MVP 模式与 MVC 唯一不同的在于 Presenter 和 Controller。在 MVC 模式中我们使用观察者模式，来实现当 Model 层数据发生变化的时候，通知 View 层的更新。这样 View 层和 Model 层耦合在一起，当项目逻辑变得复杂的时候，可能会造成代码的混乱，并且可能会对代码的复用性造成一些问题。MVP 的模式通过使用 Presenter 来实现对 View 层和 Model 层的解耦。MVC 中的Controller 只知道 Model 的接口，因此它没有办法控制 View 层的更新，MVP 模式中，View 层的接口暴露给了 Presenter 因此我们可以在 Presenter 中将 Model 的变化和 View 的变化绑定在一起，以此来实现 View 和 Model 的同步更新。这样就实现了对 View 和 Model 的解耦，Presenter 还包含了其他的响应逻辑。
++ MVVM 模式中的 VM，指的是 ViewModel，它和 MVP 的思想其实是相同的，不过它通过双向的数据绑定，将 View 和 Model 的同步更新给自动化了。当 Model 发生变化的时候，ViewModel 就会自动更新；ViewModel 变化了，View 也会更新。这样就将 Presenter 中的工作给自动化了。我了解过一点双向数据绑定的原理，比如 vue 是通过使用数据劫持和发布订阅者模式来实现的这一功能。
 
+> 详细资料可以参考：[《浅析前端开发中的 MVC/MVP/MVVM 模式》](https://juejin.im/post/593021272f301e0058273468)、[《MVC，MVP 和 MVVM 的图示》](http://www.ruanyifeng.com/blog/2015/02/mvcmvp_mvvm.html)、[《MVVM》](https://juejin.im/book/5bdc715fe51d454e755f75ef/section/5bdc72e6e51d45054f664dbf)、[《一篇文章了解架构模式：MVC/MVP/MVVM》](https://segmentfault.com/a/1190000015310674)
+------
+#### 8.2 说说对于MVVM的理解
++ **MVVM**是`Model-View-ViewModel`，是一种软件架构的设计模式或思想。
+	- Model代表数据模型，也可以在Model中定义数据修改和操作的业务逻辑。
+	- View代表UI组件，它负责将数据模型转化成UI展现出来。
+	- ViewModel 数据模型的改变和控制视图行为、处理用户交互，简单理解它就是一个同步View和Model的对象，连接Model和View。
+> 在MVVM架构下，View和Model之间并没有直接的联系，而是通过ViewModel进行交互，Model和ViewModel之间的交互是双向的，因此View数据的变化会同步到Model中,而Model数据的变化也会立即反应到View上。
+> ViewModel通过双向数据绑定把View层和Model层连接了起来，而View和Model之间的同步工作是完全自动的，无需人为干涉，因此开发者只需关注业务逻辑，不需要手动操作DOM，不需要关注数据状态的同步问题，复杂的数据状态维护完全由MVVM来统一管理。
+>
+> 详细资料可以参考：[MVVM是什么?](https://www.jianshu.com/p/6aeeecd64dcf)
+------
+#### 8.3 Vue双向数据绑定的原理
++ vue 通过使用双向数据绑定，来实现了 View 和 Model 的同步更新。vue 的双向数据绑定主要是通过使用数据劫持和发布订阅者模式来实现的。
 
++ 首先我们通过 Object.defineProperty() 方法来对 Model 数据各个属性添加访问器属性，以此来实现数据的劫持，因此当 Model 中的数据发生变化的时候，我们可以通过配置的 setter 和 getter 方法来实现对 View 层数据更新的通知。
 
++ 数据在 html 模板中一共有两种绑定情况，一种是使用 v-model 来对 value 值进行绑定，一种是作为文本绑定，在对模板引擎进行解析的过程中。
+
++ 如果遇到元素节点，并且属性值包含 v-model 的话，我们就从 Model 中去获取 v-model 所对应的属性的值，并赋值给元素的 value 值。然后给这个元素设置一个监听事件，当 View 中元素的数据发生变化的时候触发该事件，通知 Model 中的对应的属性的值进行更新。
+
++ 如果遇到了绑定的文本节点，我们使用 Model 中对应的属性的值来替换这个文本。对于文本节点的更新，我们使用了发布订阅者模式，属性作为一个主题，我们为这个节点设置一个订阅者对象，将这个订阅者对象加入这个属性主题的订阅者列表中。当 Model 层数据发生改变的时候，Model 作为发布者向主题发出通知，主题收到通知再向它的所有订阅者推送，订阅者收到通知后更改自己的数据。
+------
+#### 8.4 请简单实现双向数据绑定mvvm？
+```html
+<input id="input">
+
+<script>
+ const data = {};
+ const input = document.getElementById("input");
+ Object.defineProperty(data,'text',{
+   set(value){
+     input.value = value;
+     this.value = value;
+   }
+ });
+ input.onchange = function(e){
+   data.text = e.target.value;
+ }
+</script>
 ```
+------
+#### 8.5 Object.defineProperty()函数？
++ Object.defineProperty 函数一共有三个参数，第一个参数是需要定义属性的对象，第二个参数是需要定义的属性，第三个是该属性描述符。一个属性的描述符有四个属性，分别是 value 属性的值，writable 属性是否可写，enumerable 属性是否可枚举，configurable 属性是否可配置修改。
+> 详细资料可以参考：[《Object.defineProperty()》](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)
 
-```
+------
+#### 8.6 使用Obeject.defineProperty()来进行数据劫持有什么缺点?
++ 有一些对属性的操作，使用这种方法无法拦截，比如说通过下标方式修改数组数据或者给对象新增属性，vue 内部通过重写函数解决了这个问题。在 Vue3.0 中已经不使用这种方式了，而是通过使用 Proxy 对对象进行代理，从而实现数据劫持。使用 Proxy 的好处是它可以完美的监听到任何方式的数据改变，唯一的缺点是兼容性的问题，因为这是 ES6 的语法。
+------
+#### 8.7 什么是Virtual DOM? 为什么要使用Virtual DOM？
+
++ 用Javascript对象结构表示DOM数的结构，然后用这个树构建一个真正的DOM树，插到文档中。
+
++ 当页面的状态发生改变，我们需要对页面的 DOM 的结构进行调整的时候，我们首先根据变更的状态，重新构建起一棵对象树，然后将这棵新的对象树和旧的对象树进行比较，记录下两棵树的的差异。
+
++ 最后将记录的有差异的地方应用到真正的 DOM 树中去，这样视图就更新了。
+
++ Virtual DOM 这种方法对于我们需要有大量的 DOM 操作的时候，能够很好的提高我们的操作效率，通过在操作前确定需要做的最小修改，尽可能的减少 DOM 操作带来的重流和重绘的影响。其实 Virtual DOM 并不一定比我们真实的操作 DOM 要快，这种方法的目的是为了提高我们开发时的可维护性，在任意的情况下，都能保证一个尽量小的性能消耗去进行操作。
+> Virtual DOM的概念有很多解释，从我的理解来看，主要是三个方面，分别是：一个对象，两个前提，三个步骤。**一个对象**指的是Virtual DOM是一个基本的JavaScript对象，也是整个Virtual DOM树的基本。**两个前提**分别是JavaScript很快和直接操作DOM很慢，这是Virtual DOM得以实现的两个基本前提。得益于V8引擎的出现，让JavaScript可以高效地运行，在性能上有了极大的提高。直接操作DOM的低效和JavaScript的高效相对比，为Virtual DOM的产生提供了大前提。**三个步骤**指的是Virtual DOM的三个重要步骤，分别是：生成Virtual DOM树、对比两棵树的差异、更新视图。
+
+> 详细资料可以参考：[《Virtual DOM》](https://juejin.im/book/5bdc715fe51d454e755f75ef/section/5bdc72e6e51d45054f664dbf)、[《理解 Virtual DOM》](https://github.com/y8n/blog/issues/5)、[《深度剖析：如何实现一个 Virtual DOM 算法》](https://github.com/livoras/blog/issues/13)、[《网上都说操作真实 DOM 慢，但测试结果却比 React 更快，为什么？》](https://www.zhihu.com/question/31809713/answer/53544875)
+
+------
+#### 8.8 Vue中的v-for循环，为什么需要绑定key值？
+
++ 相当于使用key给数组某个元素绑定在一起，如果那个key对应的数据发生变化，直接更新对应的dom就行，不用全部更新一遍。这也是vue不推荐使用数组下标作为key的原因。例如数组删除了一个元素，那么这个元素后方元素的下标全都前移了一位，之前key对应的数据和dom就会乱了，除非重新匹配key，那就容易产生错误。如果重新匹配key，等于全部重新渲染一遍，违背了使用key来优化更新dom的初衷。
++ 用 v-for 更新已渲染过的元素列表时，它默认使用“就地复用”的策略。如果数据项的顺序发生了改变，Vue 不会移动 DOM 元素来匹配数据项的顺序，而是简单复用此处的每个元素。因此通过为每个列表项提供一个 key 值，来以便 Vue 跟踪元素的身份，从而高效的实现复用。这个时候 key 的作用是为了高效的更新渲染虚拟 DOM。
+-------
+
+#### 8.9 讲讲Vue的生命周期？
+
+
+
+------
+
+
+# 9. 浏览器
+
+# 10. 简单算法
+
