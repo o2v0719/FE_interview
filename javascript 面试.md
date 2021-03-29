@@ -5919,7 +5919,8 @@ module.exports = {
   <img src="./0_pictures/activityVue.png" alt="lifeT" />
 </div>
 > 详细内容参考：[《深入响应式原理》](https://cn.vuejs.org/v2/guide/reactivity.html#%E5%A6%82%E4%BD%95%E8%BF%BD%E8%B8%AA%E5%8F%98%E5%8C%96)
-------
+
+--------
 #### 8.4 请简单实现双向数据绑定mvvm？
 ```html
 <input id="input">
