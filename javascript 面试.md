@@ -647,7 +647,11 @@ function format2(number) {
 
 
 + this 提供了一种更优雅的方式来”隐式传递”一个对象引用，因此可以将API设计得更加简洁并且易于复用。在js中，this的存在，使得函数可以自动引用合适的上下文对象。
+
 + this 是在运行时进行绑定的。this的绑定和函数的声明位置没有任何关系，只取决于函数的调用方式。
+
++ setTimeout()函数里面，`function`关键字命名的匿名函数里的this会指向window（非严格模式）。
+
 + this 是执行上下文中的一个属性，它指向最后一次**调用**这个方法的对象。在实际开发中，this 的指向可以通过下面的顺序（四种调用模式）来判断。
 	- (1) 构造器调用，函数是否在new中调用（new绑定）。如果一个函数用 new 调用时，函数执行前会新创建一个对象，this 指向这个新创建的对象。
 	```js
@@ -2608,7 +2612,7 @@ introd('MeiTuan')('骑手')('小吴') // ✅
 
 #### 1.7.3.1 setTimeout()
 
-+ **setTimeout()**用于指定在一定时间后执行某些代码，它接收两个参数，要执行的代码和在执行回调函数前等待的时间（ms）。
++ **setTimeout()**用于指定在一定时间后执行某些代码，它接收两个参数，要执行的代码和在执行回调函数前等待的时间（ms）。也可以接受第三个参数作为附加参数，一旦定时器到期，会作为参数传递给第一个参数函数。
 + `setTimeout()`函数调用后会返回一个表示该超时排期的数值ID，这个ID是被排期执行代码的唯一标识符，可用于取消该任务，要取消等待中的排期任务，可以调用clearTimeout()方法并传入超时ID。只要在超时时间到达之前调用clearTimeout()方法就可以取消超时任务。
 ```js
 let timeoutId = setTimeout(()=>alert('hello world'),1000);
@@ -2625,6 +2629,7 @@ clearTimeout(timeoutId);
 #### 1.7.3.3 定时器函数里的this
 
 + 由setTimeout()调用的代码运行在与所在函数完全分离的执行环境上。这会导致，这些代码中包含的 this 关键字在非严格模式会指向 window (或全局)对象，严格模式下为 undefined，这和所期望的this的值是不一样的。
++ [关于this问题的例子](https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout#%E5%85%B3%E4%BA%8Ethis%E7%9A%84%E9%97%AE%E9%A2%98)
 
 
 > 更多资料参考：[MDN:setTimeout](https://developer.mozilla.org/zh-CN/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout)
@@ -5892,7 +5897,7 @@ module.exports = {
 
 # 8.Vue
 ## 面试题
-#### 8.1 什么是MVVM？比之MVC有什么区别？
+### 8.1 什么是MVVM？比之MVC有什么区别？
 + MVC、MVP 和 MVVM 是三种常见的软件架构设计模式，主要通过分离关注点的方式来组织代码结构，优化我们的开发效率。
 + MVC 通过分离 Model、View 和 Controller 的方式来组织代码结构。其中 View 负责页面的显示逻辑，Model 负责存储页面的业务数据，以及对相应数据的操作。并且 View 和 Model 应用了观察者模式，当 Model 层发生改变的时候它会通知有关 View 层更新页面。Controller 层是 View 层和 Model 层的纽带，它主要负责用户与应用的响应操作，当用户与页面产生交互的时候，Controller 中的事件触发器就开始工作了，通过调用 Model 层，来完成对 Model 的修改，然后 Model 层再去通知 View 层更新。
 + MVP 模式与 MVC 唯一不同的在于 Presenter 和 Controller。在 MVC 模式中我们使用观察者模式，来实现当 Model 层数据发生变化的时候，通知 View 层的更新。这样 View 层和 Model 层耦合在一起，当项目逻辑变得复杂的时候，可能会造成代码的混乱，并且可能会对代码的复用性造成一些问题。MVP 的模式通过使用 Presenter 来实现对 View 层和 Model 层的解耦。MVC 中的Controller 只知道 Model 的接口，因此它没有办法控制 View 层的更新，MVP 模式中，View 层的接口暴露给了 Presenter 因此我们可以在 Presenter 中将 Model 的变化和 View 的变化绑定在一起，以此来实现 View 和 Model 的同步更新。这样就实现了对 View 和 Model 的解耦，Presenter 还包含了其他的响应逻辑。
@@ -5900,7 +5905,7 @@ module.exports = {
 
 > 详细资料可以参考：[《浅析前端开发中的 MVC/MVP/MVVM 模式》](https://juejin.im/post/593021272f301e0058273468)、[《MVC，MVP 和 MVVM 的图示》](http://www.ruanyifeng.com/blog/2015/02/mvcmvp_mvvm.html)、[《MVVM》](https://juejin.im/book/5bdc715fe51d454e755f75ef/section/5bdc72e6e51d45054f664dbf)、[《一篇文章了解架构模式：MVC/MVP/MVVM》](https://segmentfault.com/a/1190000015310674)
 ------
-#### 8.2 说说对于MVVM的理解
+### 8.2 说说对于MVVM的理解
 + **MVVM**是`Model-View-ViewModel`，是一种软件架构的设计模式或思想。
 	- Model代表数据模型，也可以在Model中定义数据修改和操作的业务逻辑。
 	- View代表UI组件，它负责将数据模型转化成UI展现出来。
@@ -5910,7 +5915,7 @@ module.exports = {
 >
 > 详细资料可以参考：[MVVM是什么?](https://www.jianshu.com/p/6aeeecd64dcf)
 ------
-#### 8.3 Vue双向数据绑定的原理（响应式原理）？
+### 8.3 Vue双向数据绑定的原理（响应式原理）？
 + vue 实现双向数据绑定主要是：采用了**数据劫持结合发布者-订阅者**模式，通过`Object.defineProperty()`来劫持各个属性的`setter`,`getter`，在数据变动时发布消息给订阅者，触发响应监听回调。当把一个普通的js对象传给vue实例来作为它的data选项时，Vue将遍历它的所有属性，用Object.defineProperty()将它们转为getter/setter。用户看不到getter/setter，但是在内部它们让Vue能够追踪依赖，在属性被访问和被修改时通知变化。每个组件实例都对应一个watcher实例，它会在组件渲染的过程中把“接触”过的数据property记录为依赖。之后当依赖项的setter触发时，会通知watcher，从而使它关联的组件重新渲染。
 
 + Vue的双向数据绑定将MVVM作为数据绑定的入口，整合Observer，Compile和Watcher三者，通过Observer来监听自己的model的数据变化，通过Compile来解析编译模板指令（vue中用来解析{{}}），最终利用watcher搭起observer和Compile之间的通信桥梁，达到数据变化 → 试图更新 ； 视图交互变化 → 数据model变更的双向绑定效果。
@@ -5921,7 +5926,7 @@ module.exports = {
 > 详细内容参考：[《深入响应式原理》](https://cn.vuejs.org/v2/guide/reactivity.html#%E5%A6%82%E4%BD%95%E8%BF%BD%E8%B8%AA%E5%8F%98%E5%8C%96)
 
 --------
-#### 8.4 请简单实现双向数据绑定mvvm？
+### 8.4 请简单实现双向数据绑定mvvm？
 ```html
 <input id="input">
 
@@ -5940,15 +5945,15 @@ module.exports = {
 </script>
 ```
 ------
-#### 8.5 Object.defineProperty()函数？
+### 8.5 Object.defineProperty()函数？
 + Object.defineProperty 函数一共有三个参数，第一个参数是需要定义属性的对象，第二个参数是需要定义的属性，第三个是该属性描述符。一个属性的描述符有四个属性，分别是 value 属性的值，writable 属性是否可写，enumerable 属性是否可枚举，configurable 属性是否可配置修改。
 > 详细资料可以参考：[《Object.defineProperty()》](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)
 
 ------
-#### 8.6 使用Obeject.defineProperty()来进行数据劫持有什么缺点?
+### 8.6 使用Obeject.defineProperty()来进行数据劫持有什么缺点?
 + 有一些对属性的操作，使用这种方法无法拦截，比如说通过下标方式修改数组数据或者给对象新增属性，vue 内部通过重写函数解决了这个问题。在 Vue3.0 中已经不使用这种方式了，而是通过使用 Proxy 对对象进行代理，从而实现数据劫持。使用 Proxy 的好处是它可以完美的监听到任何方式的数据改变，唯一的缺点是兼容性的问题，因为这是 ES6 的语法。
 ------
-#### 8.7 什么是Virtual DOM? 为什么要使用Virtual DOM？
+### 8.7 什么是Virtual DOM? 为什么要使用Virtual DOM？
 
 + 用Javascript对象结构表示DOM数的结构，然后用这个树构建一个真正的DOM树，插到文档中。
 
@@ -5962,13 +5967,13 @@ module.exports = {
 > 详细资料可以参考：[《Virtual DOM》](https://juejin.im/book/5bdc715fe51d454e755f75ef/section/5bdc72e6e51d45054f664dbf)、[《理解 Virtual DOM》](https://github.com/y8n/blog/issues/5)、[《深度剖析：如何实现一个 Virtual DOM 算法》](https://github.com/livoras/blog/issues/13)、[《网上都说操作真实 DOM 慢，但测试结果却比 React 更快，为什么？》](https://www.zhihu.com/question/31809713/answer/53544875)
 
 ------
-#### 8.8 Vue中的v-for循环，为什么需要绑定key值？
+### 8.8 Vue中的v-for循环，为什么需要绑定key值？
 
 + 相当于使用key给数组某个元素绑定在一起，如果那个key对应的数据发生变化，直接更新对应的dom就行，不用全部更新一遍。这也是vue不推荐使用数组下标作为key的原因。例如数组删除了一个元素，那么这个元素后方元素的下标全都前移了一位，之前key对应的数据和dom就会乱了，除非重新匹配key，那就容易产生错误。如果重新匹配key，等于全部重新渲染一遍，违背了使用key来优化更新dom的初衷。
 + 用 v-for 更新已渲染过的元素列表时，它默认使用“就地复用”的策略。如果数据项的顺序发生了改变，Vue 不会移动 DOM 元素来匹配数据项的顺序，而是简单复用此处的每个元素。因此通过为每个列表项提供一个 key 值，来以便 Vue 跟踪元素的身份，从而高效的实现复用。这个时候 key 的作用是为了高效的更新渲染虚拟 DOM。
 -------
 
-#### 8.9 讲讲Vue的生命周期？
+### 8.9 讲讲Vue的生命周期？
 
 + 生命周期的概念：
 
@@ -5976,21 +5981,25 @@ module.exports = {
 
 + 生命周期钩子函数:
 
-  - **beforeCreate** : vue实例创建之前。vue实例的挂载元素el和数据data对象都为undefined 。此时，不能访问到data，methods、props等属性上的数据。
+  - **beforeCreate** : vue实例创建之前。可以访问this对象。vue实例的挂载元素el和数据data对象都为undefined 。此时，不能访问到实例上的data，methods、props等属性上的数据。
 
-  - **created** 📢：vue实例创建完成。data、methods等属性都可以访问到。
+  - **created** 📢：vue实例创建完成。data、methods，watch，computed等属性都可以访问到。
     + 此时，常用于简单的ajax请求和**获取首屏数据**。一旦此时的ajax请求过多，就会出现长时间的白屏现象。
+    + 此时，还没有挂载，还不能访问`this.$el`。
     
   - **beforeMount**: vue实例即将挂载到页面。
+    + 初始化实例的时候，存在`el`字段或`template`字段才会进入这个生命周期。
     + 此时，即将要把内存中的HTML结构渲染到页面上，但是此时并没有真正开始渲染，所以页面上还是空白的，用户看到的是插值表达式这样的页面结构。
     
   - **mounted** 📢: vue实例挂载完成。真实的DOM节点被渲染，元素已经显示在网页上。
     + 此时，可以通过DOM API获取dom节点，$ref属性可以访问。一般会进行一些插件的初始化；也可以发起一些大量的数据请求。
+    + 获取元素的位置，尺寸等参数的时候，就在这个阶段。
     + 组件中如果有子组件的话，会递归挂载子组件，只有当子组件全部挂载完毕，才会执行根组件的挂载钩子。
     
   - **beforeUpdate** ：响应式数据更新，即data里的数据已经更新，但是用户看到的页面上的数据还没有更新。
     + 此时，适合在更新之前访问现有的DOM，比如手动移除已添加的事件监听器。
-
++ 注意：如果一个数据更新后，并没有渲染显示出这个数据。那么这两个钩子函数不会触发。所以，<u>这两个钩子函数发生的准确时机是“影响页面展示的数据发生更新前后”</u>
+  
   - **updated**: 页面完成了更新，data和页面都是最新的。
     + 此时，一般也会在这里进行插件初始化。避免在这时操作数据，可能陷入死循环。
     
@@ -6004,43 +6013,125 @@ module.exports = {
 </div>
 
 ------
-#### 8.10  第一次页面加载会触发几个生命周期钩子？
+### 8.10  第一次页面加载会触发几个生命周期钩子？
 + 四个：beforeCreate、created、beforeUpdate、updated
 
 ------
-#### 8.11 DOM渲染在哪个钩子就已经完成？
+### 8.11 DOM渲染在哪个钩子就已经完成？
 + DOM渲染在mounted中就已经完成了。
 
 ------
-#### 8.12 当首次页面加载后，再改变data中定义的变量时，会执行哪些钩子函数？
+### 8.12 当首次页面加载后，再改变data中定义的变量时，会执行哪些钩子函数？
 + 响应式变量的值发生变化时，会执行beforeUpdate和updated钩子函数。
 ------
-#### 8.13 如果当前的组件没有被缓存，切换组件的时候，会执行哪些钩子函数？
+### 8.13 如果当前的组件没有被缓存，切换组件的时候，会执行哪些钩子函数？
 + 在切换组件的时候，如果当前的组件没有被缓存，会执行**新组件**的beforeCreate、Created、beforeMount这三个钩子函数，然后执行**当前组件**的beforeDestroy和Destroyed钩子函数，最后在执行**新组件**的mounted钩子函数。
 ------
 
-#### 8.14 Vue组件传值
+### 8.14 Vue组件传值
 
 ------
 
-#### 8.15 Vue指令
+### 8.15 Vue指令
+
++ 指令就是Vue给标签增加的新属性，以`v-`开头。
+
+#### 8.15.1 v-html
++ `v-html`: 将数据解析为html，更新元素的`innerHTML`。
+#### 8.15.2 v-text
++ `v-text`: 解析数据，更新元素的 textContent。类似于`innerText`。
+#### 8.15.3 v-bind
++ `v-bind`: 将一个元素的原有属性动态地绑定变量。常常简写为`:`。
+
++ 在将 `v-bind` 用于 class 和 style 时，Vue.js 做了专门的增强。表达式结果的类型除了字符串之外，还可以是对象或数组。
+
+  - 绑定HTML class样式
+      + 对象语法: 传给 `v-bind:class` 一个对象，以动态地切换 class。
+      ```html
+    <div
+       class="static"
+       v-bind:class="{ active: isActive, 'text-danger': hasError}"
+    ></div>
+  
+    <script>
+     var vm = new Vue({
+       data: {
+          isActive: true,
+          hasError: false
+       }
+    });
+    </script>
+  
+    <!--结果渲染为 -->
+    <div class="static active"></div>
+    ```
+  
+     + 数组语法: 传给 `v-bind:class` 一个数组，以动态地切换 class。
+     ```html
+    <div :class="[activeClass, errorClass]"></div>
+    
+    <script>
+      var vm = new Vue({
+      data: {
+           avtiveClass: 'active',
+           errorClass: 'text-danger'
+        }
+     });
+    </script>
+    
+    <!--结果渲染为 -->
+    <div class="active text-danger"></div>
+     ```
+   ```
+  - 绑定内联style样式
+    
+    + 内联style绑定同样支持数组和对象的形式。
+    ```html
+    <div v-bind:style="styleObject"></div>
+    <script>
+    var vm = new Vue({
+      data: {
+         styleObject: {
+           color: 'red',
+           fontSize: '13px'
+         }
+      }
+    });
+    </script>
+   ```
+  
+    + `v-bind:style` 的数组语法可以将多个样式对象应用到同一个元素上：
+    ```html
+    <div v-bind:style="[baseStyles, overridingStyles]"></div>
+    ```
+> 详细参考：[vue官方：class与style绑定](https://cn.vuejs.org/v2/guide/class-and-style.html)
+-------
+#### 8.15.4 v-if & v-show
++ `v-if` 指令用于条件性地渲染一块内容。
+  - 可以使用 `v-else` 指令来表示 `v-if` 的“else 块”,`v-else`元素必须紧跟在带 `v-if` 或者 `v-else-if` 的元素的后面，否则它将不会被识别。`v-else-if`指令同理。
+  - 可以在<template>元素上使用`v-if`条件渲染一个分组。
+  - `v-if`指令同样可以结合`key`，来管理可复用的元素。
+> 详细参考：[官方vue：条件渲染v-if](https://cn.vuejs.org/v2/guide/conditional.html#v-if)
+--------
+### 8.16 Vue路由
 
 ------
 
-#### 8.16 Vue路由
-
-------
-
-#### 8.17 Vuex
+### 8.17 Vuex
 
 --------
 
 
 
-#### 8.18 Vue中如何使用插件
+### 8.18 Vue中如何使用插件
 
 ------
-
+### 8.19 Vue实例有哪些常用的API
++ **vm.$mount("#el")** ：和el的作用一致。
+	- 如果Vue实例在实例化时，没有收到el选项，没有关联到DOM元素，可以手动使用这个方法挂载实例。
++ **vm.$destroy()** : 主动消亡某个实例
++ **vm.$delete(target,key)**: 删除对象的某个属性，让页面响应。
++ **vm.$set(target,key,val)**: 添加属性，修改数组，让页面响应。
 
 
 # 9. 浏览器
