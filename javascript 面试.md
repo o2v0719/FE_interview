@@ -5896,8 +5896,8 @@ module.exports = {
 > 更多内容参考: [《当面试官问Webpack的时候他想知道什么》](https://juejin.cn/post/6943468761575849992)
 
 # 8.Vue
-## 面试题
-### 8.1 什么是MVVM？比之MVC有什么区别？
+## 8.1 MVVM与双向绑定数据
+### 8.1.1 什么是MVVM？比之MVC有什么区别？
 + MVC、MVP 和 MVVM 是三种常见的软件架构设计模式，主要通过分离关注点的方式来组织代码结构，优化我们的开发效率。
 + MVC 通过分离 Model、View 和 Controller 的方式来组织代码结构。其中 View 负责页面的显示逻辑，Model 负责存储页面的业务数据，以及对相应数据的操作。并且 View 和 Model 应用了观察者模式，当 Model 层发生改变的时候它会通知有关 View 层更新页面。Controller 层是 View 层和 Model 层的纽带，它主要负责用户与应用的响应操作，当用户与页面产生交互的时候，Controller 中的事件触发器就开始工作了，通过调用 Model 层，来完成对 Model 的修改，然后 Model 层再去通知 View 层更新。
 + MVP 模式与 MVC 唯一不同的在于 Presenter 和 Controller。在 MVC 模式中我们使用观察者模式，来实现当 Model 层数据发生变化的时候，通知 View 层的更新。这样 View 层和 Model 层耦合在一起，当项目逻辑变得复杂的时候，可能会造成代码的混乱，并且可能会对代码的复用性造成一些问题。MVP 的模式通过使用 Presenter 来实现对 View 层和 Model 层的解耦。MVC 中的Controller 只知道 Model 的接口，因此它没有办法控制 View 层的更新，MVP 模式中，View 层的接口暴露给了 Presenter 因此我们可以在 Presenter 中将 Model 的变化和 View 的变化绑定在一起，以此来实现 View 和 Model 的同步更新。这样就实现了对 View 和 Model 的解耦，Presenter 还包含了其他的响应逻辑。
@@ -5905,7 +5905,7 @@ module.exports = {
 
 > 详细资料可以参考：[《浅析前端开发中的 MVC/MVP/MVVM 模式》](https://juejin.im/post/593021272f301e0058273468)、[《MVC，MVP 和 MVVM 的图示》](http://www.ruanyifeng.com/blog/2015/02/mvcmvp_mvvm.html)、[《MVVM》](https://juejin.im/book/5bdc715fe51d454e755f75ef/section/5bdc72e6e51d45054f664dbf)、[《一篇文章了解架构模式：MVC/MVP/MVVM》](https://segmentfault.com/a/1190000015310674)
 ------
-### 8.2 说说对于MVVM的理解
+### 8.1.2 说说对于MVVM的理解
 + **MVVM**是`Model-View-ViewModel`，是一种软件架构的设计模式或思想。
 	- Model代表数据模型，也可以在Model中定义数据修改和操作的业务逻辑。
 	- View代表UI组件，它负责将数据模型转化成UI展现出来。
@@ -5915,7 +5915,7 @@ module.exports = {
 >
 > 详细资料可以参考：[MVVM是什么?](https://www.jianshu.com/p/6aeeecd64dcf)
 ------
-### 8.3 Vue双向数据绑定的原理（响应式原理）？
+### 8.1.3 Vue双向数据绑定的原理（响应式原理）？
 + vue 实现双向数据绑定主要是：采用了**数据劫持结合发布者-订阅者**模式，通过`Object.defineProperty()`来劫持各个属性的`setter`,`getter`，在数据变动时发布消息给订阅者，触发响应监听回调。当把一个普通的js对象传给vue实例来作为它的data选项时，Vue将遍历它的所有属性，用Object.defineProperty()将它们转为getter/setter。用户看不到getter/setter，但是在内部它们让Vue能够追踪依赖，在属性被访问和被修改时通知变化。每个组件实例都对应一个watcher实例，它会在组件渲染的过程中把“接触”过的数据property记录为依赖。之后当依赖项的setter触发时，会通知watcher，从而使它关联的组件重新渲染。
 
 + Vue的双向数据绑定将MVVM作为数据绑定的入口，整合Observer，Compile和Watcher三者，通过Observer来监听自己的model的数据变化，通过Compile来解析编译模板指令（vue中用来解析{{}}），最终利用watcher搭起observer和Compile之间的通信桥梁，达到数据变化 → 试图更新 ； 视图交互变化 → 数据model变更的双向绑定效果。
@@ -5926,7 +5926,7 @@ module.exports = {
 > 详细内容参考：[《深入响应式原理》](https://cn.vuejs.org/v2/guide/reactivity.html#%E5%A6%82%E4%BD%95%E8%BF%BD%E8%B8%AA%E5%8F%98%E5%8C%96)
 
 --------
-### 8.4 请简单实现双向数据绑定mvvm？
+### 8.1.4 请简单实现双向数据绑定mvvm？
 ```html
 <input id="input">
 
@@ -5945,15 +5945,16 @@ module.exports = {
 </script>
 ```
 ------
-### 8.5 Object.defineProperty()函数？
+### 8.1.5 Object.defineProperty()函数？
 + Object.defineProperty 函数一共有三个参数，第一个参数是需要定义属性的对象，第二个参数是需要定义的属性，第三个是该属性描述符。一个属性的描述符有四个属性，分别是 value 属性的值，writable 属性是否可写，enumerable 属性是否可枚举，configurable 属性是否可配置修改。
 > 详细资料可以参考：[《Object.defineProperty()》](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)
 
 ------
-### 8.6 使用Obeject.defineProperty()来进行数据劫持有什么缺点?
+### 8.1.6 使用Obeject.defineProperty()来进行数据劫持有什么缺点?
 + 有一些对属性的操作，使用这种方法无法拦截，比如说通过下标方式修改数组数据或者给对象新增属性，vue 内部通过重写函数解决了这个问题。在 Vue3.0 中已经不使用这种方式了，而是通过使用 Proxy 对对象进行代理，从而实现数据劫持。使用 Proxy 的好处是它可以完美的监听到任何方式的数据改变，唯一的缺点是兼容性的问题，因为这是 ES6 的语法。
 ------
-### 8.7 什么是Virtual DOM? 为什么要使用Virtual DOM？
+## 8.2 Vue框架的特点
+### 8.2.1 什么是Virtual DOM? 为什么要使用Virtual DOM？
 
 + 用Javascript对象结构表示DOM数的结构，然后用这个树构建一个真正的DOM树，插到文档中。
 
@@ -5967,25 +5968,23 @@ module.exports = {
 > 详细资料可以参考：[《Virtual DOM》](https://juejin.im/book/5bdc715fe51d454e755f75ef/section/5bdc72e6e51d45054f664dbf)、[《理解 Virtual DOM》](https://github.com/y8n/blog/issues/5)、[《深度剖析：如何实现一个 Virtual DOM 算法》](https://github.com/livoras/blog/issues/13)、[《网上都说操作真实 DOM 慢，但测试结果却比 React 更快，为什么？》](https://www.zhihu.com/question/31809713/answer/53544875)
 
 ------
-### 8.8 Vue中的v-for循环，为什么需要绑定key值？
 
-+ 相当于使用key给数组某个元素绑定在一起，如果那个key对应的数据发生变化，直接更新对应的dom就行，不用全部更新一遍。这也是vue不推荐使用数组下标作为key的原因。例如数组删除了一个元素，那么这个元素后方元素的下标全都前移了一位，之前key对应的数据和dom就会乱了，除非重新匹配key，那就容易产生错误。如果重新匹配key，等于全部重新渲染一遍，违背了使用key来优化更新dom的初衷。
-+ 用 v-for 更新已渲染过的元素列表时，它默认使用“就地复用”的策略。如果数据项的顺序发生了改变，Vue 不会移动 DOM 元素来匹配数据项的顺序，而是简单复用此处的每个元素。因此通过为每个列表项提供一个 key 值，来以便 Vue 跟踪元素的身份，从而高效的实现复用。这个时候 key 的作用是为了高效的更新渲染虚拟 DOM。
--------
+## 8.3 Vue的生命周期
 
-### 8.9 讲讲Vue的生命周期？
-
-+ 生命周期的概念：
+### 8.3.1 Vue生命周期的概念
 
   - 每个Vue实例在被创建时，都要经过一系列的初始化过程，例如，需要设置数据监听、编译模板、将实例挂载到DOM并在数据变化时，更新DOM等。同时在这个过程中，也会运行一些叫做`生命周期钩子`的函数，这给了用户在不同阶段添加自己的代码的机会。
 
-+ 生命周期钩子函数:
+### 8.3.2 生命周期钩子函数
 
   - **beforeCreate** : vue实例创建之前。可以访问this对象。vue实例的挂载元素el和数据data对象都为undefined 。此时，不能访问到实例上的data，methods、props等属性上的数据。
 
   - **created** 📢：vue实例创建完成。data、methods，watch，computed等属性都可以访问到。
     + 此时，常用于简单的ajax请求和**获取首屏数据**。一旦此时的ajax请求过多，就会出现长时间的白屏现象。
+    
     + 此时，还没有挂载，还不能访问`this.$el`。
+    
+      ------
     
   - **beforeMount**: vue实例即将挂载到页面。
     + 初始化实例的时候，存在`el`字段或`template`字段才会进入这个生命周期。
@@ -5993,19 +5992,29 @@ module.exports = {
     
   - **mounted** 📢: vue实例挂载完成。真实的DOM节点被渲染，元素已经显示在网页上。
     + 此时，可以通过DOM API获取dom节点，$ref属性可以访问。一般会进行一些插件的初始化；也可以发起一些大量的数据请求。
+    
     + 获取元素的位置，尺寸等参数的时候，就在这个阶段。
+    
     + 组件中如果有子组件的话，会递归挂载子组件，只有当子组件全部挂载完毕，才会执行根组件的挂载钩子。
     
+      ------
+    
   - **beforeUpdate** ：响应式数据更新，即data里的数据已经更新，但是用户看到的页面上的数据还没有更新。
+    
     + 此时，适合在更新之前访问现有的DOM，比如手动移除已添加的事件监听器。
-+ 注意：如果一个数据更新后，并没有渲染显示出这个数据。那么这两个钩子函数不会触发。所以，<u>这两个钩子函数发生的准确时机是“影响页面展示的数据发生更新前后”</u>
-  
+  + 注意：如果一个数据更新后，并没有渲染显示出这个数据。那么这两个钩子函数不会触发。所以，<u>这两个钩子函数发生的准确时机是“影响页面展示的数据发生更新前后”</u>
+    
   - **updated**: 页面完成了更新，data和页面都是最新的。
+    
     + 此时，一般也会在这里进行插件初始化。避免在这时操作数据，可能陷入死循环。
     
+      ------
+    
   - **beforeDestroy** : vue实例即将被销毁。
+    
     - 此时，vm实例的数据还可以被访问。适合移除事件监听、定时器，释放一些变量。
   - **destroyed**: vue实例被销毁。
+    
     + 此时，vm实例已经不存在。
 
 <div align="center">
@@ -6013,34 +6022,31 @@ module.exports = {
 </div>
 
 ------
-### 8.10  第一次页面加载会触发几个生命周期钩子？
-+ 四个：beforeCreate、created、beforeUpdate、updated
+#### 8.3.2.1  🚀  \[面试题] 第一次页面加载会触发几个生命周期钩子？
++ 四个：`beforeCreate`、`created`、`beforeUpdate`、`updated`
 
 ------
-### 8.11 DOM渲染在哪个钩子就已经完成？
-+ DOM渲染在mounted中就已经完成了。
+#### 8.3.2.2 🚀  \[面试题] DOM渲染在哪个钩子就已经完成？
++ DOM渲染在`mounted`中就已经完成了。
 
 ------
-### 8.12 当首次页面加载后，再改变data中定义的变量时，会执行哪些钩子函数？
-+ 响应式变量的值发生变化时，会执行beforeUpdate和updated钩子函数。
-------
-### 8.13 如果当前的组件没有被缓存，切换组件的时候，会执行哪些钩子函数？
-+ 在切换组件的时候，如果当前的组件没有被缓存，会执行**新组件**的beforeCreate、Created、beforeMount这三个钩子函数，然后执行**当前组件**的beforeDestroy和Destroyed钩子函数，最后在执行**新组件**的mounted钩子函数。
-------
+#### 8.3.2.3 🚀  \[面试题] 当首次页面加载后，再改变data中定义的变量时，会执行哪些钩子函数？
 
-### 8.14 Vue组件传值
-
++ 响应式变量的值发生变化时，会执行`beforeUpdate`和`updated`钩子函数。
+------
+#### 8.3.2.4 🚀  \[面试题] 如果当前的组件没有被缓存，切换组件的时候，会执行哪些钩子函数？
++ 在切换组件的时候，如果当前的组件没有被缓存，会执行**新组件**的`beforeCreate`、`Created`、`beforeMount`这三个钩子函数，然后执行**当前组件**的`beforeDestroy`和`Destroyed`钩子函数，最后在执行**新组件**的`mounted`钩子函数。
 ------
 
-### 8.15 Vue指令
+## 8.4 Vue指令
 
 + 指令就是Vue给标签增加的新属性，以`v-`开头。
 
-#### 8.15.1 v-html
+### 8.4.1 v-html
 + `v-html`: 将数据解析为html，更新元素的`innerHTML`。
-#### 8.15.2 v-text
+### 8.4.2 v-text
 + `v-text`: 解析数据，更新元素的 textContent。类似于`innerText`。
-#### 8.15.3 v-bind
+### 8.4.3 🐯 v-bind
 + `v-bind`: 将一个元素的原有属性动态地绑定变量。常常简写为`:`。
 
 + 在将 `v-bind` 用于 class 和 style 时，Vue.js 做了专门的增强。表达式结果的类型除了字符串之外，还可以是对象或数组。
@@ -6082,9 +6088,8 @@ module.exports = {
     <!--结果渲染为 -->
     <div class="active text-danger"></div>
      ```
-   ```
+  
   - 绑定内联style样式
-    
     + 内联style绑定同样支持数组和对象的形式。
     ```html
     <div v-bind:style="styleObject"></div>
@@ -6098,35 +6103,131 @@ module.exports = {
       }
     });
     </script>
-   ```
-  
+    ```
+
     + `v-bind:style` 的数组语法可以将多个样式对象应用到同一个元素上：
     ```html
     <div v-bind:style="[baseStyles, overridingStyles]"></div>
     ```
-> 详细参考：[vue官方：class与style绑定](https://cn.vuejs.org/v2/guide/class-and-style.html)
+> 详细参考：[《vue官方：class与style绑定》](https://cn.vuejs.org/v2/guide/class-and-style.html)
 -------
-#### 8.15.4 v-if & v-show
+### 8.4.4 🐯 v-if & v-show
 + `v-if` 指令用于条件性地渲染一块内容。
   - 可以使用 `v-else` 指令来表示 `v-if` 的“else 块”,`v-else`元素必须紧跟在带 `v-if` 或者 `v-else-if` 的元素的后面，否则它将不会被识别。`v-else-if`指令同理。
-  - 可以在<template>元素上使用`v-if`条件渲染一个分组。
-  - `v-if`指令同样可以结合`key`，来管理可复用的元素。
-> 详细参考：[官方vue：条件渲染v-if](https://cn.vuejs.org/v2/guide/conditional.html#v-if)
+  - 可以在\<template>元素上使用`v-if`条件渲染一个分组。
+  - `v-if`与`v-else`形成并列的层级关系时，同样可以结合`key`，来管理可复用的元素。
+- [《官方Vue:用key管理可复用的元素》](https://cn.vuejs.org/v2/guide/conditional.html#用-key-管理可复用的元素)
+  
++ `v-show`指令根据条件展示元素。
+  - 带有 v-show 的元素始终会被渲染并保留在 DOM 中。v-show 只是简单地切换元素的 CSS property display。
+
+#### 8.4.4.1 🚀  \[面试题] `v-if`与`v-show` 有何区别？
+  - `v-if` 是“真正”的条件渲染，因为它会确保在切换过程中条件块内的事件监听器和子组件适当地被销毁和重建。v-if 也是惰性的：如果在初始渲染时条件为假，则什么也不做——直到条件第一次变为真时，才会开始渲染条件块。
+  - `v-show` 就简单得多——不管初始条件是什么，元素总是会被渲染，并且只是简单地基于 CSS 进行切换。
+  - 一般来说，`v-if`有更高的切换开销，而 `v-show` 有更高的初始渲染开销。因此，**如果需要非常频繁地切换，则使用 `v-show` 较好**；如果在运行时条件很少改变，则使用 `v-if` 较好。
+> 详细参考：[《官方vue：条件渲染v-if》](https://cn.vuejs.org/v2/guide/conditional.html#v-if)
 --------
-### 8.16 Vue路由
+### 8.4.5 🐯 v-for 
++ 使用`v-for` 指令可以基于一个数组来渲染一个列表。
++ 使用`v-for` 指令遍历一个对象。
++ 📢当 Vue 正在更新使用 `v-for` 渲染的元素列表时，它默认使用“就地更新”的策略。如果数据项的顺序被改变，Vue 将不会移动 DOM 元素来匹配数据项的顺序，而是就地更新每个元素，并且确保它们在每个索引位置正确渲染。为了给 Vue 一个提示，以便它能跟踪每个节点的身份，从而重用和重新排序现有元素，你需要为每项提供一个唯一 `key` attribute。
+```vue
+<div v-for="item in items" v-bind:key="item.id">
+  <!-- 内容 -->
+</div>
+```
+------
+#### 8.4.5.1  🚀 \[面试题] Vue中的v-for循环，为什么需要绑定key值？
+
++ 使用key给数组某个元素绑定在一起，如果那个key对应的数据发生变化，直接更新对应的dom就行，不用全部更新一遍。这也是vue不推荐使用数组下标作为key的原因。例如数组删除了一个元素，那么这个元素后方元素的下标全都前移了一位，之前key对应的数据和dom就会乱了，除非重新匹配key，那就容易产生错误。如果重新匹配key，等于全部重新渲染一遍，违背了使用key来优化更新dom的初衷。
++ 用 v-for 更新已渲染过的元素列表时，它默认使用“就地复用”的策略。如果数据项的顺序发生了改变，Vue 不会移动 DOM 元素来匹配数据项的顺序，而是简单复用此处的每个元素。因此通过为每个列表项提供一个 key 值，来以便 Vue 跟踪元素的身份，从而高效的实现复用。这个时候 key 的作用是为了高效的更新渲染虚拟 DOM。
+-------
+#### 8.4.5.2   \[面试题] v-for与v-if为什么不推荐在同一元素上一起使用？
++ 当它们处于同一节点，v-for 的优先级比 v-if 更高，这意味着 v-if 将分别重复运行于每个 v-for 循环中。当你只想为部分项渲染节点时，这种优先级的机制会十分有用。
+```html
+<li v-for="todo in todos" v-if="!todo.isComplete">
+  {{ todo }}
+</li>
+```
++ 如果此时todos列表的数据非常大，只要一个todo项发生改变，就会再次优先执行`v-for`循环遍历。**性能浪费比较大**。此时有更优的替代办法：
+	- ① 使用一个计算属性`computed`, 返回一个过滤后的新的newTodos，这样过滤后的列表只会在newTodos 数组发生相关变化时才被重新运算，过滤更高效。使用`v-for="todo in newTodos` 之后，我们在渲染的时候只遍历新的项，渲染更高效。
+	- ② 将 `v-if` 移动到外层容器元素。
+> 详细内容参考:[《官方Vue:不推荐在同一元素上使用v-for和v-if》](https://cn.vuejs.org/v2/style-guide/#避免-v-if-和-v-for-用在一起必要)
+------
+### 8.4.6 🐯v-model指令
+
++ 在表单控件或者组件上创建双向绑定
+
+  
 
 ------
 
-### 8.17 Vuex
+### 8.4.7 🐯v-on指令
+
++ `v-on`指令用于**事件绑定**。
++ 缩写`@` 。
+```html
+<!-- 方法处理器 -->
+<button v-on:click="doThis"></button>
+<!-- 缩写 -->
+<button @click="doThis"></button>
+```
+
++ 在监听**原生 DOM 事件**时，方法以事件为唯一的参数。如果使用内联语句，语句可以访问一个 `$event` property：`v-on:click="handle('ok', $event)"`。
+```html
+<!-- 内联语句 -->
+<button v-on:click="doThat('hello', $event)"></button>
+<script>
+  new Vue({
+    //...
+    methods:{
+      doThat(sth,e){
+        // e 就是事件对象
+      }
+    }
+  })
+</script>
+```
++ 用在**自定义元素组件**上时，也可以监听子组件触发的**自定义事件**。
+```html
+<!-- 子组件绑定事件指令~内联语句 -->
+<my-component @my-event="handleThis(123, $event)"></my-component>
+```
++ 修饰符
+  + `.stop` ： 相当于原生JS的`stopPropagation`，停止冒泡。
+  + `.prevent`:  相当于原生的`preventDefault`，阻止默认行为。
+  + ...
+```html
+<!--  元素绑定事件指令~串联修饰符 -->
+<button @click.stop.prevent="doThis"></button>
+```
+
+> 详细参考：[《》]
+
+------
+
+### 8.4.8 v-once指令
+
++ `v-once`指令：只渲染元素和组件**一次**。随后的重新渲染，元素/组件及其所有的子节点将被视为静态内容并跳过。这可以用于优化更新性能。
+
+-------
+## 8.5 Vue组件传值
+
+--------
+## 8.6 Vue插件
+
+### 8.6.1 Vue路由:VueRouter
+
+------
+
+### 8.6.2 Vue状态管理:Vuex
 
 --------
 
-
-
-### 8.18 Vue中如何使用插件
+### 8.6.3 Vue中如何使用插件
 
 ------
-### 8.19 Vue实例有哪些常用的API
+### 8.7 Vue实例有哪些常用的API
 + **vm.$mount("#el")** ：和el的作用一致。
 	- 如果Vue实例在实例化时，没有收到el选项，没有关联到DOM元素，可以手动使用这个方法挂载实例。
 + **vm.$destroy()** : 主动消亡某个实例
