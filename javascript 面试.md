@@ -5946,7 +5946,45 @@ module.exports = {
 ```
 ------
 ### 8.1.5 Object.defineProperty()函数？
-+ Object.defineProperty 函数一共有三个参数，第一个参数是需要定义属性的对象，第二个参数是需要定义的属性，第三个是该属性描述符。一个属性的描述符有四个属性，分别是 value 属性的值，writable 属性是否可写，enumerable 属性是否可枚举，configurable 属性是否可配置修改。
++ **Object.defineProperty**函数一共有三个参数，第一个参数是`需要定义属性的对象`，第二个参数是`需要定义的属性`，第三个是`该属性描述符`。
+
+  - 对于对象的`数据属性`, 可以由四个特性来组成其描述符对象，分别是：` value` 表示属性的值，`writable` 表示属性是否可以被修改，`enumerable` 表示属性是否可枚举，`configurable` 表示属性是否可以通过delete删除并重新定义。
+
+    ```js
+    let person = {}
+    Object.defineProperty(person,"name",{
+      writable:false,
+      value:"Nicholas"
+    });
+    console.log(person.name);//Nicholas
+    person.name="Greg";
+    console.log(person.name);//Nicholas //不可修改
+    ```
+
+  - 对于对象的`访问器属性`, 可以由四个特性来组成其描述符对象，分别是: `get` 属性获取函数，`set` 属性设置函数，`enumerable` 属性是否可枚举，`configurable` 表示属性是否可以通过delete删除并重新定义。
+
+    + 访问器属性是不能直接定义的，必须要使用`Object.defineProperty()`函数来定义。
+
+    + 获取函数`get`和设置函数`set`不一定都要定义。只定义`get`意味着属性是只读的，只定义`set`意味着属性是不能读取的，非严格模式读取会返回undefined，严格模式会抛出错误。
+
+    ```js
+    let book = {
+      year_:2017,
+      edition:1
+    };
+    // 定义一个访问器属性“year”
+    Object.defineProperty(book,"year",{
+      get(){
+        return this.year_;
+      },
+      set(newValue){
+        if(newValue>2017){
+          this.year_ = newValue;
+          this.edition + = newValue -2017;
+        }
+      }
+    });
+    ```
 > 详细资料可以参考：[《Object.defineProperty()》](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)
 
 ------
@@ -6193,16 +6231,19 @@ module.exports = {
 <!-- 子组件绑定事件指令~内联语句 -->
 <my-component @my-event="handleThis(123, $event)"></my-component>
 ```
-+ 修饰符
++ 事件修饰符
   + `.stop` ： 相当于原生JS的`stopPropagation`，停止冒泡。
   + `.prevent`:  相当于原生的`preventDefault`，阻止默认行为。
-  + ...
+  + `.capture`：捕获阶段触发。
+  + `.once`: 只触发一次。
+  + `.self`: 只当事件是从侦听器绑定的元素本身触发时才触发回调。
+  > 注意区别`按键修饰符`(对按键事件修饰)
 ```html
 <!--  元素绑定事件指令~串联修饰符 -->
 <button @click.stop.prevent="doThis"></button>
 ```
 
-> 详细参考：[《》]
+> 详细参考：[《官方Vue: 指令v-on》](https://cn.vuejs.org/v2/api/#v-on)
 
 ------
 
@@ -6227,7 +6268,7 @@ module.exports = {
 ### 8.6.3 Vue中如何使用插件
 
 ------
-### 8.7 Vue实例有哪些常用的API
+### 8.7 常用API
 + **vm.$mount("#el")** ：和el的作用一致。
 	- 如果Vue实例在实例化时，没有收到el选项，没有关联到DOM元素，可以手动使用这个方法挂载实例。
 + **vm.$destroy()** : 主动消亡某个实例
