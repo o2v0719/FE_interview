@@ -5915,10 +5915,10 @@ module.exports = {
 >
 > 详细资料可以参考：[MVVM是什么?](https://www.jianshu.com/p/6aeeecd64dcf)
 ------
-### 8.1.3 Vue双向数据绑定的原理（响应式原理）？
-+ vue 实现双向数据绑定主要是：采用了**数据劫持结合发布者-订阅者**模式，通过`Object.defineProperty()`来劫持各个属性的`setter`,`getter`，在数据变动时发布消息给订阅者，触发响应监听回调。当把一个普通的js对象传给vue实例来作为它的data选项时，Vue将遍历它的所有属性，用Object.defineProperty()将它们转为getter/setter。用户看不到getter/setter，但是在内部它们让Vue能够追踪依赖，在属性被访问和被修改时通知变化。每个组件实例都对应一个watcher实例，它会在组件渲染的过程中把“接触”过的数据property记录为依赖。之后当依赖项的setter触发时，会通知watcher，从而使它关联的组件重新渲染。
+### 8.1.3 Vue的响应式原理？
++ 当你把一个普通的 JavaScript 对象传入 Vue 实例作为 `data` 选项，Vue 将遍历此对象所有的 property，并使用 `Object.defineProperty` 把这些 property 全部转为 [getter/setter](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Working_with_Objects#定义_getters_与_setters)。用户看不到getter/setter，但是在内部它们让Vue能够追踪依赖，在property被访问和被修改时通知变化。每个组件实例都对应一个watcher实例，它会在组件渲染的过程中把“接触”过的数据property记录为依赖。之后当依赖项的setter触发时，会通知watcher，从而使它关联的组件重新渲染。
 
-+ Vue的双向数据绑定将MVVM作为数据绑定的入口，整合Observer，Compile和Watcher三者，通过Observer来监听自己的model的数据变化，通过Compile来解析编译模板指令（vue中用来解析{{}}），最终利用watcher搭起observer和Compile之间的通信桥梁，达到数据变化 → 试图更新 ； 视图交互变化 → 数据model变更的双向绑定效果。
++ Vue的双向数据绑定将MVVM作为数据绑定的入口，整合Observer，Compile和Watcher三者，通过Observer来监听自己的model的数据变化，通过Compile来解析编译模板指令（vue中用来解析`{{}}`），最终利用watcher搭起observer和Compile之间的通信桥梁，达到数据变化 → 试图更新 ； 视图交互变化 → 数据model变更的双向绑定效果。
 
 <div align="center">
   <img src="./0_pictures/activityVue.png" alt="lifeT" />
@@ -5928,6 +5928,7 @@ module.exports = {
 --------
 ### 8.1.4 请简单实现双向数据绑定mvvm？
 ```html
+<body>
 <input id="input">
 
 <script>
@@ -5937,12 +5938,20 @@ module.exports = {
    set(value){
      input.value = value;
      this.value = value;
+   },
+   get(value){
+     // this 指向data.text
+     return this.value;
    }
  });
  input.onchange = function(e){
    data.text = e.target.value;
- }
+   console.log(data.text)
+ };
+  // 输入框内容改变，控制台数据改变
+  // 控制台改变data.text ,输入框数据改变
 </script>
+</body>
 ```
 ------
 ### 8.1.5 Object.defineProperty()函数？
@@ -5989,7 +5998,24 @@ module.exports = {
 
 ------
 ### 8.1.6 使用Obeject.defineProperty()来进行数据劫持有什么缺点?
-+ 有一些对属性的操作，使用这种方法无法拦截，比如说通过下标方式修改数组数据或者给对象新增属性，vue 内部通过重写函数解决了这个问题。在 Vue3.0 中已经不使用这种方式了，而是通过使用 Proxy 对对象进行代理，从而实现数据劫持。使用 Proxy 的好处是它可以完美的监听到任何方式的数据改变，唯一的缺点是兼容性的问题，因为这是 ES6 的语法。
++ 有一些对属性的操作，使用这种方法无法拦截，比如说**通过下标方式修改(data里面的)数组数据或者给对象新增、删除属性**，vue 内部通过**重写函数**解决了这个问题。
+
+  - 对于已经创建的实例，Vue 不允许动态添加根级别的响应式 property。但是，可以使用 `Vue.set(object, propertyName, value)` 方法向嵌套对象或数组添加响应式 property; `Vue.delete(object,propertyName)`方法删除属性并响应。
+  ```js
+  Vue.set(vm.someObject,'b',2);
+  Vue.delete(vm.someObject,'a');
+  ```
+  - 还可以使用 `vm.$set`或`vm.$delete` 实例方法，这也是全局 Vue.set 方法的别名。
+  ```js
+  // 修改
+  this.$set(this.someObject,'b',2);
+  // 删除
+  this.$delete(this.someObject,'a');
+  ```
+  - 对于数组的修改，【推荐使用api】。比如，splice，push，shift，unshift等。这些api方法Vue已经做了响应式处理。
+  > 参考资料:[官方Vue：检测变换的注意事项](https://cn.vuejs.org/v2/guide/reactivity.html#检测变化的注意事项)
+
++ 在 Vue3.0 中已经不使用这种方式了，而是通过使用 Proxy 对对象进行代理，从而实现数据劫持。使用 Proxy 的好处是它可以**完美的监听到任何方式的数据改变**，唯一的缺点是兼容性的问题，因为这是 ES6 的语法。
 ------
 ## 8.2 Vue框架的特点
 ### 8.2.1 什么是Virtual DOM? 为什么要使用Virtual DOM？
@@ -6004,7 +6030,10 @@ module.exports = {
 > Virtual DOM的概念有很多解释，从我的理解来看，主要是三个方面，分别是：一个对象，两个前提，三个步骤。**一个对象**指的是Virtual DOM是一个基本的JavaScript对象，也是整个Virtual DOM树的基本。**两个前提**分别是JavaScript很快和直接操作DOM很慢，这是Virtual DOM得以实现的两个基本前提。得益于V8引擎的出现，让JavaScript可以高效地运行，在性能上有了极大的提高。直接操作DOM的低效和JavaScript的高效相对比，为Virtual DOM的产生提供了大前提。**三个步骤**指的是Virtual DOM的三个重要步骤，分别是：生成Virtual DOM树、对比两棵树的差异、更新视图。
 
 > 详细资料可以参考：[《Virtual DOM》](https://juejin.im/book/5bdc715fe51d454e755f75ef/section/5bdc72e6e51d45054f664dbf)、[《理解 Virtual DOM》](https://github.com/y8n/blog/issues/5)、[《深度剖析：如何实现一个 Virtual DOM 算法》](https://github.com/livoras/blog/issues/13)、[《网上都说操作真实 DOM 慢，但测试结果却比 React 更快，为什么？》](https://www.zhihu.com/question/31809713/answer/53544875)
-
+------
+### 8.2.2 vue框架的两大特点是什么？
++ 数据驱动（双向数据绑定）
++ 组件化开发
 ------
 
 ## 8.3 Vue的生命周期
@@ -6040,7 +6069,7 @@ module.exports = {
   - **beforeUpdate** ：响应式数据更新，即data里的数据已经更新，但是用户看到的页面上的数据还没有更新。
     
     + 此时，适合在更新之前访问现有的DOM，比如手动移除已添加的事件监听器。
-  + 注意：如果一个数据更新后，并没有渲染显示出这个数据。那么这两个钩子函数不会触发。所以，<u>这两个钩子函数发生的准确时机是“影响页面展示的数据发生更新前后”</u>
+    + 注意：如果一个数据更新后，并没有渲染显示出这个数据。那么这两个钩子函数不会触发。所以，<u>这两个钩子函数发生的准确时机是“影响页面展示的数据发生更新前后”</u>
     
   - **updated**: 页面完成了更新，data和页面都是最新的。
     
@@ -6194,10 +6223,63 @@ module.exports = {
 ------
 ### 8.4.6 🐯v-model指令
 
-+ 在表单控件或者组件上创建双向绑定
++ 在**表单**控件或者组件上创建双向绑定。
+```html
+<body>
+  <div id='app'>
+    <input type="text" v-model="nickname">{{nickname}}
+  </div>
+  <script>
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        nickname: 'Jamie'
+      },
+      methods: {}
+    })
+  </script>
+</body>
+```
++ 各种不同type的表单，具体绑定数据的实现参考官方文档:[表单输入绑定](https://cn.vuejs.org/v2/guide/forms.html#基础用法)。
 
-  
-
+  - 单选框 \<input type="radio">
+    + 一组单选框控件，需要将v-model绑定给同一个变量，每个单选控件都要有一个`value`值。
+    + 如果绑定的变量的值和某个单选项的`value`值相同，那么这个单选项被选中。
+	- 一个复选框是否勾选 \<input type="checkbox">
+	  + 绑定的变量是一个布尔值，无需设置`value`属性。
+  - 多个复选框多选
+    + 一组复选框控件，都要绑定给同一个数组变量。每个复选控件都要有一个`value`值。
+    + 如果多选控件的`value`值存在于`v-model`绑定的数组中，那么该控件将会被选中。
+  - 下拉列表\<select>\<option>\</select>  
+    + v-model绑定给`select`标签，控件如果有`value`值就提取`value`值，如果没有`value`值就提取`option`标签内的文本。
+    + 如果绑定的变量的值和某个单选项的`value`值相同，那么这个单选项被选中。
++ 输入框输入事件的修饰符
+	- `.lazy`: 在默认情况下，v-model 在每次 input 事件触发后将输入框的值与数据进行同步 (除了上述输入法组合文字时)。你可以添加 `lazy` 修饰符，从而转为在 `change` 事件_之后_进行同步.
+	- `.number`: 如果想自动将用户的输入值转为数值类型，可以给 `v-model` 添加 `number` 修饰符。
+	- `.trim`: 如果要自动过滤用户输入的首尾空白字符，可以给`v-model` 添加 `trim` 修饰符.
+-------
+#### 8.4.6.1 🚀 [面试题] 如何使用v-bind实现v-mode指令创建的表单双向数据绑定？
+```html
+<body>
+  <div id='app'>
+    <input type="text" :value="nickname" @input="change">{{nickname}}
+  </div>
+  <script>
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        nickname: 'Sansa'
+      },
+      methods: {
+        // 给input事件指定一个变更数据的函数
+        change(e) {
+          this.nickname = e.target.value;
+        }
+      }
+    })
+  </script>
+</body>
+```
 ------
 
 ### 8.4.7 🐯v-on指令
@@ -6250,31 +6332,403 @@ module.exports = {
 ### 8.4.8 v-once指令
 
 + `v-once`指令：只渲染元素和组件**一次**。随后的重新渲染，元素/组件及其所有的子节点将被视为静态内容并跳过。这可以用于优化更新性能。
+------
+### 8.4.9 自定义指令
++ 有的情况下，你仍然需要对普通 DOM 元素进行底层操作，这时候就会用到自定义指令。
++ 注册指令的方法：全局注册和局部组件注册。
+```js
+// 全局注册
+Vue.directive('指令名',{
+  bind:(el,binding,vnode,oldnode){},
+  inserted:(el,binding,vnode,oldnode){},
+  update:(el,binding,vnode,oldnode){},
+  componentUpdated:(el,binding,vnode,oldnode){},
+  unbind:(el,binding,vnode,oldvnode){}
+})
+```
+
+```js
+// 局部注册
+directives:{
+  指令名:{
+    bind:(el,binding,vnode,oldnode){},
+    inserted:(el,binding,vnode,oldnode){},
+    update:(el,binding,vnode,oldnode){},
+    componentUpdated:(el,binding,vnode,oldnode){},
+    unbind:(el,binding,vnode,oldvnode){}
+  }
+}
+```
++ 指令钩子函数。比如`inserted`,被绑定元素插入父节点时调用 (仅保证父节点存在，但不一定已被插入文档中)。
++ 指令钩子函数。比如`el`,被绑定的元素，`binding`，绑定信息对象。
+> 更多资料参考:[《官方Vue:自定义指令》](https://cn.vuejs.org/v2/guide/custom-directive.html)
+-------
+## 8.5 Vue基础功能
+
+### 8.5.1 🐯计算属性
+
++ 模板内的表达式非常便利，但是设计它们的初衷是用于简单运算的。在模板中放入太多的逻辑会让模板过重且难以维护，所以，对于复杂逻辑，应当使用**计算属性**`computed`。
+```html
+<div id="example">
+  <p>Original message: "{{ message }}"</p>
+  <p>Computed reversed message: "{{ reversedMessage }}"</p>
+</div>
+<script>
+var vm = new Vue({
+  el: '#example',
+  data: {
+    message: 'Hello'
+  },
+  computed: {
+    // 我们提供的函数将用作 property - vm.reversedMessage 的 getter 函数：
+    reversedMessage: function () {
+      // 翻转字符串
+      return this.message.split('').reverse().join('')
+    }
+  }
+})
+</script>
+```
++ 计算属性默认只有`getter`，不过在需要时(修改计算属性)也可以提供一个`setter`。
+
+------
+#### 8.5.1.1 🚀 [面试题]计算属性computed和methods有什么区别？
++ 我们可以将同一函数定义为一个方法而不是一个计算属性。两种方式的最终结果确实是完全相同的。然而，不同的是**计算属性是基于它们的响应式依赖（关联的变量值）进行缓存的**。只在相关响应式依赖发生改变时它们才会重新求值。而methods没有缓存，每次访问都会重新执行。
+
+------
+
+### 8.5.2 🐯侦听器
+
++ Vue 通过 `watch` 选项提供了一个更通用的方法，来响应数据的变化。当需要在数据变化时执行异步或开销较大的操作时，这个方式是最有用的。
+
+  ```js
+  new Vue({
+    //...,
+    data:{
+      sth:someValue
+    },
+    watch:{
+      // 如果变量sth发生变化，就会执行函数
+      sth:function(newValue,oldValue){
+        //...
+      }
+    }
+  })
+  ```
++ 注意区分`浅监听`和`深监听`
+	- 浅监听：监听的是基础数据类型，或简单纯数组。
+	- 深监听：监听引用数据类型。
+	```js
+	// 深监听
+  watch:{
+    变量名:{
+          deep:true,
+          handler:function(newval){
+           ...
+          }
+        }
+	}
+  ```
+  > 也可以使用命令式的`vm.$watch` API。
+------
+#### 8.5.2.1 🚀[面试题]计算属性computed和watch的区别？
++ 共同点：都是以Vue的追踪依赖机制为基础的，都希望在依赖数据发生改变的时候，被依赖的数据根据预先定义好的函数，发生“自动”变化。
++ 不同点：
+	- `watch`x 擅长处理的场景：一个数据影响多个数据；或需要在数据变化时执行**异步**或**开销较大**的操作时，使用watch侦听器最有用。
+	- `computed`擅长处理的场景：一个数据受多个数据的影响，计算**逻辑比较复杂**，但操作开销较小，通常是为了简化模板里面的操作，对数据处理后进行展示。
+------
+
+### 8.5.3 过滤器
+
++ Vue.js 允许你自定义过滤器，可被用于一些常见的文本格式化。过滤器可以用在两个地方：双花括号插值和 v-bind 表达式。过滤器应该被添加在 JavaScript 表达式的尾部，由“管道”符号`|`指示。`capitalize`过滤器函数将会收到 `message` 的值作为第一个参数。
+```html
+<!-- 在双花括号中 -->
+<p>{{ message | capitalize }}</p>
+<!-- 在 `v-bind` 中 -->
+<div v-bind:id="rawId | formatId"></div>
+```
++ 可以在一个组件的选项中定义本地的过滤器`filters`,或者在创建 Vue 实例之前全局定义过滤器`Vue.filter`。
+
+```js
+// option【局部定义】
+new Vue{
+  data{
+    //...
+  },
+  filters:{
+    //
+    capitalize: function (value) {
+    if (!value) return ''
+    value = value.toString()
+    return value.charAt(0).toUpperCase() + value.slice(1)
+    }
+  }
+}
+```
+
+```js
+// 【全局定义】
+Vue.filter('capitalize', function (value) {
+  if (!value) return ''
+  value = value.toString()
+  return value.charAt(0).toUpperCase() + value.slice(1)
+})
+new Vue({
+  //...
+})
+```
++ 过滤器可以串联使用
+```html
+{{ message | filterA | filterB }}
+```
+
+#### 8.5.3.1 计算属性computed和过滤器的区别
+
+|    计算属性computed    | 过滤器filters |
+| :--------------------: | :-----------: |
+| 依赖于一个固定的实例，在某一个实例中使用 |    不依赖于实例。可以 定义一个全局过滤器，在多个实例中使用     |
+| 不接受额外参数，依赖于data属性中的变量 | 不要求是data中的变量，可以是临时变量。可接受额外参数 |
+| 有缓存管理机制，可减少页面调用次数 | 无缓存机制，调用次数，取决于页面中有所多少过滤器 |
+| 计算属性虽默认为只读，但可以定义为对象，开启可读可写模式 | 只能读取操作 |
+| 计算属性被作为一个类属性调用 | 过滤器被作为一个特殊方法处理 |
+
++ 共同点：都必须要有返回值。
+
+------
+
+### 8.5.4 动画
+
++ Vue 提供了 `transition` 的封装组件，在下列情形中，可以给任何元素和组件添加进入/离开过渡：
+  - 条件渲染（v-if）
+  - 条件展示（v-show）
+  - 动态组件
+  - 组件根节点
++ 动画状态：在进入和离开的过渡中，会有6个class切换。`transition`标签中的name属性会对应css中状态名的`name`。
+	- 进入状态
+	  + 进入前 name-enter
+	  + 进入中 name-enter-active
+	  + 进入后 name-enter-to
+	- 离开状态
+	  + 离开前 name-leave
+	  + 离开中 name-leave-active
+	  + 离开后 name-leave-to
++ 自定义过渡类名
+  - 可以通过以下 attribute 来自定义过渡类名，他们的优先级高于普通的类名，这对于 Vue 的过渡系统和其他第三方 CSS 动画库，如 Animate.css 结合使用十分有用。
+    + enter-class
+    + enter-active-class
+    + enter-to-class
+    + leave-class
+    + leave-active-class
+    + leave-to-class
+> 更多内容参考: [《官方Vue:动画》](https://cn.vuejs.org/v2/guide/transitions.html#单元素-组件的过渡)
+
+------
+## 8.6 Vue组件化开发
+
+### 8.6.1 组件基础
+
+#### 8.6.1.1 组件介绍
+
++ 组件是可复用的Vue实例。网页开发中的组件的含义，是具有独立功能的模块（HTML，CSS，JS）。
++ 网页中的一切结尾组件：大到一个页面，小到一个标签都是组件。
++ 组件化开发：
+  - 组件可以复用，提高开发效率。
+  - 维护容易。
+
+------
+
+#### 8.6.1.2 组件注册
+
++ 组件的注册，可以理解为创建一个`自定义标签`。
++ 全局注册`Vue.component('compName',{configObj})`。使用时，当做自定义的标签来使用。
+```html
+<head>
+  <style>
+    .itembox{
+      border:2px solid #eee;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <item></item>
+    <item></item>
+  </div>
+</body>
+<script>
+// 全局注册
+Vue.component('item',{
+  template:"<div class='itembox'><h1 class='tit'>标题</h1><div class='cont'>内容</div></div>"
+})
+</script>
+```
++ 局部注册
+  ```js
+  new Vue({
+    //...,
+    components:{
+      compName1:{
+        configOpts
+      },
+      compName2:{
+        configOpts
+      }
+    }
+  })
+  ```
+```js
+new Vue({
+  el:'#app',
+  data:{},
+  components:{
+    warn:{
+      template:"<div class='warning'>警告：xxxx</div>"
+    }
+  }
+})
+```
++ 注册组件命名时，既可以使用短横线（kebab）命名法，又可以使用驼峰命名法。但是在直接在 DOM (即非字符串的模板) 中使用时只有 kebab-case 是有效的。
++ 组件模板`template`的值，可以使用模板字符串，也可以用选择器去匹配对应的template模板内容。
++ Vue2组件模板只能有一个根标签。即，\<template>标签内层的根节点只能有一个。
+------
+
+#### 8.6.1.3 组件嵌套
+
++ **组件嵌套**是指，在一个组件的`template`模板里面使用另一个组件。注意和"插槽”区分。
+```js
+Vue.component('ccc',{
+  template:`<div>我是ccc <ddd></ddd> </div>`,
+  components:{
+    ddd:{
+      template:`<div>我是ddd <eee></eee> </div>`,
+      components:{
+        ee:{
+          template:`<div>我是eee</div>`
+        }
+      }
+    }
+  }
+})
+```
++ 全局组件，任何组件的模板里面都可以使用。局部组件，只能出现在自己的父模板里面！
+------
+
+#### 8.6.1.4 组件的配置选项
+
++ template 类似 el 
++ components
++ data
+  - vue实例中，data是一个对象，而**组件实例data是一个函数！且这个函数返回一个对象**。
++ methods
++ watch
++ filters
++ directives
++ ...
+------
+##### 8.6.1.4.1 🚀[面试题]为什么组件实例的data必须是一个函数？
+
+> 注意区分new Vue() 生成的vue实例对象和组件实例的区别。
++ 组件复用时，所有组件实例都会共享data，如果data是对象的话，就会造成一个组件修改data以后会影响到其他所有组件，所以必须把data写成一个函数，返回的每个实例可以维护一份被返回对象的独立的拷贝。
+------
+#### 8.6.1.5 动态组件
+
+
+------
+#### 8.6.1.6 缓存组件
 
 -------
-## 8.5 Vue组件传值
+
+### 8.6.2 脚手架
+
+
+
+-------
+
+### 8.6.3 组件通信
 
 --------
-## 8.6 Vue插件
+## 8.7 Vue插件
 
-### 8.6.1 Vue路由:VueRouter
+### 8.7.1 Vue路由:VueRouter
 
 ------
 
-### 8.6.2 Vue状态管理:Vuex
+### 8.7.2 Vue状态管理:Vuex
 
 --------
 
-### 8.6.3 Vue中如何使用插件
+### 8.7.3 Vue中如何使用插件
 
 ------
-### 8.7 常用API
+## 8.8 常用API
 + **vm.$mount("#el")** ：和el的作用一致。
+	
 	- 如果Vue实例在实例化时，没有收到el选项，没有关联到DOM元素，可以手动使用这个方法挂载实例。
-+ **vm.$destroy()** : 主动消亡某个实例
+	
++ **vm.$destroy()** : 主动消亡某个实例。
+
 + **vm.$delete(target,key)**: 删除对象的某个属性，让页面响应。
+
 + **vm.$set(target,key,val)**: 添加属性，修改数组，让页面响应。
 
++ **vm.$el**: 挂载的DOM节点。
+
++ **vm.$data**: data对象。
+
++ **vm.$watch(变量,函数,{配置对象})**：watch侦听器。
+
+  ```js
+  //浅监听
+  vm.$watch('num',(newVal,oldVal)=>{
+    console.log(newVal,oldVal)
+  });
+  ```
+
+  ```js
+  // 深监听
+  vm.$watch('object',(newVal)=>{
+    console.log(newVal)
+  },{
+    deep:true
+  })
+  ```
+  
++ **vm.$forceUpdate()**:强制刷新，迫使Vue 实例重新渲染。注意它仅仅影响实例本身和插入插槽内容的子组件，而不是所有子组件。
+
++ **vm.$nextTick()** 🚀: 将想要执行的回调延迟到DOM 更新之后再执行。如果直接在修改数据后，执行从渲染出来的DOM上获取数据是不合理的，因为此时DOM还没有更新。所以不可能做到在修改数据后并且DOM更新后再执行，要保证在DOM更新以后再执行某一块代码，就必须把这块代码放到下一次事件循环里面，比如setTimeout(fn, 0)，这样DOM更新后，就会立即执行这块代码。类似于`updated`。
+
+  ```html
+  <div id='app'>
+     <p id="prag">{{msg}}</p>
+     <button @click=changeMsg>改变Msg</button>
+  </div>
+  
+  <script>
+  let vm = new Vue({
+     el: "#app",
+     data: {
+       msg: 'hi'
+     },
+     methods: {
+       changeMsg() {
+         // 修改数据
+         this.msg = "Hello!"
+         /** 这里如果直接想要从dom上获取信息，获取的是个更改前的信息
+         let p = document.getElementById('prag')
+         console.log(p.innerHTML) //hi 
+         **/
+         Vue.nextTick(() => {
+           let p = document.getElementById('prag')
+           console.log(p.innerHTML)
+         })
+       }
+     }
+  });
+  ```
+
+  
+
+  > 修改数据之后，vm对象上的数据确实是改变了，但是绑定到dom上的数据不能立刻就更新过来的。加上nextTick的原因是保证dom上的元素更新并且渲染完成之后再去执行某个（些）函数，这个（些）函数主要用于跟计算跟dom元素相关的，比如dom上的width,height,innerHTML等等，如果不在nexTtick里面运行的话，你根本不能保证dom里的width,height,innerHTML已经更新并且渲染完成。
 
 # 9. 浏览器
 
