@@ -6032,8 +6032,8 @@ module.exports = {
 > 详细资料可以参考：[《Virtual DOM》](https://juejin.im/book/5bdc715fe51d454e755f75ef/section/5bdc72e6e51d45054f664dbf)、[《理解 Virtual DOM》](https://github.com/y8n/blog/issues/5)、[《深度剖析：如何实现一个 Virtual DOM 算法》](https://github.com/livoras/blog/issues/13)、[《网上都说操作真实 DOM 慢，但测试结果却比 React 更快，为什么？》](https://www.zhihu.com/question/31809713/answer/53544875)
 ------
 ### 8.2.2 vue框架的两大特点是什么？
-+ 数据驱动（双向数据绑定）
-+ 组件化开发
++ 数据驱动（双向数据绑定）;
++ 组件化开发.
 ------
 
 ## 8.3 Vue的生命周期
@@ -6262,7 +6262,7 @@ module.exports = {
 ```html
 <body>
   <div id='app'>
-    <input type="text" :value="nickname" @input="change">{{nickname}}
+    <input type="text" :value="nickname" v-on:input="change">{{nickname}}
   </div>
   <script>
     var vm = new Vue({
@@ -6280,6 +6280,28 @@ module.exports = {
   </script>
 </body>
 ```
+------
+#### 8.4.6.2 如何在自定义的组件上使用v-model双向数据绑定功能？
+
++ 自定义事件也可以用于创建支持 `v-model` 的自定义输入组件。
+
+```js
+// 注册一个自定义的组件
+Vue.component('custom-input', {
+  props: ['value'],
+  template: `
+    <input
+      v-bind:value="value"
+      v-on:input="$emit('input', $event.target.value)"
+    >
+  `
+})
+```
+```html
+<!-- 使用自定的组件 -->
+<custom-input v-model="searchText"></custom-input>
+```
+> 更多资料参考：[《官方Vue:在组件上使用v-model》](https://cn.vuejs.org/v2/guide/components.html#在组件上使用-v-model)
 ------
 
 ### 8.4.7 🐯v-on指令
@@ -6632,19 +6654,193 @@ Vue.component('ccc',{
 ------
 #### 8.6.1.5 动态组件
 
++ 有的时候，在不同组件之间进行动态切换是非常有用的，比如在一个多标签的界面里切换tab。动态切换组件可以通过 Vue 的 `<component>` 元素加一个特殊的 `is` attribute 来实现。
+```html
+<!-- 组件会在 `currentTabComponent` 改变时改变 -->
+<component :is="currentTabComponent"></component>
+```
++ 动态组件切换时结合动画。
+```html
+<!--引入animate.css 库 -->
+<transition enter-active-class="animated fadeIn" leave-active-class="animated fadeOut">
+  <component :is="curTabComp"> </component>
+</transition>
+```
++ `is`属性在标签上静态使用时，可以用来替换当前的默认标签。
+```html
+<div id="app">
+  <ul>
+    <!-- li会被替换 -->
+    <li is="libox"></li>
+  </ul>
+</div>
+<script>
+ new Vue({
+   el:"#app",
+   data:{
+   //...
+   },
+   components:{
+     libox:{
+       template:`<li>
+                  <h3>我是libox组件<h3>
+               </li>
+       `
+     }
+   }
+ })
+</script>
+```
 
 ------
 #### 8.6.1.6 缓存组件
 
++ 使用\<keep-alive>标签包裹动态组件，那么组件实例能够被在它们第一次被创建的时候缓存下来。当频繁切换组件的时候，可以避免反复重渲染导致的性能问题。使用了缓存组件后，`created`只会执行一次。
+```html
+<keep-alive>
+  <component v-bind:is="currentTabComponent"></component>
+</keep-alive>
+```
++ 注意两个生命周期函数：`activated`和`deactivated`，针对特定的不想使用缓存的组件，可以使用这两个钩子函数来执行一些操作。
+	- `activated`: 被`keep-alive`缓存的组件**激活**时调用。
+	- `deactivated`: 被`keep-alive`缓存的组件**停用**时调用。
+> 注意上面两个钩子函数在服务器端渲染不会调用。
 -------
 
 ### 8.6.2 脚手架
 
++ `Vue-Cli` 即Vue.js开发的标准化工具。
 
++ 安装
+```bash
+sudo npm i -g @vue/cli
+```
++ 创建项目
+```bash
+vue create my-project
+```
+------
+#### 8.6.2.1 [面试题] vue-cli工程都用到了那些技术？
++ vue.js : vue-cli 的核心。主要特点是双向数据绑定和组件系统。
 
++ vue-router: Vue官方推荐使用的路由框架。
+
++ vuex： 专门为Vue.js项目开发的状态管理器，主要用于维护vue组件公用的一些变量和方法。
+
++ webpack： 模块加载和vue-cli工程打包器。
+
++ 创建一个`emit.js`，用于vue事件机制的管理。
+------
+#### 8.6.2.2 vue-cli 4创建的工程项目文件关系梳理
+
+<div align="center">
+  <img src="./0_pictures/Vue-cli4_relationMap.png" alt="relationMap" />
+</div>
 -------
 
 ### 8.6.3 组件通信
+
+#### 8.6.3.1 🐯父传子： props
+
++ 父组件通过**属性传值**给子组件；子组件内部通过**`props`**这个option来**接收**传递过来的值。
+
+  ```html
+  <!-- 父组件 -->
+  <menu-item :title="titleVal"></menu-item>
+  <menu-item menu-title="titleVal"></menu-item>
+  ```
+
+  ```js
+  <!-- 子组件:【全局注册】的形式 -->
+  Vue.component('menu-item',{
+    props:['title','menuTitle'],
+    template:`<div> {{title}}--{{menuTitle}} </div>`
+  })
+  ```
+  ```vue
+  <!-- 子组件:复杂项目开发中的【单文件组件】形式 -->
+  <template>
+  	<div> {{title}}--{{menuTitle}} </div>
+  </template>
+  <script>
+  export default {
+    name:'menu-item',
+    props:['title','menuTitle'],
+    data(){
+      return{}
+    }
+  }
+  </script>
+  ```
+
+  - 如果希望每个prop都有指定的值的类型，或其他限制时，可以以对象的形式列出prop。因为数组形式的声明props只能声明属性是否存在，而不能附加其他限制。
+
+    ```js
+    export default {
+      name:'menu-item',
+      props:{
+        title:String,// 单类型
+        menuTitle:[String,Number],// 多类型
+        propA:{
+          type:String,
+          default:'默认值', // 未传值时，使用默认值
+        },
+        propB:{
+          type:Number,
+          required:true // 必填
+        },
+        propC:{
+          type:Array,
+          //default 如果自定义属性是基本数据类型，那么直接写值；如果是一个【引用数据类型】，需要写成一个函数，且这个函数返回一个数组或对象。
+          default(){
+            return [];
+          }
+        },
+        propD:{
+          type:Array,
+          // 自定义校验函数！函数要返回一个布尔值，表示验证成功与否
+          validator(val){ 
+            return val.length>2?true:false
+          }
+        }
+      },
+      data(){
+        return{}
+      }
+    }
+    ```
+
+  - 所有的 prop 都使得其父子 prop 之间形成了一个**单向下行绑定**的数据流：父级 prop 的更新会向下流动到子组件中，但是反过来则不行。这样会**防止从子组件意外变更父组件的状态，从而导致你的应用的数据流向难以理解**。
+
+  - JS中的`props`使用驼峰命名法（camelCase）对应DOM模板中使用短横线命名法（kebab-case）。
+
+------
+
+#### 8.6.3.2 🐯子传父： 自定义事件 
+
++ 子组件通过`自定义事件$emit()`向父组件传递信息；父组件中监听**子组件自定义事件名**的事件。
+
++ 子组件使用 $emit 的第二个参数来提供一个传给自定义事件的参数，当在父级组件监听这个事件的时候，我们可以通过` $event` 访问到被抛出的这个值。
+  ```html
+  <!--子组件 触发一个名为'enlarge-text'的自定义事件 -->
+  <button @click="$emit('enlarge-text',0.1)">增大字体</button>
+  ```
+  ```html
+  <!--父组件中，监听名为'enlarge-text'的事件 -->
+  <menu-item v-on:enlarge-text="fontSize +=$event"></menu-item>
+  ```
+  
++ 注意，自定义事件名应当始终使用短横线命名` kebab-case` 的事件名。
+
+------
+
+#### 8.6.3.3 祖传子
+
+
+
+------
+
+### 8.6.4 组件插槽
 
 --------
 ## 8.7 Vue插件
@@ -6674,6 +6870,8 @@ Vue.component('ccc',{
 + **vm.$el**: 挂载的DOM节点。
 
 + **vm.$data**: data对象。
+
++ **vm.$attrs**: vue实例（组件）上的属性。
 
 + **vm.$watch(变量,函数,{配置对象})**：watch侦听器。
 
