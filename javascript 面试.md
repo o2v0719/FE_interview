@@ -7008,19 +7008,55 @@ export default {
 --------
 ## 8.7 Vue插件
 
++ 插件通常用来为 Vue 添加**全局**功能。
+
 ### 8.7.1 Vue路由:VueRouter
 
-#### 8.7.1.1 路由基础
++ VueRouter是一个实现了路由管理的官方库。
++ 安装
+```bash
+# 注意，vue脚手架开发，初始项目的时候就要配置安装好vue-router
+npm i vue-router --save
+```
++ 引入后使用：src >> router >> index.js
+```js
+import Vue from "vue"
+import VueRouter from "vue-router"
+Vue.use(VueRouter)
 
+// 导入页面组件
+import index from "@/pages/index"
+import car from "@/pages/car"
+import user from "@/pages/user"
 
+// 实例化一个路由对象
+let router = new VueRouter({
+  routes:[ // 路由映射数组
+    { path:"/",component:index },
+    { path:"/car",component:car },
+    { path:"/user",component:user }
+  ]
+})
 
+export default router
+```
 
++ 在main.js中注入路由信息
+```js
+import Vue from 'vue';
+import App from './App';
 
+import router from './router';
+new Vue({
+  el:'#app',
+  router,
+  components:{App},
+  template:'<App/>'
+})
+```
++ 在App.vue模板里面写入`router-view`标签，路由地址切换后对应的组件内容就展示在这里。
++ 使用`router-link`实现a标签。to的值就是 *路由映射配置里的path的值*。
 ------
-
-#### 8.7.1.2 VueRouter
-
-
 
 ------
 
@@ -7028,9 +7064,16 @@ export default {
 
 --------
 
-### 8.7.3 Vue中如何使用插件
+### 8.7.3 Vue开发中如何使用插件?
 
-+ 注意，插件的初始化要放在mouted钩子函数之后。
++ ① 安装插件
++ ② 使用ES6的`import...from...`语法或CommonJS的`require()`方法引入插件。
+
++ ③ 使用全局方法`Vue.use(plugin)`使用插件，可以传入一个可选的选项对象来配置插件。需要在你调用 `new Vue()` 启动应用之前完成。
+
+  ```js
+  Vue.use(MyPlugin, { someOption: true })
+  ```
 
 #### 8.7.3.1 Vue中如何使用jQuery？
 
