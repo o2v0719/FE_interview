@@ -6258,7 +6258,7 @@ module.exports = {
 	- `.number`: 如果想自动将用户的输入值转为数值类型，可以给 `v-model` 添加 `number` 修饰符。
 	- `.trim`: 如果要自动过滤用户输入的首尾空白字符，可以给`v-model` 添加 `trim` 修饰符.
 -------
-#### 8.4.6.1 🚀 [面试题] 如何使用v-bind实现v-mode指令创建的表单双向数据绑定？
+#### 8.4.6.1 🚀 [面试题] 如何使用v-bind实现v-model指令创建的表单双向数据绑定？
 ```html
 <body>
   <div id='app'>
@@ -6836,12 +6836,175 @@ vue create my-project
 
 #### 8.6.3.3 祖传子
 
++ **`provide`**和**`inject`**两个选项option：一个祖先组件向其所有子孙后代组件注入一个依赖，不论组件层次有多深，并在其上下游关系成立的时间里始终生效。
++ `provide` 选项应该是一个对象或返回一个对象的函数。该对象包含可注入其子孙的 property。`inject` 选项应该是一个字符串数组或一个对象。
+```js
+// 祖先组件
+export default {
+  data(){
+    return {}
+  },
+  provide:{
+    msg:'祖先',
+    age:88
+  }
+}
+```
 
+```js
+// 子组件
+export default {
+  //...
+  // inject:['msg','age']
+  inject:{
+    bar:{
+      from:'aaa',
+      default:'默认值'
+    // default:()=>[1,2,3]
+    }
+  }
+}
+```
+------
+#### 8.6.3.4 非父子组件通信
++ 实现任意两个组件的通信。核心：利用了*vue实例的原型对象*里面的$\$emit$和$\$on$实现组件的监听事件和触发事件。
+```js
+// main.js
+let bus = new Vue();
+// 在Vue的原型上面添加数据，所有的组件都可以获取到
+// 所有的组件实例都将会共享一个$bus的对象
+Vue.prototype.$bus=bus;
+```
+```js
+// 任意组件A: 监听事件
+create(){
+  this.$bus.$on('eventName',(args)=>{})
+}
+```
+```js
+// 任意组件B: 触发事件
+this.$bus.$emit('eventName',args)
+```
+------
+#### 8.6.3.5 父子关系
++ \$parent , \$children
+
++ [$ref ](#ref)： 获取到当前组件中的子组件或元素作为dom节点，直接引用这个节点然后灌入数据。
+  - 注意：**mounted()**钩子函数之后再调用，因为这个时候才存在真实DOM节点。
 
 ------
 
 ### 8.6.4 组件插槽
 
++ 插槽的含义：在组件的标签之间放内容，该组件内部的模板中可以存在`<slot>`标签，标签之间的内容会替换slot标签。
+
+  > v-slot 指令自Vue2.6.0版本后引入，提供了更好的slot和slot-scope attributed的API替代方案。
+
+#### 8.6.4.1 组件插槽的基本用法
+
++ 如果\<slot>标签内本来就存在content，那么这里的content将会被作为后备内容。
++ 父级模板里的所有内容都是在父级作用域中编译的；子模板里的所有内容都是在子作用域中编译的。
+
+```js
+// 子组件定义插槽slot的位置
+Vue.component('alert-box',{
+  template:`
+    <div class="demo-alert-box"> 
+      <strong>Error!</stong>
+      <slot></slot>
+    </div>
+  `
+})
+```
+```vue
+<!-- 父组件中使用子组件 -->
+<alert-box>Something bad happened.</alert-box>
+```
+--------
+#### 8.6.4.2 具名插槽
++ 对于多个插槽匹配，可以使用具名插槽的语法。在向具名插槽提供”定制内容“的时候，可以在\<template>标签上使用`v-slot`指令，并以`v-slot:slotName`的形式匹配子组件内部的插槽名称。`v-slot`指令只能使用在\<template>标签上。
++ 在子组件内部的\<slot>标签上，可以提供`name="slotName"`的属性，用于定义插槽名称。
++ 一个不带 name 的 <slot> 出口会带有隐含的名字“default”。任何没有被包裹在带有 `v-slot` 的 <template> 中的内容都会被视为默认插槽的内容。
+```vue
+<!-- 子组件内部:定义插槽的位置和名称 -->
+<template>
+  <div class="container">
+    <header>
+      <slot name="header"></slot>
+    </header>
+    <main>
+      <slot></slot>
+    </main>
+    <footer>
+      <slot name="footer"></slot>
+    </footer>
+  </div>
+</template>
+<script>
+export default {
+  name:'base-layout',
+  data(){return{}}
+  //...
+}
+</script>
+```
+```vue
+<!-- 父组件中使用子组件 -->
+<base-layout>
+  <template v-slot:header>
+    <h1>Here might be a page title</h1>
+  </template>
+
+  <p>A paragraph for the main content.</p>
+  <p>And another one.</p>
+
+  <template v-slot:footer>
+    <p>Here's some contact info</p>
+  </template>
+</base-layout>
+```
+-------
+#### 8.6.4.3 作用域插槽
+
++ 作用域插槽实现了这样的功能：<p style="color:red">让父级中的插槽内容能够访问子组件中才有的数据</p>。默认情况下，父级内容无法访问子组件中的数据。
+	- 在子组件中的\<slot>标签上,使用v-bind绑定想要和父级分享的数据对象。这个绑定在 <slot> 元素上的 attribute 被称为**插槽 prop**。
+	- 在父级的\<template>标签上, 我们可以使用带值的 v-slot 来定义子组件提供的数据对象的名字，比如`v-slot:default="slotProps"`。
+> "slotProps"的名称可以任取，代表从子组件插槽传递过来的数据，也可以说“slotProps”代表着从子组件中劫持过来的作用域，子组件中指定的数据都可以通过`slotProps.X`的形式在父组件的环境中访问。
+```vue
+<!-- 子组件 -->
+<span>
+  <slot v-bind:user="user">
+    {{ user.lastName }}
+  </slot>
+</span>
+```
+```vue
+<!-- 父组件中使用子组件 -->
+<current-user>
+  <template v-slot:default="slotProps">
+    {{ slotProps.user.firstName }}
+  </template>
+</current-user>
+```
++ 当被提供的内容只有默认插槽时，组件的标签才可以被当作插槽的模板来使用。`v-slot:default="slotProps"`可以缩写为`slot="slotProps"`。
+
+```vue
+<current-user v-slot:default="slotProps">
+  {{ slotProps.user.firstName }}
+</current-user>
+```
++ 只要出现多个插槽，请始终为所有的插槽使用完整的基于 <template> 的语法。
+```vue
+<current-user>
+  <template v-slot:default="slotProps">
+    {{ slotProps.user.firstName }}
+  </template>
+
+  <template v-slot:other="otherSlotProps">
+    ...
+  </template>
+</current-user>
+```
 --------
 ## 8.7 Vue插件
 
@@ -6855,8 +7018,30 @@ vue create my-project
 
 ### 8.7.3 Vue中如何使用插件
 
++ 注意，插件的初始化要放在mouted钩子函数之后。
+
+#### 8.7.3.1 Vue中如何使用jQuery？
+
++ CDN引入：在`index.html`中通过CDN引入，之后可以在任何组件中直接使用。
+
++ npm安装后使用。
+
+  ```bash
+  npm i jquery -S
+  ```
+
+  ```js
+  // 在有需求的组件中使用
+  import $ from "jquery"
+  ```
+
+  
+
 ------
 ## 8.8 常用API
+
+### 8.8.1 实例property
+
 + **vm.$mount("#el")** ：和el的作用一致。
 	
 	- 如果Vue实例在实例化时，没有收到el选项，没有关联到DOM元素，可以手动使用这个方法挂载实例。
@@ -6924,10 +7109,26 @@ vue create my-project
   });
   ```
 
-  
-
   > 修改数据之后，vm对象上的数据确实是改变了，但是绑定到dom上的数据不能立刻就更新过来的。加上nextTick的原因是保证dom上的元素更新并且渲染完成之后再去执行某个（些）函数，这个（些）函数主要用于跟计算跟dom元素相关的，比如dom上的width,height,innerHTML等等，如果不在nexTtick里面运行的话，你根本不能保证dom里的width,height,innerHTML已经更新并且渲染完成。
+------
+### 8.8.2 特殊attribute
++ **ref**: 被用来给元素或子组件注册<span id="ref">引用信息</span>。引用信息将会注册在父组件的 $refs 对象上。如果在普通的 DOM 元素上使用，引用指向的就是 DOM 元素；如果用在子组件上，引用就指向组件实例：
+```vue
+<template>
+<!-- `vm.$refs.p` will be the DOM node -->
+  <p ref="p">hello</p>
+</template>
+<script>
+ new Vue({
+   //..
+   mounted(){
+     this.$refs.p.innerHTML='Hello World'
+   }
+ })
+</script>
+```
 
++ **is**：用于动态组件且基于 DOM 内模板的限制来工作。
 # 9. 浏览器
 
 # 10. 简单算法
