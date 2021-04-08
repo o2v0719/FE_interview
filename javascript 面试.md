@@ -4053,9 +4053,20 @@ sessionStorage.removeItem("book");
 ------
 ### 5.2.2 localStorage
 + `localStorage`对象是`Storage`类型的实例。
+
 + `localStorage`是客户端**持久存储数据**的机制。要访问同一个`localStorage`对象，页面必须来之用一个域，相同的端口和相同的协议。
+
 + `localStorage`对象的使用方法同`sessionStorage`。
-+ 存储在`localStorage`对象上的数据会保留到通过Javascript删除或者用户清除浏览器缓存。`localStorage`对象上的数据不受页面刷新的影响，也不会因为关闭窗口、标签页或重启浏览器而丢失。  
+
++ 存储在`localStorage`对象上的数据会保留到通过Javascript删除或者用户清除浏览器缓存。`localStorage`对象上的数据不受页面刷新的影响，也不会因为关闭窗口、标签页或重启浏览器而丢失。 
+
+> **localStorage**对象有什么特点？ 
+>
+>  1. localStorage的值为string类型，这就说明我们在使用的时候可能需要进行类型转换。
+>  2. 在浏览器隐私模式下不可读取。
+>  3. 不同浏览器无法共享localStorage，相同浏览器的不同页面间可以共享相同的 localStorage（页面属于相同域名和端口），但是不同页面或标签页间无法共享sessionStorage的信息。这里需要注意的是，页面及标 签页仅指顶级窗口，如果一个标签页包含多个iframe标签且他们属于同源页面，那么他们之间是可以共享sessionStorage的。
+>  4. localStorage不能被爬虫获取
+>  5. 存储过多数据会导致页面变卡，因为localStorage的本质是对字符串的读取
 ------
 ### 5.2.3 存储事件
 + 每当Storage对象发生变化时，都会在文档上触发`storage`事件。对于`sessionStorage`和`localStorage`上的任何更改都会触发`storage`事件。但是storage事件不会区分两者。
@@ -4063,6 +4074,10 @@ sessionStorage.removeItem("book");
 ### 5.2.4 限制
 + Web Storage的限制取决于特定的浏览器。一般来说，客户端数据的大小限制是按照每个源（协议、域名和端口）来设置的，因此每个源有固定大小的数据存储空间。
 + 不同浏览器给`localStorage`和`sessionStorage`设置了不同的空间限制，大多数限制为每个源5MB。
+------
+#### 5.2.5 [面试题] 试比较cookies，localStorage，sessionStorage的异同？
++ localStorage:仅在客户端存储不参与服务器通信，存储大小一般为5M，如果不是人为清除，那么即使是关闭浏览器也会一直存在; sessionStorage:仅在客户端存储不参与服务器通信，存储大小一般为5M，会话级存储，也就是说如果关闭当前页面或者浏览器那么就会清除; cookie:客户端存储，参与服务器通信，存储大小为4k,可设置生命周期，在设置的生命周期内有效。
++ 
 ------
 # 6. 模块化
 ## 6.1 模块化开发怎么理解？
@@ -7013,6 +7028,10 @@ export default {
 ### 8.7.1 Vue路由:VueRouter
 
 + VueRouter是一个实现了路由管理的官方库。
+> vue-router是Vue.js官方的路由插件，它和vue.js是深度集成的，适合用于构建单页面应用。vue的单页面应用是基于路由和组件的，路由用于设定访问路径，并将路径和组件映射起来。传统的页面应用，是用一些超链接来实现页面切换和跳转的。在vue-router单页面应用中，则是路径之间的切换，也就是组件的切换。**路由模块的本质 就是建立起url和组件之间的映射关系**。至于我们为啥不能用a标签，这是因为用Vue做的都是单页应用（当你的项目npm run build 打包后，就会生成dist文件夹，这里面只有静态资源和一个index.html页面），所以你写的\<a>\</a>标签跳转页面是不起作用的，你必须使用vue-router来进行管理。
+
++ 🪴关于Vue路由，重点掌握两个标签**\<router-view>**和**\<router-link>** 以及两个对象**this.$route**和**this.$router**。
+#### 8.7.1.0 基础配置参考
 + 安装
 ```bash
 # 注意，vue脚手架开发，初始项目的时候就要配置安装好vue-router
@@ -7056,10 +7075,320 @@ new Vue({
 ```
 + 在App.vue模板里面写入`router-view`标签，路由地址切换后对应的组件内容就展示在这里。
 + 使用`router-link`实现a标签。to的值就是 *路由映射配置里的path的值*。
-------
 
 ------
+#### 8.7.1.1 404配置
++ 默认情况下，访问一个没有被定义的路由地址，页面不会渲染任何内容。我们可以给它指定到404页面。
++ 404页面的配置放在最后。
++ 实现：
+```js
+{
+ routes:[
+   {
+     path:'/',         // 路由地址
+     name:'index',     // 路由名称
+     component:Index   // 路由组件
+   },
+   //...
+   {
+     // * 表示匹配任意路径，放在routes匹配规则的最后，通常用于匹配客户端 404 错误页面
+     path:'/*',
+     component:404组件
+   }
+ ]
+}
+```
+------
+#### 8.7.1.2 命名路由
++ 创建 Router 实例的时候，在 routes 配置中给某个路由设置名称`name`。
+```js
+const router = new VueRouter({
+  routes: [
+    {
+      path: '/user/:userId',
+      name: 'user',
+      component: User
+    }
+  ]
+})
+```
++ 如何跳转到`命名路由`？
+  - 给 `\<router-link>` 的 `to` 属性传一个对象
+  ```vue
+  <router-link :to="{ name: 'user', params: { userId: 123 }}">User</router-link>
+  ```
+  - 同js代码调用 `router.push()`
+  ```js
+  router.push({ name: 'user', params: { userId: 123 } })
+  ```
+------
+#### 8.7.1.3  \<router-link> 
++ \<router-link> 组件支持用户在具有路由功能的应用中 (点击) 导航。 通过 `to` 属性指定目标地址，默认渲染成带有正确链接的 \<a> 标签，可以通过配置 `tag` 属性生成别的标签.。另外，当目标路由成功激活时，链接元素自动设置一个表示激活的 CSS 类名。
 
++ `to属性`: to属性表示目标路由的链接。当被点击后，内部会立刻把 `to` 的值传到 `router.push()`，所以这个值可以是一个字符串或者是描述目标位置的对象。
+
+  ```html
+  <!-- 字符串 -->
+  <router-link to="home">Home</router-link>
+  <!-- 描述目标位置的对象 -->
+  <router-link :to="{ path: 'home' }">Home</router-link>
+  <router-link :to="{ name: 'user', params: { userId: 123 }}">User</router-link>
+  ```
+
++ `replace`属性: 设置 replace 属性的话，当点击时，会调用 router.replace() 而不是 router.push()，于是导航后不会留下 history 记录。
+
+  ```vue
+  <router-link :to="{ path: '/abc'}" replace></router-link>
+  ```
+
++ 激活的类名 : 设置链接激活时使用的 CSS 类名.
+  - 默认值: "router-link-active",表示**模糊匹配**。这个默认值可以通过路由的构造选项 **`linkActiveClass`** 来全局配置。
+  ```vue
+  <router-link to="/" tag="li">首页</router-link>
+  <router-link to="/user">用户</router-link>
+  ```
+  ```html
+  <!--上述两个标签渲染后都会加上router-link-active类名 -->
+  <li class="router-link-active">首页</li>
+  <a class="router-link-active">用户</a>
+  ```
+  - 默认值: ”router-link-exact-active"表示**精确匹配**。这个默认值可以通过路由的构造选项 **`linkExactActiveClass`** 来全局配置。”精确匹配“可以在\<router-link>标签上添加`exact`属性来开启。
+  ```vue
+  <router-link to="/news/info" exact>新闻详情</router-link>
+  ```
+  ```html
+  <!-- 仅在连接到"/news/info"时激活”router-link-exact-active"类名-->
+  <a class="router-link-exact-active">新闻详情</a>
+  ```
+  - 全局配置(更改)激活的类名：
+  ```js
+  export default new Router({
+    linkActiveClass:"自定义class名1", // 模糊匹配路由成功后，激活的class名
+    linkExactActiveClass:"自定义class名2",// 精确匹配路由成功后，激活的class名
+    routes:[
+      { path:'/a',component:'aComp'},
+      { path:'/b',component:'bComp'},
+    ]
+  })
+  ```
+------
+#### 8.7.1.4 重定向和别名
++ `重定向`也是通过 `routes` 配置来完成.下面例子是从 /a 重定向到 /b
+```js
+const router = new VueRouter({
+  routes: [
+    { path: '/a', redirect: '/b' }
+  ]
+})
+```
++ `别名`:/a 的别名是 /b，意味着，当用户访问 /b 时，URL 会保持为 /b，但是路由匹配则为 /a，就像用户访问 /a 一样。
+```js
+const router = new VueRouter({
+  routes: [
+    { path: '/a', component: A, alias: '/b' }
+  ]
+})
+```
+------
+#### 8.7.1.5 动态路由
++ 使用场景：新闻列表到新闻详情，详情需要知道新闻id；
++ 动态路由：使用一个以冒号开头的动态路径参数来匹配同一个组件，这个组件用不同的数据来渲染。当匹配到一个路由时，参数值会被设置到 `this.$route.params`，可以在每个组件内使用。
+```js
+const router = new VueRouter({
+  routes: [
+    // 动态路径参数 以冒号开头
+    { path: '/user/:id', component: User }
+  ]
+})
+```
+> 详情参考：[Vue官方：动态路由匹配](https://router.vuejs.org/zh/guide/essentials/dynamic-matching.html#响应路由参数的变化)
+------
+#### 8.7.1.6 区分两个重要对象
+
+> 在main.js 中将路由挂载到vue实例上面后，所有的组件对象里面都会有两个属性，$route和\$router。
+
++ `$route` : 表示当前页面的路由状态信息。
+  - $route.path: 当前路由的绝对路径。
+  - $route.params:一个 key/value 对象, 包含了动态片段和全匹配片段。
+  - $route.query: 一个 key/value 对象，表示 URL 查询参数。例如，对于路径 `/foo?user=1`，则有 `$route.query.user == 1`，如果没有查询参数，则是个空对象。
+  - $route.hash: 当前路由的 hash 值 (带 `#`) ，如果没有 hash 值，则为空字符串。
+  - $route.name: 当前路由的名称。
+  - $route.meta: 当前路由的[元信息](#metaFields)。
+> 详情参考：[官方Vue:路由对象](https://router.vuejs.org/zh/api/#路由对象)
++ `$router`: 表示整个全局的路由实例对象。它是VueRouter构造函数的实例对象。
+> 详情参考：[官方Vue:Router实例](https://router.vuejs.org/zh/api/#Router实例属性)
+------
+
+#### 8.7.1.7 编程式导航
++ 借助`this.$router`对象上的方法，可以导航到不同的URL。
++ ① `$router.push()`:这个方法会向 `history` 栈添加一个新的记录，所以，当用户点击浏览器后退按钮时，则回到之前的 URL。
+  - 该方法的参数可以是一个字符串路径，或者一个描述地址的对象。
+  - 注意：如果提供了 `path`，那么`params` 会被忽略。
++ ② `$router.replace()`:跟 `router.push` 很像，唯一的不同就是，它不会向 history 添加新记录，而是跟它的方法名一样 —— 替换掉当前的 `history` 记录。
++ ③ `$router.go(n)`: 这个方法的参数是一个整数，意思是在 `history` 记录中向前或者后退多少步，类似 ·window.history.go(n)`。
+> 详情参考：[官方Vue:编程式导航](https://router.vuejs.org/zh/guide/essentials/navigation.html)
+------
+#### 8.7.1.8 命名视图
+
++ 这里的"视图"指的就是\<router-view>。
+
++ 默认情况下，一个视图使用一个组件渲染，因此对于同个路由，**多个视图就需要多个组件**。通过给\<router-view>命名，添加name属性，并完善**`components`**对象里的的映射关系，可以实现命名视图。
+```vue
+<router-view class="view one"></router-view>
+<router-view class="view two" name="a"></router-view>
+<router-view class="view three" name="b"></router-view>
+```
+```js
+const router = new VueRouter({
+  routes: [
+    {
+      path: '/new',
+      // ! 注意是 components  
+      components: {
+        default: New,
+        a: Bar,
+        b: Baz
+      }
+      // 不仅渲染了New组件，同时也在匹配的位置渲染了Bar和Baz组件
+    }
+  ]
+})
+```
+------
+#### 8.7.1.9 嵌套路由
++ URL 中各段动态路径也可以按照按某种结构对应嵌套的各层组件。
++ 顶级组件中的`<router-view>` 是最顶层的出口，渲染最高级路由匹配到的组件。同样地，一个被渲染组件同样可以包含自己的嵌套 `<router-view>`。
++ 要在嵌套的出口中渲染组件，需要在 `VueRouter` 的参数中使用 **`children`** 配置。同时，该层级的路由组件中必须要有\<router-view>标签来对应子组件的渲染位置。
++ 以 `/ `开头的嵌套路径会被当作根路径。 这让你充分的使用嵌套组件而无须设置嵌套的路径（不以`/` 开头表示可以继承上级的路径）。
++ 嵌套路由无法直接通过表示多层级的path字符串("a/b/c")，直接写在顶级routes下。顶级routes下的并列属性只能对应顶级组件的\<router-view>。
++ 当前层级可以通过配置`redirect`属性来配置多层级的路径字符串，以表示当前层级默认要渲染的子层级。
+```js
+const router = new VueRouter({
+  routes:[
+    //...
+    {
+      path:'/user',
+      component:User,
+      name:"user",
+      // 指定当前层级默认渲染出的下一层级组件
+      redirect:'/user/order',
+      children:[
+        { path:'/user/order',component:User},
+        { path:'/user/class',component:Class},
+        { path:'/user/set',component:Set}
+      ]
+    }
+  ]
+})
+```
++ 也可以在`children`中,指定path为`/`或空字符串，指定一个单独的组件`component`来匹配父级路由的默认渲染子级视图。
+```js
+const router = new VueRouter({
+  routes:[
+    //...
+    {
+      path:'/user',
+      component:User,
+      name:"user",
+      children:[
+        // 指定：父级path对应的默认渲染子级视图。它会替换父级组件的<router-view>位置
+        { path:'/',component:Individual},
+        { path:'/user/order',component:User},
+        { path:'/user/class',component:Class},
+        { path:'/user/set',component:Set}
+      ]
+    }
+  ]
+})
+```
+
+> 详细参考: [官方Vue:嵌套路由](https://router.vuejs.org/zh/guide/essentials/nested-routes.html)
+------
+#### 8.7.1.10 路由元信息
++ <span id="metaFields">在定义路由的时候可以单独配置`meta`字段。</span>
+```js
+const router = new VueRouter({
+  {
+    path:'/somewhere',
+    component:'someComp',
+    // 元信息：表示给这个路由设置一些自定义属性
+    meta:{
+      requrieAuth:true
+    }
+  }
+})
+```
++ 我们称呼`routes` 配置中的每个路由对象为*路由记录*。路由记录可以是嵌套的，因此，当一个路由匹配成功后，他可能匹配多个路由记录。一个路由匹配到的所有路由记录会暴露为 $route 对象 (还有在导航守卫中的路由对象) 的 `$route.matched` 数组。因此，我们需要遍历 `$route.matched` 来检查路由记录中的 meta 字段。
+------
+#### 8.7.1.11 导航守卫
++ vue-router 提供的导航守卫主要用来通过跳转或取消的方式守卫导航。有多种机会植入路由导航过程中：全局的, 单个路由独享的, 或者组件级的。
+
++ 【全局前置守卫】 router.beforeEach
+  - 路由进入之前会执行的函数。
++ 【全局后置守卫】 router.afterEach
+  - 路由离开后要执行的函数。
++ 【路由独享的守卫】 beforeEnter
+  - 在“路由记录”上配置。
++ 【组件内守卫】 beforeRouteEnter
++ 【组件内守卫】 beforeRouteUpdate
++ 【组件内守卫】 beforeRouteLeave
+
+
+##### 
++ 
+-------
+#### [面试题] 🚀 Ⅰ. 如何实现两个页面之间传参？
++ 动态路由。动态路径参数的值都会设置到`this.$route.params`中。
+
+  ```vue
+  <!--页面a中申明一个跳转链接-->
+  <router-link to="/somewhere:id"></router-link>
+  ```
+
+  ```js
+  // 跳转到b页面后，可以访问到【params】参数
+  this.$route.params.id
+  ```
+
++ query传参。在`this.$route.query`对象中保存着query数据。
+  ```vue
+  <!--页面a中申明一个跳转链接-->
+  <router-link to="/somewhere?key=val"></router-link>
+  ```
+  ```js
+  // 跳转到b页面后，可以访问到【query】参数
+  this.$route.query.key
+  ```
+  
++ 本地存储。
+  ```js
+  // 页面a中设置一个数据
+  localStorage.setItem('key',val)
+  ```
+  ```js
+  // 页面b中拿到数据
+  localStorage.getItem('key')
+  ```
+------
+#### [面试题] 🚀 Ⅱ . 命名视图\<router-view>和动态组件\<components :is>都能实现组件的切换显示，它们有什么区别？
++ \<router-view> 是vueRouter的组件，会更新路由，可以不用跳转到一个新的页面，不会更新初始化函数mounted和created，只更新\<router-view>\</router-view>标签下所渲染的组件。可以不用引入组件。
++ \<component :is> 是vue的组件，is=要渲染的组件，不会更新路由，不会更新初始化函数mounted和created。刷新页面后会跳回默认显示页面；需要引入所有要显示的组件，并且components:{声明}。
++ 两者的本质没什么不同，都是动态渲染组件，只是路由封装了url与展示的组件的关系，并可以切换任意多级组件，用动态组件做很难实现。
+> 路由的改变是根据URL的状态改变而改变，所以要改变路由视图必须要对应URL的改变。并且路由的页面必须要现在routes里注册;而动态组件\<component :is="componentA" :prop="prop"> 仅仅是绑定了变化的组件，当然这些组件也必须在它们的父组件里注册，视图改变URL不需要发生改变。并且相对路由页面更加灵活。
+-------
+#### [面试题] 🚀 Ⅲ . 实现页面跳转有哪些方式？
++ 原生js:
+  - a标签的href属性赋值url;
+  - window.location赋值url;
+  - location对象的href属性，或location的assign()方法。
+  - history.back()  history.go() history.forward()。
++ vue:
+  - $router.push();
+  - $router.replace();
+  - $router.go;
+  - $router.back;
+  - $router.forward;
+-------
 ### 8.7.2 Vue状态管理:Vuex
 
 --------
@@ -7185,6 +7514,8 @@ new Vue({
 
 + **is**：用于动态组件且基于 DOM 内模板的限制来工作。
 # 9. 浏览器
+
+
 
 # 10. 简单算法
 
