@@ -3902,6 +3902,16 @@ axios.defaults.headers.common['Authorization']=AUTH_TOKEN;
 ```js
 axios.defaults.post['Content-Type']='application/x-www-form-urlencoded';
 ```
+
+> 可以使用`axios.create(config)`方法新建一个axios实例。
+> ```js
+> var instance = axios.create({
+>   baseURL: 'https://some-domain.com/api/',
+>   timeout: 1000,
+>   headers: {'X-Custom-Header': 'foobar'}
+> });
+> ```
+
 ----
 
 #### 4.2.6.4 axios 拦截器
@@ -3912,7 +3922,7 @@ axios.defaults.post['Content-Type']='application/x-www-form-urlencoded';
 		console.log(config.url);
 		// 任何请求都会走到这里，发送请求前要做的事情
 		config.headers.mytoken='nihao';
-		// 这里一定要return 否则不成功
+		// 【这里一定要return!!! 否则不成功】
 		return config;
 	},err=>console.log(err))
 	```
@@ -3982,6 +3992,26 @@ socket.close();
 
 + 4. 使用`Web Socket`协议：Web Socket协议是一个自定义的协议，不受同源策略的限制。
 + 5. 让服务器来代理跨域的访问请求，有跨域请求时发送请求给后端服务器，让后端代为请求，然后最后将获取的结果发返回。服务器向服务器发送请求不受同源策略的限制。
+------
+### 4.3.2 什么是Token？
++ 会话状态：使用者处于网页使用的状态。
++ 传统开发过程，服务器如何验证用户信息？
+
+  - 服务器端会话，登陆之后，服务器先判断用户名和密码是否存在，如果不存在就提示“用户名不存在”；
+
+  - 如果用户登录成功，创建一个session，记录登录时间，session设置了有效时长。如果用户登录了一直没有做任何操作，到时间就过期了，提示重新登陆。用户只要请求，就会判断session里面的登陆状态是否过期。
++ 前后端分离式开发（不使用token）
+  - 前后端分离，没有session状态。
+  - 登陆成功之后，验证了是否有用户名，还是会创建session。但是这个session只有服务端有，后端会将session对应的key的id，通过接口返回给前端，前端存起来（本地存储或者cookie）！服务器端会在数据库中留下记录。此时，服务器内存环境中不再保留session。
+  - 每次发送请求就携带session id 发送过去，服务器端验证。验证时，服务器会在数据库中查询比对。
++ Token的机制：
+  - 当用户登陆服务器验证成功后，服务器根据当前的时间戳、用户id和秘钥字符串（开发者定义）三者通过加密算法生成一个字符串，这个字符串叫做令牌，又称之为token。服务器会把用户信息和token一起返回给前端（客户端）。
+  - 服务器返回token给客户端，客户端将用户信息和token保存在本地存储，实现持久化。跳转到对应页面。
+  - 当前端再次发送请求（请求头已添加token）时，所有的请求接口（除了登陆或者一些白名单地址）都要进行token验证。
+  - token验证：从请求头解析出token，对token进行解密。能判断出时间是否过期，是否不符合算法，提示token不正确，解析出用户id，去数据库查找id是否存在，从而判断用户是否存在。如果验证不通过，返回前端token非法（没有，错误，过期）；如果通过验证，就执行业务逻辑，将数据插入到数据库中，且提示前端添加成功。
+  - 这如果服务器返回token验证失败，前端就需要重新登陆。
++ 使用Token的目的：Token的目的是为了减轻服务器的压力，减少频繁的查询数据库，使服务器更加健壮。
+
 
 ------
 # 5. 客户端存储
@@ -7547,8 +7577,12 @@ new Vue({
 // 这样在所有的Vue组件中都可以通过访问this.$store
 ```
 ------
+<div align="center">
+  <img src="./0_pictures/vuex.png" alt="vuex" />
+</div>
+------
 #### 8.7.2.1 State
-+ `state`表示状态对象，这一个对象就包含了全部的应用层级状态。这里存放着所有组件共享的数据,类似于所有组件的共享data。
++ `state`表示状态对象，这一个对象就包含了全部的应用层级状态。这里存放着所有组件共享的数据，类似于所有组件的共享data。
 + 由于 Vuex 的状态存储是响应式的，从 store 实例中读取状态最简单的方法就是在**计算属性中返回**某个状态。
 ```js
 const Counter = {
@@ -7599,29 +7633,387 @@ const store = new Vuex.Store({
 
 + `mapGetters`辅助函数，辅助函数仅仅是将 store 中的 getter 映射到局部计算属性。
 ```js
+// 组件中
 import { mapGetters } from 'vuex'
 export default {
   // ...
   computed: {
-    ...mapGetters([
-      'doneTodosCount',
-      'anotherGetter',
-      // ...
-    ])
+    ...mapGetters(['doneTodosCount','anotherGetter'])
   }
 }
 ```
 ------
 #### 8.7.2.3 Mutations
 
---------
++ 修改`state`里面的数据的**唯一方法**是提交`mutation`.通过定义在`mutations`里面的方法修改state里的数据。
+> 切记不要在组件中赋值state来修改数据。
+```js
+const store = new Vuex.Store({
+  state:{
+    msg:'Hello JS'
+  },
+  mutations:{
+    // state 作为第一个参数，第二个参数是调用该方法传入的参数
+    changeMsg(state,data){
+      state.msg=data;
+    }
+  }
+})
+```
++ 在组件中，通过**`store.commit()`**提交`mutation`。第一个参数是mutation方法名，第二个参数是载荷对象，
+```js
+export default {
+    //...
+  methods:{
+    changeMSG(){
+      this.$store.commit('changeMsg','Hello Vue!')
+    }
+  }
+}
+```
++ 利用辅助函数**`mapMutations`**。将定义在store的`mutations`中的方法映射到当前组件的`methods`中，那么当前的组件就可以直接使用这些方法了。
 
+```vue
+<template>
+ <div id="app">
+   <p>{{msg}}----{{str}}</p>
+   <button @click="changeMsg('HelloMsg')">点击修改</button>
+   <button @click="changeStr('HelloStr')">修改str</button>
+ </div>
+</template>
+<script>
+import { mapMutations } from "vuex";
+export default {
+  //...
+  // 【映射mutations】
+  methods:{
+    ...mapMutations(['changeMsg','changeStr'])
+  }
+}
+</script>
+```
++ 注意，`mutations`里面的函数一定执行的是同步操作！
+------
+#### 8.7.2.4 Actions
++ `action`类似`mutation`，也可以用来修改`state`中的数据。但是，`action`通过提交`mutation`来间接修改`state` ; `action`可以包含任意**异步**的操作，里面通常存放大量的异步逻辑请求代码。
+```js
+const store = new Vuex.Store({
+  state: {
+    count: 0,
+    msg:''
+  },
+  mutations: {
+    increment (state) {
+      state.count++
+    },
+    changeSth(state,data){
+      state.msg= data
+    }
+  },
+  actions: {
+    increment (context) {
+      context.commit('increment')
+    },
+    changeSth(ctx,data){
+      ctx.commit('changeSth',data)
+    }
+  }
+})
+```
++ `Actions`中的函数接受一个与 store 实例具有相同方法和属性的 context 对象，因此你可以调用 **`context.commit` **提交一个 `mutation`，或者通过 `context.state` 和 `context.getters` 来获取 `state` 和 `getters`。实践中，我们会经常用到 ES2015 的`参数解构`来简化代码。
+```js
+actions: {
+  increment ({ commit },data) {
+    commit('increment',data)
+  }
+}
+```
++ 使用**`store.dispatch`**来触发`action`。
+```js
+// 触发action
+store.dispatch('incrementAsync', {
+  amount: 10
+})
+```
++ 可以使用`mapActions`辅助函数，将store中的actions映射到当前组件的方法`methods`中，那么可以在当前组件实例中直接使用该方法。
+```js
+// 组件中【映射actions】
+import { mapActions } from 'vuex';
+export default {
+  // ...
+  methods: {
+    ...mapActions(['increment', 'incrementBy']),
+    // 将actions中的'increment’方法映射为当前组件的add方法
+    ...mapActions({ add: 'increment'})
+  }
+}
+```
+-----
+#### 8.7.2.5 Modules
++ 针对大型项目，放在一个根模块，状态的维护困难。Vuex 允许我们将 store 分割成模块（module）。每个模块拥有自己的 state、mutation、action、getter、甚至是嵌套子模块——从上至下进行同样方式的分割。
+
++ 基本结构
+```js
+// store/index.js
+let store = new Vuex.Store({
+  state:{ 根state },
+  getters: {根getters },
+  mutations: { 根mutations },
+  actions: {根actions },
+  modules:{
+    moduleA:{
+      namespaced:false/true, // 不写默认就是false
+      state:()=>({模块state}),
+      getters: { 模块getters },
+      mutations: { 模块mutations },
+      actions: { 模块actions }
+    },
+    moduleB:{
+      namespaced:false/true, 
+      state:()=>({模块state}),// 注意模块的state是一个函数，这个函数返回一个对象
+      getters: { 模块getters },
+      mutations: { 模块mutations },
+      actions: { 模块actions }
+    }
+  }
+})
+```
++ 真实结构
+  - store 【目录】
+    + index.js 仓库对象文件
+    
+      ```js
+      // 导入根配置
+      import state from './state';
+      import getters from './getters';
+      import mutations from './mutations';
+      import actions from './actions';
+      // 导入模块
+      import moduleA from './moduleA';
+      import moduleB from './moduleB';
+      let store = new Vuex.Store({
+        state,
+        getters,
+        mutations,
+        actions,
+        modules:{
+          moduleA:moduleA,
+          moduleB:moduleB
+        }
+      })
+      ```
+    
+    + state.js  根state
+    
+      ```js
+      export default {
+        key:val
+      }
+      ```
+    
+    + getters.js  根getters
+    
+      ```js
+      export default {
+        newkey(state){ //根state
+          return state.key
+        },
+        newkey1(state){
+          return state.moduleA.key
+        },
+        newkey2(state){
+          return state.moduleB.key
+        }
+      }
+      ```
+    
+    + mutations.js  根mutations
+    
+      ```js
+      export default {
+        FN(state,data){
+          state.key=data;
+        }
+      }
+      ```
+    
+    + actions.js  根actions
+    
+      ```js
+      export default {
+        fn(store,info){
+          store.commit('FN',info)
+        }
+      }
+      ```
+    
+    + modules 【目录】
+      - moduleA.js
+      
+        ```js
+        export default {
+          state:()=>({ 模块state } ),
+          getters: { 模块getters },
+          mutations: { 模块mutations },
+          actions: { 模块actions }
+        }
+        ```
+      - moduleB.js
+
++ 获取数据
+```js
+// 获取state
+{{$store.state.key}} // 取根state里面的数据
+{{$store.state.moduleA.key}} // 取模块A里面的数据
+// 获取getters
+{{$store.getters.key}} // 根getters里的数据
+{{$store.getters.key2}} // 根getter的数据
+// 所有的getters都会被挂载到根getters上面
+```
++ 命名空间：**namespaced:false**
+  - 没有命名空间的时候，所有的actions最后都在根actions上面了。所有的mutations都到根mutations上面了。
+  - 组件中
+  ```js
+  ...mapState({
+    key:'key',
+    key2:state=>state.moduleA.key2
+  })
+  ```
+  ```js
+  ...mapGetters(['key1','key2'])
+  // key1是根getters里面的，key2是模块getters里面的
+  ```
+  ```js
+  $store.commit('任意模块的mutation方法',实参);
+  ...mapMutations(['FN1','FN2']) 
+  // FN1是根mutations里面的方法，FN2是模块里面的mutations方法
+  ```
+  ```js
+  $store.dispatch('任意模块的actions里面的方法',实参)
+  ...mapActions(['fn1','fn2'])
+  // fn1是根actions里面的方法，fn2是模块里面的actions方法
+  ```
+  - 模块中(actions里面的方法)调用其他模块中的mutations或actions方法
+  ```js
+  // a模块
+  mutations:{
+    FN(state,data){
+      state.key=data;
+    }
+  },
+  actions:{
+    fn(store.info){
+      // 触发自己的mutaion方法FN
+      store.commit('FN',info);
+      // 触发自己的actions里面的其他方法
+      store.dispatch('fn2');
+      
+      // a模块触发b模块里面的方法
+      store.commit('FN3',info);
+      store.dispatch('fn4');
+    },
+    fn2(store,info){...}
+  }
+  ```
+   ```js
+  // b模块
+  mutations:{
+    FN3(state,data){
+      state.key=data;
+    }
+  },
+  actions:{
+    fn3(store.info){
+      // 触发自己的mutaion方法FN3
+      store.commit('FN3',info)
+      // 触发自己的actions里面的其他方法
+      store.dispatch('fn4')
+    },
+    fn4(store,info){...}
+  }
+   ```
++ 命名空间：**namespaced:true**  📚
+  - 组件中
+  ```js
+  ...mapState({
+    key:'key',
+    key2:state=>state.moduleA.key2
+  })
+  ```
+  ```js
+  ...mapGetters({
+    key1:'key1',           // key1是根getters里面的
+    key2:'moduleB/key2'    // key2是模块getters里面的key2
+  })
+  ```
+  ```js
+  $store.commit('moudulB/moduleB的mutation方法',实参);
+  ...mapMutations({
+    FN1:'FN1',              // FN1是根mutations里面的方法
+    FN2:'moduleB/FN2'      // FN2是模块里面的mutations方法
+  }) 
+  ```
+  ```js
+  $store.dispatch('moudulB/moduleB的actions里面的方法',实参)
+  ...mapActions({
+    fn1:'fn1',             // fn1是根actions里面的方法
+    fn2:'moduleB/fn2'      // fn2是模块里面的actions方法
+  })
+  ```
+  - 模块中(actions里面的方法)调用其他模块中的mutations或actions方法
+  ```js
+  // a模块
+  mutations:{
+    FN(state,data){
+      state.key=data;
+    }
+  },
+  actions:{
+    fn(store.info){
+      // 触发自己的mutaion方法FN
+      store.commit('FN',info);
+      // 触发自己的actions里面的其他方法
+      store.dispatch('fn2');
+      
+      // a模块触发b模块里面的方法
+      store.commit('moduleB/FN3',info,{root:true});
+      store.dispatch('moduleB/fn4',info,,{root:true});
+    
+      // store 相关信息
+         // store.state 当前模块的state
+         // store.getters 当前模块的getters
+         // store.commit 调用任意模块的mutations,注意模块名,root:true
+         // store.dispatch 调用任意模块的actions,注意模块名,root:true
+         // store.rootStatte   根state
+         // store.rootGetters  根getters
+    },
+    fn2(store,info){...}
+  }
+  ```
+   ```js
+  // b模块
+  mutations:{
+    FN3(state,data){
+      state.key=data;
+    }
+  },
+  actions:{
+    fn3(store.info){
+      // 触发自己的mutaion方法FN3
+      store.commit('FN3',info)
+      // 触发自己的actions里面的其他方法
+      store.dispatch('fn4')
+    },
+    fn4(store,info){...}
+  }
+   ```
+------
 ### 8.7.3 🚀 Vue开发中如何使用插件?
 
 + ① 安装插件
 + ② 使用ES6的`import...from...`语法或CommonJS的`require()`方法引入插件。
 
-+ ③ 使用全局方法`Vue.use(plugin)`使用插件，可以传入一个可选的选项对象来配置插件。需要在你调用 `new Vue()` 启动应用之前完成。
++ ③ 使用全局方法**`Vue.use(plugin)`**使用插件，可以传入一个可选的选项对象来配置插件。需要在你调用 `new Vue()` 启动应用之前完成。
 
   ```js
   Vue.use(MyPlugin, { someOption: true })
