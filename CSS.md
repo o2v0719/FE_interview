@@ -300,12 +300,12 @@ article :nth-child(even){
 ```
 
 ```css
-	*{
-		color:red;
-	}
-	h2{
-		color:green;
-	}
+*{
+	color:red;
+}
+h2{
+	color:green;
+}
 ```
 
 ## 4   字体与文本
@@ -354,20 +354,20 @@ article :nth-child(even){
 + **font-variant**描述符可以指定字型的变体。
 
 ```css
-	h2{
-		/*转换成小型的大写字体（保持字号不变）*/
-		font-variant:small-caps;
-	}
+h2{
+	/*转换成小型的大写字体（保持字号不变）*/
+	font-variant:small-caps;
+}
 ```
 
 + 也可以使用文本的方式转换大小写。
 
 ```css
-	h2{
-		/* text-transform:capitalize;	*/ /*单词首字母大写*/
-		/* text-transform:uppercase;  */ /*全大写*/
-		text-transform:lowercase;				 /*全小写*/
-	}
+h2{
+	/* text-transform:capitalize;	*/ /*单词首字母大写*/
+	/* text-transform:uppercase;  */ /*全大写*/
+	text-transform:lowercase;				 /*全小写*/
+}
 ```
 
 ### 4.5 组合简写
@@ -409,7 +409,6 @@ h2{ font: bold italic 200%/1.2 Verdana,Helvetica,Arial,sans-serif;}
 ### 4.8  处理文本空白
 
 + **white-space**属性会影响用户代理对文档源码中空格、换行符合制表符的处理方式。
-+ 
 ```css
 	p{
 		white-space:normal;
@@ -618,23 +617,23 @@ h2{ font: bold italic 200%/1.2 Verdana,Helvetica,Arial,sans-serif;}
 ```
 
 ```css
- 		#father {
-      position: relative;
-      width: 400px;
-      height: 320px;
-      border: 2px dashed gray;
-    }
+#father {
+   position: relative;
+   width: 400px;
+   height: 320px;
+   border: 2px dashed gray;
+}
 
-    #son {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      margin-top: -60px;
-      margin-left: -100px;
-      width: 200px;
-      height: 120px;
-      background-color: red;
-    }
+#son {
+   position: absolute;
+   top: 50%;
+   left: 50%;
+   margin-top: -60px;
+   margin-left: -100px;
+   width: 200px;
+   height: 120px;
+   background-color: red;
+}
 ```
 
 ![image](/Users/Shared/Previously Relocated Items/Security/Front-End/8_自建笔记Typora/0_PICTURES/2020/2020_9/块级元素垂直居中.png)
