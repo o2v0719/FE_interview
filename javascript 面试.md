@@ -1529,11 +1529,11 @@ function object(o){
 // ES5 通过增加Object.create() 方法将原型式继承的概念规范化了。
 let person = {
   name:'Nicholas',
-  friend:['Shelby','Court','Van'];
+  friends:['Shelby','Court','Van'];
 }
 let anotherPerson = object(person);
-anotherPerson.name = 'Greg';
-anotherPerson.friends.push('Rob');
+anotherPerson.name = 'Greg';// 增加了一个实例自身上的属性
+anotherPerson.friends.push('Rob');// 访问到了原型对象person上的引用类型对象
 
 let yetAnotherPerson = object(person);
 yetAnotherPerson.name = 'Linda';
@@ -1646,7 +1646,21 @@ class Person{
 + 3. 如果需要判断的是某个内置的引用类型的话，可以使用 Object.prototype.toString() 方法来打印对象的[[Class]] 属性来进行判断。
 
 > 详细资料可以参考：[《js 判断一个对象是否属于某一类》](https://blog.csdn.net/haitunmin/article/details/78418522)
-
+------
+#### 1.4.5.3 如何判断一个原型对象是否出现在一个实例对象的原型链上？
++ 1. 使用**`instanceof`**操作符，如果这个原型对象出现在实例对象原型链上，则返回true。
+```js
+console.log(instance instanceof Obejct); // true
+console.log(instance instanceof SuperType); //true
+console.log(instance instanceof SubType); // true
+```
++ 2. 使用**`isPrototypeOf()`**方法。原型链中的每个原型对象都可以调用这个方法，只要实例的原型链中包含这个原型对象。
+> `isPrototypeOf()`方法定义在`Object.prototype`对象上。
+```js
+console.log(Object.prototype.isPrototypeOf(instance)); // true
+console.log(SuperType.prototype.isPrototypeOf(instance)); // true
+console.log(SubType.prototype.isPrototypeOf(instance)); // true
+```
 ------
 
 ### 1.4.6 Set和Map 数据结构
