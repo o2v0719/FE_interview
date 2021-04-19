@@ -84,7 +84,7 @@ a[href="http://www.css-discuss.org/about.html"]{
 
 + 利用这种选择符可以为文档结构中**不一定真实存在的结构**指定样式，或者为某些元素（甚至文档本身）的**特定状态**赋予幽灵类。
 
-+ 通常用A:abc 的形式来设置伪类。注意冒号前后并无层级递进关系，冒号后只是对冒号前的修饰限定。
++ 通常用`A:abc` 的形式来设置伪类。注意冒号前后并无层级递进关系，冒号后只是对冒号前的修饰限定。
 
 + （1）动态伪类选择器
 ```html
@@ -129,26 +129,26 @@ input:focus {
 </form>
 ```
 ```css
-	input:diabled{
-		background:red;/*禁止输入的表单元素*/
-	}
-	input:enabled{
-		background:green;/*启用的表单元素*/
-	}
-	input:checked+label{
-		/*选中的单选框，紧挨着的label元素*/
-		color:lightgreen;
-	}
-	/*注意优先级*/
-	input:required{
-		border:solid 1px red; /* 必填元素边框*/
-	}
-	input:optional{
-		border:solid 1px blue /* 可选元素边框*/
-	}
+input:diabled{
+	background:red;/*禁止输入的表单元素*/
+}
+input:enabled{
+	background:green;/*启用的表单元素*/
+}
+input:checked+label{
+	/*选中的单选框，紧挨着的label元素*/
+	color:lightgreen;
+}
+/*注意优先级*/
+input:required{
+	border:solid 1px red; /* 必填元素边框*/
+}
+input:optional{
+	border:solid 1px blue /* 可选元素边框*/
+}
 ```
 
-+ （3）选择**空元素** **:empty** 伪类可以选择没有任何子代的元素，甚至连文本内容（文本空白）也没有
++ （3）选择**空元素** **`:empty`** 伪类可以选择没有任何子代的元素，甚至连文本内容（文本空白）也没有
 
 ```html
 <ul>
@@ -240,33 +240,35 @@ article :nth-child(even){
 + （8）否定伪类 **:not()** 用来排除匹配
 
 ```css
-	ul li:nth-child(-n+3):not(:nth-child(2)){
-		/*选择前三个li，但是排除第二个li*/
-		color:orange;
-	}
+ul li:nth-child(-n+3):not(:nth-child(2)){
+	/*选择前三个li，但是排除第二个li*/
+	color:orange;
+}
 ```
 
 
 ### 2.5 伪元素选择器
 
 > 伪类使用一个冒号, 伪元素使用**一对冒号**。但为了向后兼容，浏览器也接受使用单个冒号的伪元素选择符。
+>
+> 伪类和伪元素的根本区别在于：是否创造了逻辑上的新元素。伪元素可以创建新的虚拟的元素，但并不存在于DOM书中。伪类是为了弥补常规选择器的不足，将某种幽灵类应用到依附的元素上。
 
 + （1）装饰首字母 **::first-letter**、首行 **::first-line**
 
 >  注意：目前 ::first-letter  和 ::first-line 只能应用到块级元素上，如标题、段落，而不能应用到行内元素上。
 
 ```css
-	p::first-letter{
-		color:red; /*首字母红色*/
-	}
+p::first-letter{
+	color:red; /*首字母红色*/
+}
 ```
-+  （2）**创建**或装饰**前置和后置**内容  ::before	 ::after
++  （2）**创建**或装饰**前置和后置**内容  **::before**	 **::after**
 ```css
-	h2::before{
-		/*在h2元素内容前面加上一对金色的中括号*/
-		content:"[]",
-		color:gold;
-	}
+h2::before{
+	/*在h2元素内容前面加上一对金色的中括号*/
+	content:"[]",
+	color:gold;
+}
 ```
 
 ## 3 CSS权重与优先级
@@ -282,10 +284,11 @@ article :nth-child(even){
 | 属性选择器 |[alt]|10|
 | id选择器 |#para|100|
 | ==行内样式== |style="..."|1000|
+| !important 规则 |p {color:gray  !important}|∞|
 
 ### 3.2 综合考虑优先级：优先级不完全依赖于权重计算
 
-+ 在CSS中，选择器权重计算只针对指定元素（当前元素），并不能用于继承样式。继承样式没有权重，（如果一定要用于权重对比，可以认为==继承而来的权重小于零==）。
++ 在CSS中，选择器权重计算只针对指定元素（当前元素），并**不能用于继承样式**。继承样式没有权重，（如果一定要用于权重对比，可以认为==继承而来的权重小于零==）。
 
 + 如果两个规则的权重、来源都相同，在样式表中后面定义的优先级更高。
 
@@ -294,7 +297,7 @@ article :nth-child(even){
 ```html
 <article>
 	<h2>我显示绿色,我有指定的样式，权重：1
-		<span>我显示红色，我的样式来源于继承h2，权重小于通配符权重0</span>
+		<span>我显示红色</span>
 	</h2>
 </article>
 ```
@@ -312,10 +315,10 @@ h2{
 
 ### 4.1 字体
 
-+ 一般建议在font-family规则中指定**通用字体族**。这样做相当于提供一种后背机制，当用户代理找不到匹配的字体时，选择一个字体代替。
++ 一般建议在`font-family`规则中指定**通用字体族**。这样做相当于提供一种后备机制，当用户代理找不到匹配的字体时，选择一个字体代替。
 
 ```css
-	h1{font-family:Arial,sans-serif;}
+h1 { font-family:Arial,sans-serif; }
 ```
 
 + @font-face 可以让我们在设计中使用自定义的字体。
@@ -340,9 +343,15 @@ h2{
 > <span  style="border-bottom:2px dashed red;"> 我们可以使用=="font-size:0"==来去除inline-block（行内块元素）元素之间的间距。</span>
 
 + 可以用**像素值px**或**关键字**定义字号大小。关键字（small、medium、large等）定义的大小是相对的。
+
 + 关键字**larger**和**smaller**分别根据父元素的字号增大或减小一定的比例。
-+ CSS还把长度单位**em**定义等效为百分数，对字号而言，1em与100%的效果相同。**响应式布局**经常使用单位em。
+
++ CSS还把长度单位**em**定义等效为百分数，对字号而言，1em与100%的效果相同。**响应式布局**经常使用单位em。1em等于元素的`font-size`属性值。
+
 + CSS中的字号会继承，但==继承的是计算得到的值==，而不是百分数本身。
+
+#### 4.3.1 [面试题] 🚀em单位和rem单位有什么区别？
++ `em`和`rem`都是基于声明字号`font-size`的值的相对长度单位。`em`相对于当前元素的字号计算，而`rem`相对于根元素计算。
 
 ### 4.4 字形
 
@@ -374,11 +383,12 @@ h2{
 
 + **font属性**可以把字体相关的属性（外加其他一些属性）合写在一起。
 + 通过**font属性**还可以设定**line-height**属性的值。方法是在font-size中增加一个值，中间用正斜线/分割。
++ **font**属性必须的两个值时`font-size`和`font-family`,而且必须以这样的顺序编写，其他值都是可选的。
 
 ```css
 body{ font-size:12px; }
 h2{ font: bold italic 200%/1.2 Verdana,Helvetica,Arial,sans-serif;}
-/*这里h2元素的line-heihgt值被设定为28.8px*/
+/*这里h2元素的font-size值被设定为24px，line-heihgt值被设定为28.8px*/
 ```
 
 ### 4.6 文本装饰
@@ -386,54 +396,59 @@ h2{ font: bold italic 200%/1.2 Verdana,Helvetica,Arial,sans-serif;}
 + **text-decoration**属性可以给元素文本添加下划线（underline），上划线（overline），删除线（line-through），文本闪烁（blink）。
 
 ```css
-	a{
-		text-decoration:none;/*去掉超链接下划线*/
-	}
+a{
+	text-decoration:none;/*去掉超链接下划线*/
+}
 ```
 
-+ 注意：text-decoration的值不能被继承。
+> 注意：text-decoration的值不能被继承。
 
 ### 4.7 文本阴影
 
 + **text-shadow**属性可以给文本加阴影。
 
 ```css
-	h2{
-		text-shadow: rgba(150, 9, 238, .3) 5px 5px 1px;
-		/*第一个参数指定颜色，第二个参数指定横向偏移量，第三个参数指定纵向偏移量，第四个参数可选，指定阴影的模糊半径*/
-	}
+h2{
+	text-shadow: rgba(150, 9, 238, .3) 5px 5px 1px;
+	/*第一个参数指定颜色，第二个参数指定横向偏移量，第三个参数指定纵向偏移量，第四个参数可选，指定阴影的模糊半径*/
+}
 ```
 
-![image](/Users/Shared/Previously Relocated Items/Security/Front-End/8_自建笔记Typora/0_PICTURES/2020/2020_9/text-shaodw属性.png)
+<div align="center">
+  <img src="./0_pictures/text-shadow.png" alt="text-shadow" />
+</div>
 
+-------
 ### 4.8  处理文本空白
 
 + **white-space**属性会影响用户代理对文档源码中空格、换行符合制表符的处理方式。
 ```css
-	p{
-		white-space:normal;
-		/*值为pre，表示空白不会被忽略*/
-		/*值为nowrap，表示禁止换行*/
-		/*值为pre-wrap，表示所有空白序列保留，正常换行*/
-		/*值为pre-line，表示所有部分空白序列保留，换行的同时折叠行首空白*/
-	}
+p{
+	white-space:normal;
+	/*值为pre，表示空白不会被忽略*/
+	/*值为nowrap，表示禁止换行*/
+	/*值为pre-wrap，表示所有空白序列保留，正常换行*/
+	/*值为pre-line，表示所有部分空白序列保留，换行的同时折叠行首空白*/
+}
 ```
 ------
 
 + 实例：处理文本框文字溢出，以点号表示溢出内容。
 
 ```css
-	div{
-		border:2px solid rgb(212, 21, 21);
-		width:300px;
-		font-size:24px;
-		white-space:nowrap; 			/*禁止换行*/
-		overflow:hidden;					/*超出部分隐藏*/
-		text-overflow:ellipsis;   /*隐藏内容以... 显示*/
-	}
+div{
+	border:2px solid rgb(212, 21, 21);
+	width:300px;
+	font-size:24px;
+	white-space:nowrap; 			/*禁止换行*/
+	overflow:hidden;					/*超出部分隐藏*/
+	text-overflow:ellipsis;   /*隐藏内容以... 显示*/
+}
 ```
 
-![image](/Users/Shared/Previously Relocated Items/Security/Front-End/8_自建笔记Typora/0_PICTURES/2020/2020_9/文本溢出折叠.png)
+<div align="center">
+  <img src="./0_pictures/text-overflow.png" alt="text-overflow" />
+</div>
 
 ### 4.9 处理文本缩进与对齐
 
@@ -442,53 +457,53 @@ h2{ font: bold italic 200%/1.2 Verdana,Helvetica,Arial,sans-serif;}
 + 	**text-indent**属性可以控制首行文本缩进。
 
 ```css
-	div{
-		font-size:24px;
-		text-indent:2em; /*首行缩进两个字符*/
-	}
+div{
+	font-size:24px;
+	text-indent:2em; /*首行缩进两个字符*/
+}
 ```
 
-+ 应用："text-indent:-9999px". 在搜索引擎优化**SEO**中，h1是非常重要的标签，一般情况下我们把网站的logo图片放到h1标签中，但是搜索引擎无法识别图片，只能识别文字，那就可以使用“text-indent：-9999px” 来隐藏h1的文字内容。
++ 🔥应用："text-indent:-9999px". 在搜索引擎优化**SEO**中，h1是非常重要的标签，一般情况下我们把网站的logo图片放到h1标签中，但是搜索引擎无法识别图片，只能识别文字，那就可以使用“text-indent：-9999px” 来隐藏h1的文字内容。
 
 #### （2）文本横向对齐
 
 + **text-align**属性控制各文本行的对齐方式。（沿行内方向对齐，一般是横向）
 
 ```css
-	div{
-		border: solid 2px #eee;
-		text-align:center;
-		/*左对齐：left，右对齐：right，两端对齐：justify*/
-	}
+div{
+	border: solid 2px #eee;
+	text-align:center;
+	/*左对齐：left，右对齐：right，两端对齐：justify*/
+}
 ```
 
 > <span style="border-bottom: 2px dashed red;">注意：**text-align**属性只能用于块级元素，它只能用于控制元素中的内容的对齐方式，不能控制元素自身的对齐方式。</span>
 
-#### （3） 行的高度**line-height**
+#### （3） 🚀行的高度**line-height**
 
 + 文本行的每个元素构成一个**内容区**，其高度由字体的高度决定，也就是说内容区的高度就是字体的高度。
 + 随内容区出现了**行内框**，如果不考虑其他因素，其高度与内容区高度完全一致。
 + 行高**line-height**指的是两行文字**基线**之间的距离，与字号无关。
 + 元素的行距等于font-size的计算结果减去line-height的计算结果。
-+ <span style="border-bottom: 2px dashed red;">在CSS中，我们可以定义height和line-height这两个属性值相等，来实现单行文字的垂直居中。</span>
++ <span style="border-bottom: 2px dashed red;font-weight:600">在CSS中，我们可以定义height和line-height这两个属性值相等，来实现单行文字的垂直居中。</span>
 
 + 当line-height的值为**百分数或em**时，块级元素从父元素继承line-height行高，此时行高根据父元素的字号计算，而不是根据子元素计算。
 
 ```css
-	/*注意行高指的是文字行间距*/
-	body{font-size:10px}
-	div{line-height:1em}/*行高(p元素中的文本）为10px，继承自body*/
-	p{font-size:18px}/*字号为18px*/
-	/*这样会造成行纵向贴近*/
+/*注意行高指的是文字行间距*/
+body{font-size:10px}
+div{line-height:1em}/*行高(p元素中的文本）为10px，继承自body*/
+p{font-size:18px}/*字号为18px*/
+/*这样会造成行纵向贴近*/
 ```
 
 + 设定行高更好的方法是==**使用纯数字**==，即设定一个<span style="border-bottom: 2px solid red;">换算系数</span>。使用纯数字，继承的将是设定的换算系数，各元素的行高将根据自身的字号计算。（子元素继承的是父元素的换算系数而不是直接继承行高line-height）。
 
 ```css
-	body{font-size:10px}
-	div{line-height:1.5}/*行高（p元素文本行）为15px，行高系数1.5*/
-	p{font-size:18px}/*行高为（p元素文本行）27px，行高系数1.5*/
-	/*最终显示的文本行高是27px，（15px没有被继承）*/
+body{font-size:10px}
+div{line-height:1.5}/*行高（p元素文本行）为15px，行高系数1.5*/
+p{font-size:18px}/*行高为（p元素文本行）27px，行高系数1.5*/
+/*最终显示的文本行高是27px，（15px没有被继承）*/
 ```
 
 ```html
@@ -530,11 +545,17 @@ h2{ font: bold italic 200%/1.2 Verdana,Helvetica,Arial,sans-serif;}
 
 ## 5 盒子模型
 
-![image](https://houdunren.gitee.io/note/assets/img/image-20190817163854641.0f6c1947.png)
+### 5.0 标准盒子模型与CSS3 怪异盒子模型
+<div align="center">
+  <p style="font-weight:700">常规盒子模型</p>
+  <img src="./0_pictures/box-model.png" alt="box-model" style="max-width:600px" />
+</div>
 
-### 5.1 外边距合并
++ 当我们给一个div设置宽高为500px,实际上设置的是content部分的宽高，如果此时再设置padding，border，整个div的宽高会往外增大。
++ CSS3提出了新的盒子模型，通过**`box-sizing:border-box`**属性，此时给div设置宽高500px，宽高会自动加上`padding`和`border`的值, 属于content部分的宽高将不足500px。
+### 5.1 垂直外边距合并
 
-+ 当两个垂直外边距相遇时，这两个外边距会合并成一个外边距。其中，叠加之后的外边距高度等于发生叠加之前两个外边距中的最大值。（如果外边距有负值，就把正负值相加）。
++ 当两个**垂直外边距**相遇时，这两个外边距会合并成一个外边距。其中，叠加之后的外边距高度等于发生叠加之前两个外边距中的最大值。（如果外边距有负值，就把正负值相加）。
 + 外边距叠加的三种情况：
 	+ 同级元素：当一个元素出现在另一个元素上面的时候，第一个元素的下边距将会和第二个元素的上边距发生合并。
 	+ 父子元素：当一个元素在另外一个元素中时（父子嵌套），假如没有内边距padding或边框border把外边距分隔开的话，父元素和子元素的相邻上下边距也会发生合并。
@@ -543,8 +564,8 @@ h2{ font: bold italic 200%/1.2 Verdana,Helvetica,Arial,sans-serif;}
 ### 5.2 负外边距
 
 + 对于**普通文档流**元素：
-	+ 当元素的margin-top或margin-left为负数时，“当前元素”会被拉向指定方向。
-	+ 当元素的margin-bottom或margin-right为负数时，“后续元素”会被拉向指定方向。
+	+ 当元素的`margin-top`或`margin-left`为负数时，“当前元素”会被拉向指定方向。
+	+ 当元素的`margin-bottom`或`margin-right`为负数时，“后续元素”会被拉向指定方向。
 
 + 对于**浮动**元素：
 	+ 关注浮动元素的“流动方向”。
@@ -556,64 +577,65 @@ h2{ font: bold italic 200%/1.2 Verdana,Helvetica,Arial,sans-serif;}
 + 图片与文字对齐：实现图片与文字底部水平方向对齐。
 
 ```html
-	<div>
-		<img src="https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png" alt="百度logo"> 百度logo
-	</div>
+<div>
+	<img src="https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png" alt="百度logo"> 百度logo
+</div>
 ```
 
 ```css
-	img{
-		margin: 0 3px -3px 0;
-	}
+img{
+	margin: 0 3px -3px 0;
+}
 ```
 
-![image](/Users/Shared/Previously Relocated Items/Security/Front-End/8_自建笔记Typora/0_PICTURES/2020/2020_9/baidulogo.png)
+<div align="center">
+  <img src="./0_pictures/baidu-logo.png" alt="box-model" style="max-width:600px" />
+</div>
 
 
-+ 自适应两列布局：一列宽度自适应，另一列宽度固定。
++ **自适应两列布局**：一列宽度自适应，另一列宽度固定。
 
 ```html
-	<div id="content">
-    <p>content:主体内容部分,宽度自适应。</p>
-  </div>
-  <div id="sidebar">
-    <p>这是侧边栏部分，固定宽度</p>
-  </div>
+<div id="content">
+  <p>content:主体内容部分,宽度自适应。</p>
+</div>
+<div id="sidebar">
+  <p>这是侧边栏部分，固定宽度</p>
+</div>
 ```
 
 ```css
-		#content,
-    #sidebar {
-      float: left;
-      color: white;
-    }
-
-    #content {
-      width: 100%;
-      /*利用负margin，把后续sidebar元素拉入同行。实现自身宽度自适应*/
-      margin-right: -200px;
-      background-color: red;
-    }
-
-    #sidebar {
-      width: 200px;
-      background-color: purple;
-    }
-
-    #content p {
-      margin-right: 210px;
-    }
+#content,
+#sidebar {
+  float: left;
+  color: white;
+}
+#content {
+  width: 100%;
+  /*利用负margin，把后续sidebar元素拉入同行。实现自身宽度自适应*/
+  margin-right: -200px;
+  background-color: red;
+}
+#sidebar {
+  width: 200px;
+  background-color: purple;
+}
+#content p {
+  margin-right: 210px;
+}
 ```
 
-![image](/Users/Shared/Previously Relocated Items/Security/Front-End/8_自建笔记Typora/0_PICTURES/2020/2020_9/两列布局自适应.png)
+<div align="center">
+  <img src="./0_pictures/two-column-layout-adaptive.png" alt="two-column-layout-adaptive" style="max-width:800px" />
+</div>
 
 
 + 实现块元素垂直居中。
 
 ```html
-	<div id="father">
-    <div id="son"></div>
-  </div>
+<div id="father">
+  <div id="son"></div>
+</div>
 ```
 
 ```css
@@ -623,11 +645,11 @@ h2{ font: bold italic 200%/1.2 Verdana,Helvetica,Arial,sans-serif;}
    height: 320px;
    border: 2px dashed gray;
 }
-
 #son {
    position: absolute;
    top: 50%;
    left: 50%;
+   /*向上偏50%高，向左偏50%宽*/
    margin-top: -60px;
    margin-left: -100px;
    width: 200px;
@@ -636,7 +658,9 @@ h2{ font: bold italic 200%/1.2 Verdana,Helvetica,Arial,sans-serif;}
 }
 ```
 
-![image](/Users/Shared/Previously Relocated Items/Security/Front-End/8_自建笔记Typora/0_PICTURES/2020/2020_9/块级元素垂直居中.png)
+<div align="center">
+  <img src="./0_pictures/block-element-vertical-center.png" alt="block-element-vertical-center" style="max-width:400px" />
+</div>
 
 > + tab选项卡：使用margin-top:-1px来解决选项卡下边框的显示问题。
 
@@ -845,7 +869,7 @@ div{
 	+ 行内框与浮动元素重叠时，其边框、背景和内容都在浮动元素“之上”渲染。
 	+ 块级框与浮动元素重叠时，其边框和背景都在浮动元素“背后”渲染，而内容在浮动元素“之上”渲染。
 
-### 8.1 清除浮动
+### 8.1 🚀清除浮动
 
 
 #### (1) 使用clear属性清除浮动
@@ -858,30 +882,30 @@ div{
 	+ clear:both ~ 确保当前元素不与任何浮动的元素共处一行。
 
 ```html
-	<main>
-    <div class="red"></div>
-    <!-- <div class="green"></div> -->
-    <div class="blue"></div>
-  </main>
+<main>
+  <div class="red"></div>
+  <!-- <div class="green"></div> -->
+  <div class="blue"></div>
+</main>
 ```
 ```css
-		/*【案例：使用clear:left 清除浮动】*/
- 		div { 
-      width: 200px;
-      height: 150px;
-    }
-    div.red {
-      float: left;
-      border: solid 2px red;
-    }
-    div.green {
-      border: 2px solid green;
-    }
-    div.blue {
-      /* 确保blue的左边远离浮动图像（red） */
-      clear: left;
-      background: blue;
-    }
+/*【案例：使用clear:left 清除浮动】*/
+div { 
+   width: 200px;
+   height: 150px;
+}
+div.red {
+  float: left;
+  border: solid 2px red;
+}
+div.green {
+  border: 2px solid green;
+}
+div.blue {
+  /* 确保blue的左边远离浮动图像（red） */
+  clear: left;
+  background: blue;
+}
 ```
 
 #### （2）清除浮动有哪些方案？
@@ -893,123 +917,118 @@ div{
 	+ 原理：只让浮动在父盒子内部生效。
 
 ```html
-	<main>
-    <div class="red"></div>
-    <div class="green"></div>
-    <p class="clearfix"></p>
-  </main>
+<main>
+  <div class="red"></div>
+  <div class="green"></div>
+  <p class="clearfix"></p>
+</main>
 ```
 
 ```css
-	 main {
-	 		/* 清除浮动后避免了父盒子的高度塌陷*/
-      border: 1px dashed black;
-    }
+main {
+		/* 清除浮动后避免了父盒子的高度塌陷*/
+    border: 1px dashed black;
+}
 
-    div {
-      width: 200px;
-      height: 150px;
+div {
+  width: 200px;
+  height: 150px;
+}
+div.red {
+   float: left;
+   border: solid 2px red;
+}
+div.green {
+   float: right;
+   background-color: green;
+}
 
-    }
-
-    div.red {
-      float: left;
-      border: solid 2px red;
-    }
-
-    div.green {
-      float: right;
-      background-color: green;
-    }
-
-    p.clearfix {
-      clear: both;
-    }
+p.clearfix {
+   clear: both;
+}
 ```
 
-![image](/Users/Shared/Previously Relocated Items/Security/Front-End/8_自建笔记Typora/0_PICTURES/2020/2020_9/清除浮动.png)
+<div align="center">
+  <img src="./0_pictures/clear-float.png" alt="clear-float" style="max-width:1000px" />
+</div>
 
 + 使用升级版的额外标签法~ **::after 伪元素**创建额外标签。
 
 ```html
-	<main class="clearfix">
-    <div class="red"></div>
-    <div class="green"></div>
-  </main>
+<main class="clearfix">
+  <div class="red"></div>
+  <div class="green"></div>
+</main>
 ```
 
 ```css
-		main {
-      border: 2px dashed black;
-    }
-    div {
-      width: 200px;
-      height: 150px;
-    }
-    div.red {
-      float: left;
-      border: solid 2px red;
-    }
-    div.green {
-      float: right;
-      background-color: green;
-    }
-    .clearfix::after {
-      clear: both;
-      content: '';
-      display: block;
-    }
+main {
+  border: 2px dashed black;
+}
+div {
+  width: 200px;
+  height: 150px;
+}
+div.red {
+  float: left;
+  border: solid 2px red;
+}
+div.green {
+  float: right;
+  background-color: green;
+}
+.clearfix::after {
+  clear: both;
+  content: '';
+  display: block;
+}
 ```
 
 + 实际开发中使用::after伪元素清除浮动的方法
 
 ```css
-	.clearfix{*zoom:1;} /*解决IE6、7的浮动问题*/
-	.clearfix::after{
-			clear:both;
-			content:'';
-			display:block;
-			height:0;  /**/
-			visibility:hidden;/**/
-	}
+.clearfix{*zoom:1;} /*解决IE6、7的浮动问题*/
+.clearfix::after{
+		clear:both;
+		content:'';
+		display:block;
+		height:0;  /**/
+		visibility:hidden;/**/
+}
 ```
 
 + 利用overflow触发BFC清除浮动影响
 
 ```css
-	main {
-      border: 2px dashed black;
-      width: 500px;
-      margin: 0 auto;
-      padding: 20px;
-      /*清除浮动*/
-      overflow: hidden;
-    }
-
-    div {
-      width: 200px;
-      height: 150px;
-
-    }
-
-    div.red {
-      float: left;
-      border: solid 2px red;
-    }
-
-    div.green {
-      float: right;
-      background-color: green;
-    }
+main {
+    border: 2px dashed black;
+    width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    /*清除浮动*/
+    overflow: hidden;
+}
+div {
+   width: 200px;
+   height: 150px;
+}
+div.red {
+   float: left;
+   border: solid 2px red;
+}
+div.green {
+   float: right;
+   background-color: green;
+}
 ```
 
 ```html
-	<main class="clearfix">
-    <div class="red"></div>
-    <div class="green"></div>
-  </main>
+<main class="clearfix">
+  <div class="red"></div>
+  <div class="green"></div>
+</main>
 ```
-
+------
 ### 8.2 浮动形状 CSS shapes
 
 #### 8.2.1 定义形状  **shape-outside**
@@ -1054,32 +1073,34 @@ div{
 + 相对定位使用偏移属性移动元素。相对定位的”相对“指的是相对元素自身在常规流中的位置来定义元素的位置。
 
 ```css
-	p {
-      border: solid 5px blueviolet;
-      width: 400px;
-      height: 400px;
-      padding: 30px;
-    }
+p {
+    border: solid 5px blueviolet;
+    width: 400px;
+    height: 400px;
+    padding: 30px;
+}
 
-    p img {
-      width: 50px;
-      /*相对定位*/
-      position: relative;
-      top: 200px;
-    }
+p img {
+    width: 50px;
+    /*相对定位*/
+    position: relative;
+    top: 200px;
+}
 ```
 
 ```html
-	<p>
-    <img
+<p>
+   <img
       src="https://upload-images.jianshu.io/upload_images/7227388-02eab88df7fed2ac.jpg?imageMogr2/auto-orient/strip|imageView2/2/format/webp"
       alt="">
-    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eligendi, velit reprehenderit voluptate saepe cum
-    veritatis expedita dignissimos illum placeat eum obcaecati doloribus provident, exercitationem quisquam!
-  </p>
+   Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eligendi, velit reprehenderit voluptate saepe cum
+   veritatis expedita dignissimos illum placeat eum obcaecati doloribus provident, exercitationem quisquam!
+</p>
 ```
 
-<img src="/Users/Shared/Previously Relocated Items/Security/Front-End/8_自建笔记Typora/0_PICTURES/2020/2020_9/相对定位.png" alt="image" style="zoom:67%;" />
+<div align="center">
+  <img src="./0_pictures/relative-position.png" alt="relative-position" style="zoom:60%" />
+</div>
 
 + 注意：图像原本所在的位置出现了空白。这是因为在相对定位中，元素从常规的位置移开了，但是其占据的空间并没有消失。相对定位的元素偏移后可能与其他元素重叠。
 
@@ -1091,44 +1112,48 @@ div{
 + 绝对定位的元素不会围绕其他元素的内容流动，其内容也不围绕定位元素流动。
 
 ```css
- 		p {
-      border: solid 5px blueviolet;
-      width: 400px;
-      height: 200px;
-      padding: 30px;
-    }
+p {
+  border: solid 5px blueviolet;
+  width: 400px;
+  height: 200px;
+  padding: 30px;
+}
 
-    p img {
-      width: 50px;
-      position: absolute;
-      top: 100px;
-    }
+p img {
+  width: 50px;
+  position: absolute;
+  top: 100px;
+}
 ```
-<img src="/Users/Shared/Previously Relocated Items/Security/Front-End/8_自建笔记Typora/0_PICTURES/2020/2020_9/绝对定位.png" alt="image" style="zoom:67%;" />
+<div align="center">
+  <img src="./0_pictures/absolute-position1.png" alt="absolute-position1" style="zoom:70%" />
+</div>
 
 ------
-+ ==绝对定位的元素的容纳块是position属性的值不是static的最近的祖辈元素==。习惯上，当选定了绝对定位元素的容纳块元素后，会把容纳块的position的值设为relative，而且不设置偏移。（子绝父相）
++ <span style="background-color:yellow">绝对定位的元素的容纳块是position属性的值不是static的最近的祖辈元素</span>。习惯上，当选定了绝对定位元素的容纳块元素后，会把容纳块的position的值设为relative，而且不设置偏移。（子绝父相）
 
 ```css
- 		p {
- 			/*父级：相对定位*/
-      position: relative;
-      border: solid 5px blueviolet;
-      width: 400px;
-      height: 200px;
-      padding: 30px;
-    }
+p {
+	/*父级：相对定位*/
+  position: relative;
+  border: solid 5px blueviolet;
+  width: 400px;
+  height: 200px;
+  padding: 30px;
+}
 
-    p img {
-      width: 50px;
-      /*子级绝对定位*/
-      position: absolute;
-      top: 0;
-      right: 0;
-    }
+p img {
+  width: 50px;
+  /*子级绝对定位*/
+  position: absolute;
+  top: 0;
+  right: 0;
+}
 ```
 
-<img src="/Users/Shared/Previously Relocated Items/Security/Front-End/8_自建笔记Typora/0_PICTURES/2020/2020_9/绝对定位2.png" alt="image" style="zoom:67%;" />
+<div align="center">
+  <img src="./0_pictures/absolute-position2.png" alt="absolute-position2" style="zoom:70%" />
+</div>
 
 ------
 
@@ -1136,56 +1161,58 @@ div{
 
 ```html
 <ul>
-    <li>
-      <span>AMD</span>
-      <img src="pic/AMD.jpg" alt="">
-    </li>
-  </ul>
+   <li>
+     <span>AMD</span>
+     <img src="pic/AMD.jpg" alt="">
+   </li>
+</ul>
 ```
 
 ```css
- * {
-      padding: 0;
-      margin: 0;
-    }
+* {
+  padding: 0;
+  margin: 0;
+}
 
-    body {
-      padding: 80px;
-    }
+body {
+  padding: 80px;
+}
 
-    ul {
-      list-style: none;
-    }
+ul {
+  list-style: none;
+}
 
-    ul li {
-      width: 300px;
-      border: solid 6px blueviolet;
-      overflow: hidden;
-      position: relative;
-    }
+ul li {
+  width: 300px;
+  border: solid 6px blueviolet;
+  overflow: hidden;
+  position: relative;
+}
 
-    ul li img {
-      width: 100%;
-      float: left;
-    }
+ul li img {
+  width: 100%;
+  float: left;
+}
 
-    ul li>span {
-      /* 绝对定位 */
-      position: absolute;
-      width: 50px;
-      height: 30px;
-      background: red;
-      color: white;
-      font-size: 18px;
-      text-align: center;
-      line-height: 30px;
-      border-radius: 5px;
-      left: 20px;
-      top: 20px;
-    }
+ul li>span {
+  /* 绝对定位 */
+  position: absolute;
+  width: 50px;
+  height: 30px;
+  background: red;
+  color: white;
+  font-size: 18px;
+  text-align: center;
+  line-height: 30px;
+  border-radius: 5px;
+  left: 20px;
+  top: 20px;
+}
 ```
 
-<img src="/Users/Shared/Previously Relocated Items/Security/Front-End/8_自建笔记Typora/0_PICTURES/2020/2020_9/绝对定位案例.png" alt="image" style="zoom:67%;" />
+<div align="center">
+  <img src="./0_pictures/absolute-position-case.png" alt="absolute-position-case" style="zoom:80%" />
+</div>
 
 
 ------
@@ -1197,34 +1224,34 @@ div{
 + 【固定定位案例：固定菜单】
 
 ```html
-	<header></header>
-  <main></main>
+<header></header>
+<main></main>
 ```
 ```css
 * {
-      padding: 0;
-      margin: 0;
-    }
+  padding: 0;
+  margin: 0;
+}
 
-    header {
-      position: fixed;
-      left: 0;
-      top: 0;
-      right: 0;
-      height: 60px;
-      border-bottom: solid 5px blueviolet;
-      box-shadow: 0 5px 10px #555;
-      background-color: white;
-      z-index: 10;
-    }
+header {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 60px;
+  border-bottom: solid 5px blueviolet;
+  box-shadow: 0 5px 10px #555;
+  background-color: white;
+  z-index: 10;
+}
 
-    main {
-      /* 这里position:relative 覆盖了header，所以把header 的z-index加大 */
-      position: relative;
-      height: 3000px;
-      background: red;
-      /* margin-top: 100px; */
-    }
+main {
+  /* 这里position:relative 覆盖了header，所以把header 的z-index加大 */
+  position: relative;
+  height: 3000px;
+  background: red;
+  /* margin-top: 100px; */
+}
 ```
 
 ------
@@ -1260,37 +1287,37 @@ div{
 
 ```css
 * {
-      padding: 0;
-      margin: 0;
-    }
+  padding: 0;
+  margin: 0;
+}
 
-    body {
-      padding-left: 100px;
-      padding-top: 100px;
-    }
+body {
+  padding-left: 100px;
+  padding-top: 100px;
+}
 
-    article {
-      width: 400px;
-      height: 200px;
-      border: solid 5px blueviolet;
-      overflow: scroll;
-    }
+article {
+  width: 400px;
+  height: 200px;
+  border: solid 5px blueviolet;
+  overflow: scroll;
+}
 
-    article section {
-      padding-bottom: 50px;
-    }
+article section {
+  padding-bottom: 50px;
+}
 
-    article section:nth-of-type(even) h2 {
-      background-color: #333;
-    }
+article section:nth-of-type(even) h2 {
+  background-color: #333;
+}
 
-    article section h2 {
-      background-color: blueviolet;
-      color: white;
-      /* 粘滞定位 */
-      position: sticky;
-      top: 0px;
-    }
+article section h2 {
+  background-color: blueviolet;
+  color: white;
+  /* 粘滞定位 */
+  position: sticky;
+  top: 0px;
+}
 ```
 
 ------
@@ -1301,101 +1328,100 @@ div{
 
 
 ```html
-	<article>
-    <div></div>
-  </article>
+<article>
+  <div></div>
+</article>
 ```
 ```css
- 		article {
-      border: solid 4px blueviolet;
-      width: 600px;
-      height: 600px;
-      margin: 50px;
-      position: relative;
-    }
+article {
+  border: solid 4px blueviolet;
+  width: 600px;
+  height: 600px;
+  margin: 50px;
+  position: relative;
+}
 
-    div {
-      background: blue;
-      width: 200px;
-      height: 200px;
-      position: absolute;
-      /*直接计算: 父元素宽度*0.5-当前元素宽度*0.5*/
-      left: 200px;
-      /*直接计算: 父元素高度*0.5-当前元素高度*0.5*/
-      top: 200px;
-    }
+div {
+  background: blue;
+  width: 200px;
+  height: 200px;
+  position: absolute;
+  /*直接计算: 父元素宽度*0.5-当前元素宽度*0.5*/
+  left: 200px;
+  /*直接计算: 父元素高度*0.5-当前元素高度*0.5*/
+  top: 200px;
+}
 ```
 
 + 配合使用**负外边距**计算。
 ```css
- article {
-      border: solid 4px blueviolet;
-      width: 600px;
-      height: 600px;
-      margin: 50px;
-      position: relative;
-    }
+article {
+  border: solid 4px blueviolet;
+  width: 600px;
+  height: 600px;
+  margin: 50px;
+  position: relative;
+}
 
-    div {
-      background: blue;
-      width: 200px;
-      height: 200px;
-      position: absolute;
-      /*left和top偏移属性指定的是外边距边界距容纳块的相应边界的距离*/
-      left: 50%;
-      top: 50%;
-      /*配合负外边距*/
-      margin-left: -100px;
-      margin-top: -100px;
-    }
+div {
+  background: blue;
+  width: 200px;
+  height: 200px;
+  position: absolute;
+  /*left和top偏移属性指定的是外边距边界距容纳块的相应边界的距离*/
+  left: 50%;
+  top: 50%;
+  /*配合负外边距*/
+  margin-left: -100px;
+  margin-top: -100px;
+}
 ```
 
 ```html
-	<article>
-    <div></div>
-  </article>
+<article>
+  <div></div>
+</article>
 ```
 ------
 ###  9.7 滚动对定位元素的影响
 
 ```css
- article {
-      border: solid 4px blueviolet;
-      width: 600px;
-      height: 600px;
-      margin: 50px;
-      position: relative;
-      overflow: scroll;
-    }
+article {
+  border: solid 4px blueviolet;
+  width: 600px;
+  height: 600px;
+  margin: 50px;
+  position: relative;
+  overflow: scroll;
+}
 
-    section {
-      height: 3000px;
-      background: #bbb;
-    }
+section {
+  height: 3000px;
+  background: #bbb;
+}
 
-    div {
-      background: blue;
-      width: 200px;
-      height: 200px;
-      position: absolute;
-      left: 0;
-      bottom: 0;
-    }
+div {
+  background: blue;
+  width: 200px;
+  height: 200px;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
 ```
 
 ```html
-	<article>
-    <section>
-      <div></div>
-    </section>
-  </article>
+<article>
+  <section>
+    <div></div>
+  </section>
+</article>
 ```
-
-<img src="/Users/Shared/Previously Relocated Items/Security/Front-End/8_自建笔记Typora/0_PICTURES/2020/2020_9/滚动与定位.png" alt="image" style="zoom:30%;float:left;" /><img src="/Users/Shared/Previously Relocated Items/Security/Front-End/8_自建笔记Typora/0_PICTURES/2020/2020_9/滚动与定位2.png" alt="image" style="zoom:35%;float:right;" />
-
+<div align="center">
+<img src="./0_pictures/scroll-position1.png" alt="image" style="zoom:30%" /><img src="./0_pictures/scroll-position2.png" alt="image" style="zoom:35%" />
+</div>
 > 此时内容会跟随滚动条滚动。
 
-------
 ------
 
 ## 10 弹性盒模型
@@ -1459,11 +1485,11 @@ div{
 + 栅格线划分针对是栅格容器的宽和高。行栅格线划分容器高度，列栅格线划分容器宽度。
 
 ```css
-	#grid{
-		display:grid;
-		grid-template-columns:200px 50% 100px;
-		/*建立了四条列栅格线，依据给定的尺度划分栅格容器的宽度*/
-	}
+#grid{
+	display:grid;
+	grid-template-columns:200px 50% 100px;
+	/*建立了四条列栅格线，依据给定的尺度划分栅格容器的宽度*/
+}
 ```
 
 + 栅格线始终可以使用数字引用。栅格线没有默认名称。在CSS中，可以使用数字引用栅格线，也可以使用为其指定的名称，又或者二者混用。
@@ -1471,21 +1497,21 @@ div{
 + **给栅格线命名**：把想用的名称放在值中的恰当位置，并在两侧加上**方括号**。
 
 ```css
-	#grid {
-		display:grid;
-		grid-template-columns:[start col-a] 200px [col-b] 50% [col-c] 	100px [stop end last]
-		/*分别给四条列栅格线命名*/
-	}
+#grid {
+	display:grid;
+	grid-template-columns:[start col-a] 200px [col-b] 50% [col-c] 	100px [stop end last]
+	/*分别给四条列栅格线命名*/
+}
 ```
 
 + 栅格线并不一定全在栅格容器内。为了避免栅格线超出栅格容器，在设置栅格线的同时可以为行栅格线或列栅格线设定极值，指明行的高度（或列的宽度）不能小于一个值，也不能大于一个值，让浏览器计算具体的值。方法是**minmax（a,b)**
 
 ```css
-	#grid{
-			display:grid;
-			grid-template-columns:[start col-a] 200px [col-b] 50% [col-c] 100px [stop end last];
-			grid-template-rows:[start masthead] 3em [content] minmax(3em,100%) [footer] 2em [stop end];
-	}
+#grid{
+		display:grid;
+		grid-template-columns:[start col-a] 200px [col-b] 50% [col-c] 100px [stop end last];
+		grid-template-rows:[start masthead] 3em [content] minmax(3em,100%) [footer] 2em [stop end];
+}
 ```
 
 
@@ -1495,19 +1521,19 @@ div{
 + 如果想把余下的空间分成一定份数，分配给各栏，可以使用**fr**单位。
 
 ```css
-	#grid{
-		display:grid;
-		grid-template-columns:15em 1fr 10%;
-	}
-	/*中间的栅格横向空间弹性伸缩。*/
+#grid{
+	display:grid;
+	grid-template-columns:15em 1fr 10%;
+}
+/*中间的栅格横向空间弹性伸缩。*/
 ```
 
 ```css
- #grid{
- 	display:grid;
- 	grid-template-columns:15em 4.5fr minmax(5em,3fr) 10%;
- 	/*指定第三列的最小宽度为5em*/
- }
+#grid{
+	display:grid;
+	grid-template-columns:15em 4.5fr minmax(5em,3fr) 10%;
+	/*指定第三列的最小宽度为5em*/
+}
 ```
 
 + 根据内容设定轨道的尺寸。min-content（尽量少占据空间，够显示内容即可） 和max-content（占据内容所需的最大空间）。
@@ -1518,11 +1544,11 @@ div{
 + **repeat()** 可以重复创建栅格线。
 
 ```css
-	#grid{
-		display:grid;
-		grid-template-columns:repeat(3,2em 1fr 1fr)
-		}
-		/*重复三次列结果2em-1fr-1fr*/
+#grid{
+	display:grid;
+	grid-template-columns:repeat(3,2em 1fr 1fr)
+}
+/*重复三次列结果2em-1fr-1fr*/
 ```
 
 + auto-fill  可以自动填充。
@@ -1553,10 +1579,7 @@ div{
 	grid-row-start:R 2; grid-row-end:span 2;
 	grid-column-start:col-B;grid-column-end:4;
 }
-
 ```
-
-
 
 ### 11.7 行和列的简写
 
