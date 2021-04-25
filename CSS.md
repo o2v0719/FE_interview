@@ -2,19 +2,34 @@
 
 ## 1 CSS与文档
 
-### 1.1 元素的显示方式
+### 1.1 元素的分类
 
-+ 根据元素的显示方式，CSS把元素分为块级和行内两种基本类型。
++ 根据元素的显示方式，CSS把元素分为块级和行内(内联)两种基本类型。
   - 常见的块级元素： div 	p
 	- 常见的行内元素： a 	strong 	em 	span
 	
++ 置换元素与非置换元素：置换元素指用来置换元素内容的部分不由文档内容直接表示。浏览器根据元素的标签和属性来决定元素的具体显示内容。HTML元素大部分是非置换元素。
+	- 置换元素有：\<img> 、\<input> 、 \<textarea> 、 \<select> 等。
+	- 非置换元素标签中的内容会直接表现给用户端（浏览器）。
+
+#### 1.1.1 🐯[面试题] 块级元素、行内元素及行内块元素有什么区别？
++ 块级元素会独占一行，默认情况下，其宽度自动填满父元素宽度。
++ 行内元素不会独占一行，相邻的行内元素会排列在同一行，直到一行排不下，才会换行，其宽度随元素的内容而自适应地变化。
+	- 行内元素设置宽高（width、height)无效
+	- 对margin仅设置左右方向有效，上下无效；padding设置上下左右都有效，会撑大空间
+	- 不会自动换行
++ 行内块元素综合了行内元素和块元素的特点，但各有取舍。
+  - 不自动换行
+  - 能识别宽高
+-------
 ### 1.2 link标签与@import指令
 
 + link标签和@import指令都可以用来引入外部的css资源。
 + link属于html标签，@import指令来源于CSS。
 + link标签必须放在head元素中; @import声明必须放在所在样式表的开头。
-+ 当一个页面被加载时（或者被浏览者浏览时），link引用的CSS会同时被加载，而@import引用的CSS会等到页面全部被下载完再被加载。
++ 当一个页面被加载时（或者被浏览者浏览时），link引用的CSS会同时被加载，而@import引用的CSS会等到页面全部被下载完再被加载。所以有时候浏览@import加载CSS的页面时会没有样式（就是闪烁），网速慢的时候还挺明显。
 
+--------
 ## 2 CSS选择器
 
 ### 2.1 类选择符和ID选择符
@@ -270,7 +285,13 @@ h2::before{
 	color:gold;
 }
 ```
+-------
+#### 2.5.1 [面试题]🐯 伪类选择器和伪元素选择器有什么区别？
++ 1. CSS3规定伪类格式 p:hover(一个冒号)，伪元素格式p::after(两个冒号)
++ 2. 伪类没有创建元素，但是伪类对应的元素真实的存在于dom树中；伪元素创建了新的逻辑上的元素，但是这个元素并不真实存在于dom树中。
++ 3. 伪类的效果可以通过添加一个类来达到，而伪元素的效果则需要通过添加一个元素才能达到，这也是为什么他们那一个称为伪类，一个称为伪元素的原因。
 
+-------
 ## 3 CSS权重与优先级
 
 ### 3.1 指定样式冲突：权重计算
@@ -315,7 +336,7 @@ h2{
 
 ### 4.1 字体
 
-+ 一般建议在`font-family`规则中指定**通用字体族**。这样做相当于提供一种后备机制，当用户代理找不到匹配的字体时，选择一个字体代替。
++ 一般建议在==**font-family**==规则中指定**通用字体族**。这样做相当于提供一种后备机制，当用户代理找不到匹配的字体时，选择一个字体代替。
 
 ```css
 h1 { font-family:Arial,sans-serif; }
@@ -454,7 +475,7 @@ div{
 
 ####（1）文本缩进
 
-+ 	**text-indent**属性可以控制首行文本缩进。
++ 	==**text-indent**==属性可以控制首行文本缩进。
 
 ```css
 div{
@@ -467,7 +488,8 @@ div{
 
 #### （2）文本横向对齐
 
-+ **text-align**属性控制各文本行的对齐方式。（沿行内方向对齐，一般是横向）
++ ==**text-align**==属性控制当前块元素中各文本行的对齐方式。（沿行内方向对齐，一般是横向）
+  - 左对齐表示各行左侧起始”x坐标”保持一致，右对齐表示各行右侧终止“x坐标”保持一致。
 
 ```css
 div{
@@ -479,30 +501,34 @@ div{
 
 > <span style="border-bottom: 2px dashed red;">注意：**text-align**属性只能用于块级元素，它只能用于控制元素中的内容的对齐方式，不能控制元素自身的对齐方式。</span>
 
-#### （3） 🚀行的高度**line-height**
+#### （3） 🚀行的高度
 
-+ 文本行的每个元素构成一个**内容区**，其高度由字体的高度决定，也就是说内容区的高度就是字体的高度。
-+ 随内容区出现了**行内框**，如果不考虑其他因素，其高度与内容区高度完全一致。
-+ 行高**line-height**指的是两行文字**基线**之间的距离，与字号无关。
-+ 元素的行距等于font-size的计算结果减去line-height的计算结果。
-+ <span style="border-bottom: 2px dashed red;font-weight:600">在CSS中，我们可以定义height和line-height这两个属性值相等，来实现单行文字的垂直居中。</span>
-
-+ 当line-height的值为**百分数或em**时，块级元素从父元素继承line-height行高，此时行高根据父元素的字号计算，而不是根据子元素计算。
++ 文本行的每个元素构成一个**内容区**，其高度由字体的高度决定，也就是说内容区的高度就是字体的高度。随内容区出现了**行内框**，如果不考虑其他因素，其高度与内容区高度完全一致。
++ 所有元素都有`line-height`值
++ 行高==**line-height**==指的是两行文字**基线**之间的距离，与字号无关。
++ 元素的**行距**等于font-size的计算结果减去line-height的计算结果。
++ 🐯<span style="border-bottom: 2px dashed red;font-weight:600">在CSS中，我们可以定义height和line-height这两个属性值相等，来实现单行文字的垂直居中。</span>
++ 当给元素直接设置的**line-height**为`em`、`ex`和百分数时，该元素`行高`的绝对值根据元素的`font-size`值来计算。
++ 当块级元素从父元素继承而来的line-height的值为**百分数或em、ex**时，，此时<span style="border-bottom: 2px dashed green;font-weight:600">行高根据父元素的字号计算</span>，而不是根据当前块元素的字号计算。
 
 ```css
 /*注意行高指的是文字行间距*/
 body{font-size:10px}
 div{line-height:1em}/*行高(p元素中的文本）为10px，继承自body*/
 p{font-size:18px}/*字号为18px*/
-/*这样会造成行纵向贴近*/
+/*p的行高（继承自div）被限制死，然后p的字号比较大。这样会造成行纵向贴近*/
 ```
+<div align="center">
+  <img src="./0_pictures/line-height-em.png" style="max-width:600px">
+</div>
 
-+ 设定行高更好的方法是==**使用纯数字**==，即设定一个<span style="border-bottom: 2px solid red;">换算系数</span>。使用纯数字，继承的将是设定的换算系数，各元素的行高将根据自身的字号计算。（子元素继承的是父元素的换算系数而不是直接继承行高line-height）。
+
++ 设定`行高`更好的方法是==**使用纯数字**==，即设定一个<span style="border-bottom: 2px solid red;">换算系数</span>。`行高`使用纯数字，<span style="border-bottom: 2px dashed green;font-weight:600">继承的将是设定的换算系数，各元素的行高将根据自身的字号计算</span>。（子元素继承的是父元素的换算系数而不是直接继承行高line-height）。
 
 ```css
 body{font-size:10px}
-div{line-height:1.5}/*行高（p元素文本行）为15px，行高系数1.5*/
-p{font-size:18px}/*行高为（p元素文本行）27px，行高系数1.5*/
+div{line-height:1.5}/*行高（div文本行）为15px，行高系数1.5*/
+p{font-size:18px}/*行高为（p元素文本行）27px，继承自div得到行高系数1.5*/
 /*最终显示的文本行高是27px，（15px没有被继承）*/
 ```
 
@@ -516,12 +542,14 @@ p{font-size:18px}/*行高为（p元素文本行）27px，行高系数1.5*/
     </div>
 </article>
 ```
-
+<div align="center">
+  <img src="./0_pictures/line-height-number.png" style="max-width:600px">
+</div>
 + 如果line-height的值设定为**inherit**，元素的行高将变成父元素行高的计算值。
 
 ####（4） 文本纵向对齐
 
-+ **vertical-align**属性只能用于**行内元素和置换元素**（如：图像和表单输入框），它不影响块级元素中文本的对齐方式。
++ ==**vertical-align**==属性只能用于**行内元素和置换元素**（如：图像和表单输入框），它不影响块级元素中文本的对齐方式。
 
 |  |取值| 作用 |
 | :--: |:--:|:--:|
@@ -555,12 +583,49 @@ p{font-size:18px}/*行高为（p元素文本行）27px，行高系数1.5*/
 + CSS3提出了新的盒子模型，通过**`box-sizing:border-box`**属性，此时给div设置宽高500px，宽高会自动加上`padding`和`border`的值, 属于content部分的宽高将不足500px。
 ### 5.1 垂直外边距合并
 
-+ 当两个**垂直外边距**相遇时，这两个外边距会合并成一个外边距。其中，叠加之后的外边距高度等于发生叠加之前两个外边距中的最大值。（如果外边距有负值，就把正负值相加）。
++ 当两个**垂直外边距**相遇时，这两个外边距会合并成一个外边距，这种合并外边距的方式被称为**折叠**。
+  - 两个相邻的外边距都都是正数时，折叠结果是它们两者之间的较大值。
+  - 两个相邻的外边距都是负数时，折叠结果是两者绝对值的较大值。
+  - 两个外边距一正一负时，折叠结果是两者之和。
 + 外边距叠加的三种情况：
 	+ 同级元素：当一个元素出现在另一个元素上面的时候，第一个元素的下边距将会和第二个元素的上边距发生合并。
-	+ 父子元素：当一个元素在另外一个元素中时（父子嵌套），假如没有内边距padding或边框border把外边距分隔开的话，父元素和子元素的相邻上下边距也会发生合并。
+	+ 父子元素：当一个元素在另外一个元素中时（父子嵌套），<span style="border-bottom: 2px solid purple;font-weight:400">假如没有内边距padding或边框border把外边距分隔开的话</span>，父元素和子元素的相邻上下边距也会发生合并。
 	+ 空元素：当一个空元素有上下外边距时，如果没有border或者padding，则元素的上外边距与下外边距会发生合并。
 
+#### 5.1.1 如何避免垂直外边距折叠
++ 使用**BFC（块级格式化上下文）**来避免外边距折叠。
+  - 相邻块级盒子（同级）之间的垂直外边距只有在它们处于同一个BFC时才会发生折叠。如果它们属于不同的BFC，就不会发生外边距折叠了。所以，通过创建新的BFC我们可以避免外边距折叠。
+```html
+<style>
+.container {
+  background-color: red;
+  /* 创建块级格式化上下文 */
+  overflow: hidden;
+}
+p {
+  margin: 10px 0;
+  background-color: lightgreen;
+}
+.newBFC {
+   /* 创建新的块级格式化上下文 */
+  overflow: hidden;
+}
+</style>
+<body>
+  <div class="container">
+    <p>Sibling1</p>
+    <p>Sibling2</p>
+    <!--Sibling2 和 Sibling3之间的垂直外边距并没有折叠！ -->
+    <div class="newBFC">
+        <p>Sibling3</p>
+    </div>
+  </div>
+</body>
+```
+<div align="center">
+  <img src="./0_pictures/BFC-prevent-margin-collapse.png" alt="BFCl" style="max-width:600px" />
+</div>
+------
 ### 5.2 负外边距
 
 + 对于**普通文档流**元素：
@@ -574,7 +639,7 @@ p{font-size:18px}/*行高为（p元素文本行）27px，行高系数1.5*/
 
 #### 😁 <span style="border: 2px dashed blue;">负margin的使用技巧：</span>
 
-+ 图片与文字对齐：实现图片与文字底部水平方向对齐。
++ 图片与文字对齐：实现图片与文字底部垂直对齐。
 
 ```html
 <div>
@@ -703,9 +768,9 @@ img{
 + 常用outline:none 来去掉浏览器默认给表单提供的蓝色轮廓线。
 
 ```css
-	input{
-		outline:none;
-	}
+input{
+	outline:none;
+}
 ```
 
 ### 5.8 display属性 与 visibility属性
@@ -715,7 +780,7 @@ img{
 
 + visibility:hidden  隐藏元素。等同于（opacity:0）
 
-+ #### <span style="border: 2px dashed blue;"> visibility:hidden 与display:none 控制元素隐藏有什么区别？</span>
++ #### <span style="border: 2px dashed blue;"> 🐯visibility:hidden 与display:none 控制元素隐藏有什么区别？</span>
 	+ display:none隐藏元素会影响文档流，隐藏当前元素，后续元素会占据当前元素的位置。
 	+ visibility:hidden 隐藏元素就只是隐藏元素，不影响文档流。
 
@@ -723,7 +788,7 @@ img{
 ### 5.9 box-sizing属性
 
 + 默认情况下，块级框的width等于左内边界到右内边界的距离，height等于上内边界到下内边界的距离。但是这两个属性可以根据box-sizing属性调整。
-+ box-sizing:border-box ~ width表示从元素左边框的外边界到右边框的外边界之间的距离。边框宽度，内边距宽度和内容区宽度都将计算在width之内。height同理。
++ **`box-sizing:border-box`** ~ width表示从元素左边框的外边界到右边框的外边界之间的距离。边框宽度，内边距宽度和内容区宽度都将计算在width之内。height同理。
 
 ### 5.10 overflow溢出隐藏
 
@@ -854,17 +919,17 @@ div{
 
 + **list-style-type**可以设置列表项目的记号类型。如果不显示记号，应该使用none值。
 
-## 8 浮动
+## 8 🚀浮动float
 
 + 使用css可以浮动任何元素。在css中，浮动通过属性“float”来实现。
 + 浮动的元素脱离了常规的文档流，不过对布局仍有影响。因为元素浮动后，其他内容都将围绕它“流动”。
-> 什么是正常（普通）文档流？
-> + 正常文档流，讲一个页面从上到下分为一行一行，其中块元素独占一行，相邻行内元素在每一行中按照从左到右排列直到改行排满。
+> 什么是正常（普通）文档流？什么是脱离文档流？
+> + 正常文档流，将一个页面从上到下分为一行一行，其中块元素独占一行，相邻行内元素在每一行中按照从左到右排列直到改行排满。
 > + 对元素使用了**浮动或定位**会后，就会脱离文档流。
 
 + 如果浮动了非置换元素，要为元素设定宽度。
++ <span style="border: 2px dashed blue;"> **float属性**：（left，right，none）</span>：分别表示脱离文档流向左浮动、脱离文档流向右浮动、默认初始值（不浮动）。
 + 不管元素是什么类型，**浮动后得到的都是块级框**。比如一个行内元素span浮动后，要为其设置宽高。
-
 + 浮动元素与其他元素的内容重叠问题：
 	+ 行内框与浮动元素重叠时，其边框、背景和内容都在浮动元素“之上”渲染。
 	+ 块级框与浮动元素重叠时，其边框和背景都在浮动元素“背后”渲染，而内容在浮动元素“之上”渲染。
@@ -884,7 +949,6 @@ div{
 ```html
 <main>
   <div class="red"></div>
-  <!-- <div class="green"></div> -->
   <div class="blue"></div>
 </main>
 ```
@@ -898,22 +962,26 @@ div.red {
   float: left;
   border: solid 2px red;
 }
-div.green {
-  border: 2px solid green;
-}
 div.blue {
-  /* 确保blue的左边远离浮动图像（red） */
+  /* 确保blue的左边远离浮动元素（red） */
   clear: left;
   background: blue;
 }
 ```
 
-#### （2）清除浮动有哪些方案？
+<div align="left">
+  <img src="./0_pictures/clear-float-left.png" alt="box-model" style="max-width:400px" />
+</div>
 
-+ 浮动元素对父元素的影响：
-	+ 如果浮动元素的高度height大于父元素的高度height，或者父元素没有定义高度height，此时浮动元素会脱离父元素。即**父元素高度塌陷**。
 
-+ 额外标签法清除浮动：
+
+#### (2) 清除浮动有哪些方案？
+
+> 浮动元素对父元素的影响：
+>
+> 如果浮动元素的高度height大于父元素的高度height，或者父元素没有定义高度height，此时浮动元素会脱离父元素。即**父元素高度塌陷**。
+
++ **额外标签法**清除浮动：
 	+ 原理：只让浮动在父盒子内部生效。
 
 ```html
@@ -926,6 +994,7 @@ div.blue {
 
 ```css
 main {
+    /* 父盒子main未定义高度 */
 		/* 清除浮动后避免了父盒子的高度塌陷*/
     border: 1px dashed black;
 }
@@ -944,6 +1013,7 @@ div.green {
 }
 
 p.clearfix {
+  /* 确保p元素不与任何浮动的元素共处一行*/
    clear: both;
 }
 ```
@@ -977,14 +1047,15 @@ div.green {
   float: right;
   background-color: green;
 }
+/*伪元素*/
 .clearfix::after {
   clear: both;
-  content: '';
+  content: 'hahaha';
   display: block;
 }
 ```
 
-+ 实际开发中使用::after伪元素清除浮动的方法
++ 实际开发中使用::after伪元素清除浮动的方法（兼容低版本IE)
 
 ```css
 .clearfix{*zoom:1;} /*解决IE6、7的浮动问题*/
@@ -997,7 +1068,7 @@ div.green {
 }
 ```
 
-+ 利用overflow触发BFC清除浮动影响
++ 利用overflow触发**BFC清除浮动**：给浮动元素的父元素添加一个属性`overflow:hidden`创建了一个BFC。
 
 ```css
 main {
@@ -1005,7 +1076,7 @@ main {
     width: 500px;
     margin: 0 auto;
     padding: 20px;
-    /*清除浮动*/
+    /*清除浮动：创建了一个BFC*/
     overflow: hidden;
 }
 div {
@@ -1054,23 +1125,29 @@ div.green {
 + 定义好浮动形状后，可以使用**shape-margin**属性为形状添加”外边距“，这个”外边距“可以把内容推开一定长度或百分比距离。
 
 
-## 9 定位
+
+-------
+
+
+## 9 定位position
 
 ### 9.1   基本概念
 
 + 容纳块：容纳块是指包含另一个元素的框体。对于定位元素，容纳块完全取决于定位类型。
 	+ 对非根元素来说，如果position的属性的值是relative或static，其容纳块由最近的块级、单元格或行内块级祖辈元素框体的内容边界划定。
 	+ 对非根元素来说，如果position的属性的值时absolute，其容纳块是**position属性的值不是static的最近的祖辈元素**（任何类型）。
-
-+ 偏移属性：使用四个属性（top，right，bottom，left）来指定定位元素的各边相对容纳块的偏移。这四个属性称为偏移属性。这些属性指定了距**容纳块**最近的边的偏移。
++ 偏移属性：当`position`的属性值不为`static`时，使用四个属性（top，right，bottom，left）来指定定位元素的各边相对容纳块的偏移。这四个属性称为偏移属性。这些属性指定了距**容纳块**最近的边的偏移。
++ 偏移属性的值可以是百分数，上下偏移量相对容纳块的高度计算，左右偏移量相对容纳块的宽度计算。
 > 例如，top属性指定了定位元素的**上外边距边界**距容纳块的顶边有多远。
 
 + 使用width或height可以为定位元素指定具体的宽度和高度。
-+ 元素的内容区尺寸可以使用min-width和min-height定义最小值，使用max-width和max-height定义最大值。
++ 元素的内容区尺寸可以使用`min-width`和`min-height`定义最小值，使用`max-width`和`max-height`定义最大值。
 
 ### 9.2 相对定位relative
 
-+ 相对定位使用偏移属性移动元素。相对定位的”相对“指的是相对元素自身在常规流中的位置来定义元素的位置。
++ 相对定位使用偏移属性移动元素。相对定位的”相对“指的是**相对元素自身在常规流中的位置**来定义元素的位置。
++ 相对定位的元素没有脱离文档流，相对定位会使元素提升一个层级。
++ 相对定位不会改变元素的性质，块还是块，内联还是内联。
 
 ```css
 p {
@@ -1108,7 +1185,7 @@ p img {
 
 ### 9.3 绝对定位
 
-+ 绝对定位的元素完全从文档流中移除，其位置相对容纳块而定，外边距的边界使用偏移属性划定。
++ **绝对定位的元素完全脱离文档流**，其位置相对容纳块而定，外边距的边界使用偏移属性划定。
 + 绝对定位的元素不会围绕其他元素的内容流动，其内容也不围绕定位元素流动。
 
 ```css
@@ -1121,6 +1198,7 @@ p {
 
 p img {
   width: 50px;
+  /*绝对定位*/
   position: absolute;
   top: 100px;
 }
@@ -1130,7 +1208,9 @@ p img {
 </div>
 
 ------
-+ <span style="background-color:yellow">绝对定位的元素的容纳块是position属性的值不是static的最近的祖辈元素</span>。习惯上，当选定了绝对定位元素的容纳块元素后，会把容纳块的position的值设为relative，而且不设置偏移。（子绝父相）
++ <span style="background-color:yellow">绝对定位的元素的容纳块是position属性的值不是static的最近的祖辈元素</span>。习惯上，当选定了绝对定位元素的容纳块元素后，会把容纳块的`position`的值设为`relative`，而且不设置偏移。（子绝父相）
+
+> 绝对定位的元素时相对于离他最近的开起了定位的祖先元素进行定位的。
 
 ```css
 p {
@@ -1224,8 +1304,10 @@ ul li>span {
 + 【固定定位案例：固定菜单】
 
 ```html
-<header></header>
-<main></main>
+<body>
+  <header></header>
+  <main></main>
+</body>
 ```
 ```css
 * {
@@ -1421,7 +1503,14 @@ div {
 <img src="./0_pictures/scroll-position1.png" alt="image" style="zoom:30%" /><img src="./0_pictures/scroll-position2.png" alt="image" style="zoom:35%" />
 </div>
 > 此时内容会跟随滚动条滚动。
-
+------
+### 9.8 比较浮动与定位
++ 1. 对元素同时使用postion和float属性，无论谁写在前面，都是position先起作用：
+  - 当position为absolute、fixed时，元素已脱离文档流，再对元素使用float失效。
+  - 当position为static、relative时，元素依旧处于普通文档流，再对元素使用float会起作用。
++ 2. 试比较定位和浮动两种脱离文档流机制的区别？
+  - 用position定位使元素脱离文档流后，**该元素不占据空间**，用`top、bottom、left、right`决定位置。
+  - 用float是元素脱离文档流后，**该元素占据空间**，用margin，padding等决定和周围内容的距离。
 ------
 
 ## 10 弹性盒模型
@@ -1663,6 +1752,125 @@ grid-template-areas:
 | **z-index** |-1、0、1...|修改单个重叠的栅格元素的显示顺序，正值近，负值远|
 
 
+## 12 【总结】居中的实现方案
+> 详细参考: [搞定居中](https://blog.csdn.net/weixin_37219302/article/details/80504236?utm_medium=distribute.pc_relevant_download.none-task-blog-2~default~BlogCommendFromBaidu~default-12.nonecase&dist_request_id=1332049.676.16193608639629451&depth_1-utm_source=distribute.pc_relevant_download.none-task-blog-2~default~BlogCommendFromBaidu~default-12.nonecas)
+### 12.1 水平居中
 
+#### 12.1.1 常规元素（普通文档流中元素）的水平居中
 
++ 行内元素、不定宽的块级元素，给父元素设置`text-align:center`
+```css
+.outer{
+  text-align:center;
+}
+```
+```html
+<div class="outer">
+  <div class="inner">
+    我是水平居中的不定宽的块级元素
+  </div>
+  <span>我是要水平居中的行内元素,下面的图片也是要居中的行内元素</span>
+  <img src="./..png">
+</div>
+```
+
++ 居中定宽的块级元素 ， 给当前块级元素设置`margin:0 auto`。
+```css
+#inner{
+  width:200px;
+  margin:0 auto;
+}
+```
+```html
+<div class="outer">
+  <div class="inner">
+    我是要水平居中的定宽块级元素
+  </div>
+</div>
+```
+
++ 通用方法，使用`diaplay:flex`弹性盒模型。 不管是普通文档流中的行内元素还是块元素，通杀。
+```css
+.outer {
+   display: flex;
+   justify-content: center;
+}
+```
+```html
+<div class="outer">
+    <div class="inner">
+      我是要居中的元素
+    </div>
+</div>
+```
+
+------
+
+#### 12.1.2 浮动元素的水平居中
+
+> 元素浮动之后，本身相当于设置了display:inline-block; 可以设置宽高了，没有行级和块级之分。只有定宽和不定宽之分。
+
++ 定宽的浮动元素居中：给浮动元素设置相对定位，同时使用`left` 和负外边距`margin-left`让浮动元素水平居中。
+```css
+.inner{
+  position:relative;
+  left:50%;
+  /*负外边距使用：宽度width的一半的负值*/
+  margin-left:-100px;
+}
+```
+```html
+<div class="outer">
+  <div class="inner" style="float:left;width:200px;background-color:aqua;">
+    我是要居中的浮动元素
+  </div>
+</div>
+```
+
++ 不定宽元素：父float + 父relative + 子relative
+
+```css
+.outer {
+/* 清除子元素浮动带来的影响，给父元素也浮动 */
+  float: left;
+  position: relative;
+  /*百分数左右偏移量，表示相对容纳块的宽度计算*/
+  left: 50%;
+}
+
+.inner {
+  position: relative;
+  left: -50%;
+}
+```
+```html
+<div class="outer" style="background-color:green;border:3px solid red">
+  <span class="inner" style="float:left;background-color:pink;">
+      我是不定宽的浮动元素，我要水平居中
+  </span>
+</div>
+```
+<div align="center">
+  <img src="./0_pictures/float-center-unknow-width.png" alt="image"  />
+</div>
+
++ 通用（定宽不定宽都适用）`display:flex`
+```css
+.outer {
+  display: flex;
+  justify-content: center;
+}
+```
+
+```html
+<div class="outer">
+  <span class="inner" style="float:left;width:200px;">我是要居中的浮动元素</span>
+</div>
+```
+
+------
+
+#### 12.1.3 绝对定位元素的水平居中
+
+> 绝对定位元素后，元素脱离普通文档流，相当于设置了display:inline-block, 可以设置宽高了。决定定位的元素，也没有行级和块级之分，只有定宽和不定宽之分。
 
