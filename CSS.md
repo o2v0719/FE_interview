@@ -593,7 +593,7 @@ p{font-size:18px}/*行高为（p元素文本行）27px，继承自div得到行�
 	+ 空元素：当一个空元素有上下外边距时，如果没有border或者padding，则元素的上外边距与下外边距会发生合并。
 
 #### 5.1.1 如何避免垂直外边距折叠
-+ 使用**BFC（块级格式化上下文）**来避免外边距折叠。
++ <span id="marginCollapse">使用**BFC（块级格式化上下文）**来避免外边距折叠</span>。
   - 相邻块级盒子（同级）之间的垂直外边距只有在它们处于同一个BFC时才会发生折叠。如果它们属于不同的BFC，就不会发生外边距折叠了。所以，通过创建新的BFC我们可以避免外边距折叠。
 ```html
 <style>
@@ -847,7 +847,8 @@ div{
 ```
 
 ```html
-<main>			<div>www.google.com|www.google.com|www.google.com|www.google.com|www.google.com|www.google.com</div>
+<main>			
+  <div>www.google.com|www.google.com|www.google.com|www.google.com|www.google.com|www.google.com</div>
 	<div>www.google.com</div>
 </main>
 ```
@@ -1068,7 +1069,7 @@ div.green {
 }
 ```
 
-+ 利用overflow触发**BFC清除浮动**：给浮动元素的父元素添加一个属性`overflow:hidden`创建了一个BFC。
++ <span id="clearFloat">利用overflow触发**BFC清除浮动**：给浮动元素的父元素添加一个属性`overflow:hidden`创建了一个BFC</span>。
 
 ```css
 main {
@@ -1301,7 +1302,7 @@ ul li>span {
 
 + 固定定位定位元素的**容纳块是视区**。设为固定定位的元素完全脱离文档流，意味着**和父级不再有”继承“关系**。
 
-+ 【固定定位案例：固定菜单】
++ 【固定定位案例：固定顶栏菜单】
 
 ```html
 <body>
@@ -1450,7 +1451,7 @@ div {
   width: 200px;
   height: 200px;
   position: absolute;
-  /*left和top偏移属性指定的是外边距边界距容纳块的相应边界的距离*/
+  /*left和top偏移属性指定的是外边距边界距【容纳块】的相应边界的距离*/
   left: 50%;
   top: 50%;
   /*配合负外边距*/
@@ -1515,7 +1516,7 @@ div {
 
 ## 10 弹性盒模型
 
-+ 通过弹性盒（Flexbox可以轻松控制元素的排列对齐和元素的视觉顺序。使用弹性盒模型可以让元素在不同尺寸终端控制尺寸。
++ 通过弹性盒（Flexbox）可以轻松控制元素的排列对齐和元素的视觉顺序。使用弹性盒模型可以让元素在不同尺寸终端控制尺寸。
 
 + 弹性盒依赖父子关系。在元素上声明display: flex 或 display：inline-flex 便可激活弹性盒布局，这个父元素随之称为弹性容器，负责在所占的空间内布置子元素。弹性容器的子元素称之为弹性元素。
 
@@ -1789,7 +1790,7 @@ grid-template-areas:
 </div>
 ```
 
-+ 通用方法，使用`diaplay:flex`弹性盒模型。 不管是普通文档流中的行内元素还是块元素，通杀。
++ 通用方法，父元素使用`diaplay:flex`弹性盒模型。 不管是普通文档流中的行内元素还是块元素，通杀。
 ```css
 .outer {
    display: flex;
@@ -1820,9 +1821,9 @@ grid-template-areas:
 }
 ```
 ```html
-<div class="outer">
+<div class="outer" style="width:500px;height:80px;background-color:pink;">
   <div class="inner" style="float:left;width:200px;background-color:aqua;">
-    我是要居中的浮动元素
+    我是要水平居中的浮动、定宽元素
   </div>
 </div>
 ```
@@ -1831,7 +1832,7 @@ grid-template-areas:
 
 ```css
 .outer {
-/* 清除子元素浮动带来的影响，给父元素也浮动 */
+/* 给父元素也浮动：清除子元素浮动带来的影响 */
   float: left;
   position: relative;
   /*百分数左右偏移量，表示相对容纳块的宽度计算*/
@@ -1840,7 +1841,7 @@ grid-template-areas:
 
 .inner {
   position: relative;
-  left: -50%;
+  left: -50%;/*负值：外向偏移 outer 宽度的一半*/
 }
 ```
 ```html
@@ -1873,4 +1874,360 @@ grid-template-areas:
 #### 12.1.3 绝对定位元素的水平居中
 
 > 绝对定位元素后，元素脱离普通文档流，相当于设置了display:inline-block, 可以设置宽高了。决定定位的元素，也没有行级和块级之分，只有定宽和不定宽之分。
+
++ 定宽的绝对定位元素
+
+```css
+/*【写法1：】*/
+.outer{
+  /*相对于父元素的水平居中*/
+  position:relative;
+}
+.inner {
+   left: 50%;
+   margin-left: -100px;/*此处的负值是自身宽度的一半*/
+}
+/*-----------------------------*/
+/*【写法2：】*/
+.outer{
+  position:relative;
+}
+.inner{
+  left:0;
+  right:0;
+  margin:0 auto;
+}
+```
+
+```html
+<div class="outer" style="width:400px;height:100px;background-color:pink;">
+    <div class="inner" style="position:absolute;width:200px;background-color:aqua;">
+      我是要居中的定宽的绝对定位元素
+    </div>
+</div>
+```
+
+<div align="left">
+  <img src="./0_pictures/position-absolute-centerX.png" alt="position-absolute"  />
+</div>
++ 不定宽的绝对定位元素:( 利用CSS3新特性。存在兼容性 )
+```css
+.outer {
+  position: relative;
+}
+.inner {
+  left: 50%;
+  transform: translateX(-50%);
+}
+```
+
+```html
+<div class="outer" style="background-color:pink;width:400px;height:100px;">
+  <div class="inner" style="position:absolute;background-color:aqua;">
+    我是要居中的不定宽的定位元素
+  </div>
+</div>
+```
+<div align="left">
+  <img src="./0_pictures/position-absolute-centerX-unknowWidth.png" alt="position-absolute"  />
+</div>
+
++ 通用方式：不管是否定宽，通杀flex弹性盒模型。
+```css
+.outer {
+   display: flex;
+   justify-content: center;
+}
+```
+```html
+<div class="outer" style="background-color:pink;width:400px;height:100px;">
+  <div class="inner" style="position:absolute;background-color:aqua;">
+   使用弹性盒模型水平居中定位元素
+  </div>
+</div>
+```
+
+#### 12.1.4 总结：水平居中的通用方式~弹性盒布局
+
+```css
+.outer{
+  display:flex;
+  justify-content:center;
+}
+```
+
+```html
+<div class="outer">
+  <div class="inner">
+    我是要居中的常规、浮动、绝对定位元素。此办法均适用于IE10以上版本的浏览器。
+  </div> 
+</div>
+```
+
+
+
+------
+
+### 12.2 垂直居中
+
+> 垂直居中，默认外部元素（这里称父元素）都是有高度的
+
+#### 12.2.1 常规元素的垂直居中
+
++ 行内文本元素: line-height = height
+
+```css
+.inner {
+  line-height: 60px;
+}
+```
+```html
+<div class="outer" style="height:60px;background-color:pink;">
+  <span class="inner">我是要垂直居中的行内文本</span>
+</div>
+```
+<div align="left">
+  <img src="./0_pictures/vertical-center-text.png" alt="position-absolute"  />
+</div>
+
++ 通用（不管行内、块级、图片，都通杀）
+
+```css
+.outer{
+  display:flex;
+  align-items:center;
+}
+```
+```html
+<div class="outer" style="height:100px;background-color:pink;">
+  <div class="inner">
+    我是要垂直居中的元素
+  </div>
+</div>
+```
+
+#### 12.2.2  浮动元素的垂直居中
+
++ 定高的浮动元素垂直居中
+```css
+/*方法1：*/
+.outer {
+  position: relative;
+}
+
+.inner {
+  /*绝对定位会覆盖浮动*/
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+}
+/*-----------------------*/
+/*方法2：*/
+.outer{
+  position:relative;
+}
+.inner{
+  position:absolute;
+  top:50%;
+  margin-top:-50px;/*负值取自身高度的一半*/
+  line-height:100px;
+}
+```
+
+```html
+<div class="outer" style="height:200px;background-color:pink;">
+  <div class="inner" style="float:left;height:100px;background-color:aqua;line-height:100px;">
+    我是要垂直居中的定高浮动元素
+  </div>
+</div>
+```
+
+<div align="left">
+  <img src="./0_pictures/vertical-center-float-height.png" alt="position-absolute"  />
+</div>
+
++ 通用垂直居中：flex
+```css
+.outer{
+  display:flex;
+  align-items:center;
+}
+```
+```html
+<div class="outer" style="height:200px;background-color:pink">
+  <div class="inner" style="float:left;height:60px;background-color:aqua;line-height:60px;">
+    我是要垂直居中的浮动元素
+  </div>
+</div>
+```
+
+#### 12.2.3 绝对定位元素的垂直居中
+
++ 利用绝对定位自身（CSS3新特性）来垂直居中（有兼容性问题）
+```css
+.outer {
+  position: relative;
+}
+.inner {
+  top: 50%;
+  transform: translateY(-50%);
+}
+```
+```html
+<div class="outer" style="height:120px;background-color:pink">
+  <div class="inner" style="background-color:aqua;height:60px;position:absolute;line-height:60px;">
+   我是要垂直居中的绝对定位元素
+  </div>
+</div>
+```
+
++ 通用：利用flex布局 
+```css
+.outer {
+  display: flex;
+  align-items: center;
+}
+```
+
+```html
+<div class="outer" style="height:140px;background-color:pink;">
+  <div class="inner" style="position:absolute;height:80px;line-height:80px;background-color:aqua;">
+    我是要使用弹性盒垂直居中的绝对定位元素，不兼容IE9及以下
+  </div>
+</div>
+```
+
+#### 12.2.4 总结：垂直居中的通用方式：flex布局
+
+```css
+.outer{
+  display:flex;
+  align-items:center;
+}
+.inner{
+  line-height:100px;
+}
+```
+
+```html
+<div class="outer" style="height:200px;">
+  <div class="inner" style="position:absolute;">
+    我是要垂直居中的常规、浮动、绝对定位元素
+  </div>
+</div>
+```
+
+------
+
+### 12.3 水平垂直居中
+
+#### 12.3.1 常规元素的水平垂直居中
+
++ 通用：一列或多列
+
+```css
+.outer {
+  display: table-cell;
+  /*注意是middle*/
+  vertical-align: middle;
+  text-align: center;
+}
+.inner {
+  display: inline-block;
+}
+```
+
+```html
+<div class="outer" style="background-color:pink;width:120px;height:80px;">
+  <div class="inner" style="background-color:aqua;width:50px;height:20px;"
+  </div>
+</div>
+```
+
+<div align="left">
+  <img src="./0_pictures/XY-center.png" alt="position-absolute"  />
+</div>
+
++ 通用：flex（同下）
+
+#### 12.3.2 浮动元素的水平垂直居中
++ 通用: flex
+```css
+.outer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+```
+```html
+<div class="outer" style="width:200px;height:100px;background-color:pink;">
+  <div class="inner" style="float:left;width:80px;height:40px;background-color:aquamarine;"
+  </div>
+</div>
+```
+
+#### 12.3.3 绝对定位元素的水平垂直居中
+
++ 利用CSS3新特性`transform:translate()`
+```css
+.outer {
+  width: 400px;
+  height: 500px;
+  position: relative;
+}
+
+.inner {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+```
+```html
+<div class="outer" style="background-color:pink;width:200px;height:100px;">
+  <div class="inner" style="position:absolute;width:100px;height:40px;background-color:aquamarine;"></div>
+</div>
+```
+
++ 通用flex
+
+#### 12.3.4 总结：水平垂直居中的通用方式
+
++ 常规元素、浮动元素、绝对定位元素都可使用flex布局水平垂直居中
+
+```css
+.outer{
+  display:flex;
+  justify-content:center;
+  alignt-items;center;
+}
+```
+```html
+<div class="outer">
+  <div class="inner" style="">
+    我是常规元素、浮动元素、绝对定位元素；水平垂直居中
+  </div>
+</div>
+```
+
+--------
+
+## 13 BFC
+
++ BFC（Block Formatting Context）称为块级格式化上下文。创建了BFC的元素可以看做是隔离了的独立容器，**容器里面的元素不会在布局上影响外面的元素**。
+> 块级格式化上下文决定了元素如何对其内容进行定位，以及与其他元素的关系和相互作用，当涉及到可视化布局时，BFC提供了一个环境，HTML元素在这个环境中按照一定的规则进行布局。
+
++ 一个BFC就是一个HTML盒子。它至少满足以下条件之一：
+  - *float*的值为**`left`** 或 **`right`**;
+  - *position*的值为**`absolute`**或`fixed`;
+  - *display*的值为**`flex`**或`inline-flex`、`table-cell`、`table-caption`、`inline-block`；
+  - *overflow*的值为**`hidden`**、`auto`、`scroll`。
+
++ 使用BFC有哪些好处？
+  - 使用BFC可以[避免外边距折叠](#marginCollapse)
+  - 使用BFC可以[清除浮动](#clearFloat)
+  - 使用BFC避免文字环绕：给环绕”浮动元素“的文本元素添加一个`overflow:hidden`，就可以给文本创建一个新的BFC。解决了文本环绕对象的问题。
+  - 在多列布局中的最后一列创建一个新的BFC，可以避免它掉到下一行。
+
+> 更多内容参考PDF或:[理解CSS中的块级格式化上下文](https://segmentfault.com/a/1190000003068557)
 
