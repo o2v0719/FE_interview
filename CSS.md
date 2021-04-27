@@ -1136,7 +1136,7 @@ div.green {
 
 + 容纳块：容纳块是指包含另一个元素的框体。对于定位元素，容纳块完全取决于定位类型。
 	+ 对非根元素来说，如果position的属性的值是relative或static，其容纳块由最近的块级、单元格或行内块级祖辈元素框体的内容边界划定。
-	+ 对非根元素来说，如果position的属性的值时absolute，其容纳块是**position属性的值不是static的最近的祖辈元素**（任何类型）。
+	+ 对非根元素来说，如果position的属性的值时absolute，其<span style="color:red;font-weight:600">容纳块</span>是**position属性的值不是static的最近的祖辈元素**（任何类型），这也是**子绝父相**的由来。
 + 偏移属性：当`position`的属性值不为`static`时，使用四个属性（top，right，bottom，left）来指定定位元素的各边相对容纳块的偏移。这四个属性称为偏移属性。这些属性指定了距**容纳块**最近的边的偏移。
 + 偏移属性的值可以是百分数，上下偏移量相对容纳块的高度计算，左右偏移量相对容纳块的宽度计算。
 > 例如，top属性指定了定位元素的**上外边距边界**距容纳块的顶边有多远。
@@ -1209,7 +1209,7 @@ p img {
 </div>
 
 ------
-+ <span style="background-color:yellow">绝对定位的元素的容纳块是position属性的值不是static的最近的祖辈元素</span>。习惯上，当选定了绝对定位元素的容纳块元素后，会把容纳块的`position`的值设为`relative`，而且不设置偏移。（子绝父相）
++ <span style="background-color:yellow">绝对定位的元素的容纳块是position属性的值不是static的最近的祖辈元素</span>。<span style="border-bottom:2px dashed blue;">子元素绝对定位使用的偏移量基于容纳块（父元素）。习惯上，当选定了绝对定位元素的容纳块元素后，会把容纳块的`position`的值设为`relative`，而且不设置偏移</span>。（子绝父相）
 
 > 绝对定位的元素时相对于离他最近的开起了定位的祖先元素进行定位的。
 
@@ -1339,7 +1339,7 @@ main {
 
 ------
 
-### 9.5粘滞定位
+### 9.5 粘滞定位
 
 + position:sticky
 + 参考使用场景：音乐app，查找艺人。
@@ -1518,7 +1518,7 @@ div {
 
 + 通过弹性盒（Flexbox）可以轻松控制元素的排列对齐和元素的视觉顺序。使用弹性盒模型可以让元素在不同尺寸终端控制尺寸。
 
-+ 弹性盒依赖父子关系。在元素上声明display: flex 或 display：inline-flex 便可激活弹性盒布局，这个父元素随之称为弹性容器，负责在所占的空间内布置子元素。弹性容器的子元素称之为弹性元素。
++ 弹性盒依赖父子关系。在元素上声明`display: flex` 或 display：inline-flex 便可激活弹性盒布局，这个父元素随之称为弹性容器，负责在所占的空间内布置子元素。弹性容器的子元素称之为弹性元素。
 
 + 把一个元素设置为弹性容器后，只有直接子元素使用弹性盒布局，其他后代元素不受影响。
 
@@ -1538,7 +1538,7 @@ div {
 | **flex-wrap** |wrap、==nowrap==、wrap-reverse|是否允许弹性元素**换行**、后续行的位置|
 | **==flex-flow==**|<flex-direction\><flex-wrap\>|方向和换行的集中**简写**形式|
 | **justify-content**|flex-start、flex-end、center、space-between（首尾元素贴起边、终边）、space-around（余下空间均分给弹性元素）、space-evenly（余下空间按间距均匀拆分）|指明在弹性容器的**主轴上如何分布**各行里的弹性元素|
-| **align-items**|flex-start、flex-end、center、baseline、stretch|定义弹性元素在**垂轴方向上的对齐**方式（垂轴起边、终边、中线...)|
+| **align-items**|flex-start、flex-end、==center==、baseline、stretch|定义弹性元素在**垂轴方向上的对齐**方式（垂轴起边、终边、中线...)|
 | **align-content** |flex-start、flex-end、center、space-between（首尾元素贴垂轴起边、终边）、space-around（余下空间均分给弹性元素）、space-evenly（余下空间按间距均匀拆分）、stretch（余下空间均匀分给各弹性元素并拉伸各行尺寸）|定义弹性容器有额外的空间时，在**垂轴方向上**如何对齐各弹性元素的**行**|
 
 
@@ -1828,20 +1828,19 @@ grid-template-areas:
 </div>
 ```
 
-+ 不定宽元素：父float + 父relative + 子relative
++ 不定宽元素
 
 ```css
 .outer {
-/* 给父元素也浮动：清除子元素浮动带来的影响 */
-  float: left;
   position: relative;
-  /*百分数左右偏移量，表示相对容纳块的宽度计算*/
-  left: 50%;
+  width:600px;  /*方便看效果*/
+  height: 50px; /*撑开父元素高度，方便看效果*/
 }
 
 .inner {
-  position: relative;
-  left: -50%;/*负值：外向偏移 outer 宽度的一半*/
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 ```
 ```html
@@ -1851,9 +1850,10 @@ grid-template-areas:
   </span>
 </div>
 ```
-<div align="center">
-  <img src="./0_pictures/float-center-unknow-width.png" alt="image"  />
+<div align="left">
+  <img src="./0_pictures/unknow-width-centerX-float.png" alt="image"  />
 </div>
+
 
 + 通用（定宽不定宽都适用）`display:flex`
 ```css
@@ -1875,7 +1875,7 @@ grid-template-areas:
 
 > 绝对定位元素后，元素脱离普通文档流，相当于设置了display:inline-block, 可以设置宽高了。决定定位的元素，也没有行级和块级之分，只有定宽和不定宽之分。
 
-+ 定宽的绝对定位元素
++ 宽度固定的绝对定位元素
 
 ```css
 /*【写法1：】*/
@@ -2008,9 +2008,8 @@ grid-template-areas:
 
 #### 12.2.2  浮动元素的垂直居中
 
-+ 定高的浮动元素垂直居中
++ 给**高度固定的**绝对定位元素设置`bottom:0,top:0`， 并设置`margin:auto 0`。
 ```css
-/*方法1：*/
 .outer {
   position: relative;
 }
@@ -2021,17 +2020,6 @@ grid-template-areas:
   top: 0;
   bottom: 0;
   margin: auto 0;
-}
-/*-----------------------*/
-/*方法2：*/
-.outer{
-  position:relative;
-}
-.inner{
-  position:absolute;
-  top:50%;
-  margin-top:-50px;/*负值取自身高度的一半*/
-  line-height:100px;
 }
 ```
 
@@ -2046,6 +2034,30 @@ grid-template-areas:
 <div align="left">
   <img src="./0_pictures/vertical-center-float-height.png" alt="position-absolute"  />
 </div>
+
++ 给绝对定位元素设置`top:50%`，然后<span style="border-bottom:2px solid green">将绝对定位的元素向上偏移自身高度的一半</span>。
+```css
+.outer{
+  position:relative;
+}
+.inner{
+  position:absolute;
+  top:50%;
+  /*  1. 高度固定：负值取自身高度的一半*/
+  margin-top:-30px;
+  /*  2. 高度不固定，有兼容性问题
+  transform: translateY(-50%);
+  */
+}
+```
+
+```html
+<div class="outer" style="height:200px;background-color:pink">
+  <div class="inner" style="float:left;height:60px;background-color:aqua;line-height:60px;">
+    我是要垂直居中的浮动元素
+  </div>
+</div>
+```
 
 + 通用垂直居中：flex
 ```css
@@ -2064,24 +2076,50 @@ grid-template-areas:
 
 #### 12.2.3 绝对定位元素的垂直居中
 
-+ 利用绝对定位自身（CSS3新特性）来垂直居中（有兼容性问题）
++ 给**高度固定的**绝对定位元素设置`bottom:0,top:0`， 并设置`margin:auto 0`。
+```css
+.outer {
+  position: relative;
+}
+
+.inner {
+  bottom: 0;
+  top: 0;
+  margin: auto 0;
+}
+```
+```html
+<div class="outer" style="height:120px;background-color:pink">
+  <div class="inner" style="background-color:aqua;height:60px;position:absolute;line-height:60px;">
+    我是要垂直居中的绝对定位元素
+  </div>
+</div>
+```
+<div align="left">
+  <img src="./0_pictures/vertical-center-position-absolute.png" alt="position-absolute"  />
+</div>
+
++ 给绝对定位元素设置`top:50%`，然后<span style="border-bottom:2px solid green">将绝对定位的元素向上偏移自身高度的一半</span>。
+
 ```css
 .outer {
   position: relative;
 }
 .inner {
   top: 50%;
+  /*1. 高度固定*/
+  margin-top: -30px;
+  /*  2. 高度不固定，有兼容性问题
   transform: translateY(-50%);
+  */
 }
 ```
 ```html
-<div class="outer" style="height:120px;background-color:pink">
-  <div class="inner" style="background-color:aqua;height:60px;position:absolute;line-height:60px;">
-   我是要垂直居中的绝对定位元素
+<div class="outer" style="background-color:pink;height:120px;weight:300px;">
+  <div class="inner" style="position:absolute;background-color: aquamarine;height:60px;width:120px;">
   </div>
 </div>
 ```
-
 + 通用：利用flex布局 
 ```css
 .outer {
