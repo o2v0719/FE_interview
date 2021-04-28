@@ -733,7 +733,7 @@ img{
 
 ### 5.3 内边距、外边距的百分数值
 
-+ <span style="border-bottom:2px solid red"> 对于生成块级框的元素，如果设定元素的内边距为百分数值，那么百分数值相对**父元素内容区的宽度**计算。这一点不仅针对左右内边距，还针对上下内边距。</span>
++ <span style="border-bottom:2px solid red"> 对于生成块级框的元素，如果设定元素的内边距为百分数值，那么==百分数值相对**父元素内容区的宽度**计算==。这一点不仅针对左右内边距，还针对上下内边距。</span>
 
 > 定位元素，弹性布局中的元素和栅格布局中的元素，其上下内边距的百分数值多数时候相对格式化上下文的高度计算。
 
@@ -1935,8 +1935,8 @@ grid-template-areas:
 + 通用方式：不管是否定宽，通杀flex弹性盒模型。
 ```css
 .outer {
-   display: flex;
-   justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 ```
 ```html
@@ -2207,7 +2207,7 @@ grid-template-areas:
 
 #### 12.3.3 绝对定位元素的水平垂直居中
 
-+ 利用CSS3新特性`transform:translate()`
++ 利用CSS3新特性`transform:translate()`或负外边距。
 ```css
 .outer {
   width: 400px;
@@ -2218,7 +2218,13 @@ grid-template-areas:
 .inner {
   top: 50%;
   left: 50%;
+  /*方法1：变形transform*/
   transform: translate(-50%, -50%);
+  /*方法2：负外边距偏移*/
+  /*
+    margin-top: -20px;
+    margin-left: -50px;
+  */
 }
 ```
 ```html
@@ -2250,7 +2256,9 @@ grid-template-areas:
 
 --------
 
-## 13 BFC
+## 13 附录
+
+### 13.1 BFC
 
 + BFC（Block Formatting Context）称为块级格式化上下文。创建了BFC的元素可以看做是隔离了的独立容器，**容器里面的元素不会在布局上影响外面的元素**。
 > 块级格式化上下文决定了元素如何对其内容进行定位，以及与其他元素的关系和相互作用，当涉及到可视化布局时，BFC提供了一个环境，HTML元素在这个环境中按照一定的规则进行布局。
@@ -2269,3 +2277,109 @@ grid-template-areas:
 
 > 更多内容参考PDF或:[理解CSS中的块级格式化上下文](https://segmentfault.com/a/1190000003068557)
 
+-------
+
+### 13.2 自适应布局
+
+#### 13.2.1 实现左侧宽度固定，右侧自适应宽度的两列布局实现。
+
+```html
+<div class="outer"> 
+  <div class="left" style="background-color:aqua">左：固定宽度</div>
+  <div class="right" style="background-color:pink">右：自适应宽度</div>
+</div>
+```
+
++ 左侧浮动，右侧自适应。
+
+```css
+.outer{
+  width:100%;
+}
+.left{
+  width:200px;
+  height:200px;
+  /*左浮动*/
+  float:left;
+}
+.right{
+  height:200px;
+}
+```
+
+
+
+<div align="left">
+  <img src="./0_pictures/adjustableWidth.png" alt="adjustableWidth"  />
+</div>
+
+
+
++ 对右侧div**绝对定位**，再设置margin=0,可以实现宽度自适应
+
+```css
+.outer {
+  position: relative;
+  width: 100%;
+}
+
+.left {
+  width: 200px;
+  height: 200px;
+}
+
+.right {
+  height: 200px;
+  position: absolute;
+  /*左边留出左边的余量*/
+  left: 200px;
+  top: 0;
+  /*右侧贴边*/
+  right: 0;
+}
+```
+
+
+
++ 左侧div**绝对定位**，右侧div**预留左外边距**
+
+```css
+.outer {
+  position:relative;
+  width: 100%;
+}
+
+.left {
+  width: 200px;
+  height: 200px;
+  position:absolute;
+}
+
+.right {
+  height: 200px;
+  /*预留左外边距*/
+  margin-left:200px;
+}
+```
+
+
+
++ 使用**flex布局**
+
+```css
+.outer {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.left {
+  width: 200px;
+  height: 200px;
+}
+
+.right {
+  height: 200px;
+  flex: 1;
+}
+```
