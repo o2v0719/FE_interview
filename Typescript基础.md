@@ -473,9 +473,9 @@ teacher1 = {
 getTeacherWords(teacher1) // Hello Teach
 ```
 
-### 3.8 interface 接口用来规范函数
+### 3.8 interface 接口用来描述函数
 
-- interface 还可以用来限制规范**函数的类型**
+- interface 还可以用来描述限制**函数的类型**
 
 ```ts
 // 注意参数类型和返回值类型之间用冒号隔开
@@ -494,6 +494,22 @@ say2 = (something: string) => {
 console.log(say('How Are U?'))
 console.log(say2('How Old R U?'))
 ```
+
+```ts
+const add=(x:number,y:number,z?:number):number =>{
+  if(typeof z==='number'){
+    return x+y+z;
+  }else{
+    return x+y;
+  }
+}
+interface ISum{
+  (x:number,y:number,z?:number):number;
+}
+let add2:ISum = add
+```
+
+
 
 ## 4. 类
 
