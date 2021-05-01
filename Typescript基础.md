@@ -140,37 +140,9 @@ const arr: (number | string)[] = [1, 'g', 3]
 const undefinedArr: undefined[] = [undefined]
 ```
 
-- 类型别名 type alias
-
-```ts
-const objArr: { name: string; age: number }[] = [{ name: 'Jack', age: 18 }]
-
-// 使用type类型别名，可以避免上述臃肿的声明结构
-type User = { name: string; age: number }
-const objectArr: User[] = [
-  {
-    name: 'Dell',
-    age: 25,
-  },
-]
-
-
-class Teacher{
-  name:string,
-  age:number
-}
-const teacherArr:Teacher[] = [
-  new Teacher(),
-  {
-    name:'Merry',
-    age:23
-  }
-]
-```
-
 - **元组** tuple： 元组类型允许表示一个**已知元素数量和类型**的数组，各元素的类型不必相同.
 
-* 元组可以更加**准确地约束数组**。
+* 元组可以更加**准确地约束数组**。元组Tuple是数组Array的子类型。
 
 ```ts
 const teacherInfo: [string, string, number] = ['Dell', 'male', 19]
@@ -185,8 +157,33 @@ let user:[string , number] = ['viking',20]
 user.push(30)
 console.log(user)// ['viking',20,30]
 ```
+### 2.5 类型别名 type alias
 
-### 2.5 枚举 enum
+```ts
+const objArr: { name: string; age: number }[] = [{ name: 'Jack', age: 18 }]
+
+// 使用type类型别名，可以避免上述臃肿的声明结构
+type User = { name: string; age: number }
+const objectArr: User[] = [
+  {
+    name: 'Dell',
+    age: 25,
+  },
+]
+
+class Teacher{
+  name:string,
+  age:number
+}
+const teacherArr:Teacher[] = [
+  new Teacher(),
+  {
+    name:'Merry',
+    age:23
+  }
+]
+```
+### 2.6 枚举 enum
 
 - **枚举**的作用是列举类型中包含的各个值。是一种**无序**数据结构。
 
@@ -221,7 +218,7 @@ console.log(Status.OFFLINE) //0
 console.log(Status[0]) //OFFLINE
 ```
 
-#### 2.5.1 数字枚举
+#### 2.6.1 数字枚举
 
 - TS 可以自动为数字枚举中的各个成员推导对应的数字。
 
@@ -237,7 +234,7 @@ enum Direction {
 - 第一个成员 Up 使用初始化为 1。 其余的成员会从 1 开始自动增长。
 - 如果不初始化，第一个成员及其余成员从 0 开始增长。
 
-#### 2.5.2 字符串枚举
+#### 2.6.2 字符串枚举
 
 ```ts
 enum Direction {
@@ -251,7 +248,7 @@ enum Direction {
 - 在一个字符串枚举里，每个成员都必须用字符串字面量，或另外一个字符串枚举成员进行初始化。
 - 由于字符串枚举没有自增长的行为，字符串枚举可以很好的序列化。
 
-#### 2.5.3 常量枚举
+#### 2.6.3 常量枚举
 
 ```ts
 const enum  Direction {
@@ -271,7 +268,7 @@ if(value===Direction.Up){  // 编译成 if(value==='UP')
 
 - **接口**可以给类型化的结构命名 ( 用来描述对象），它可以用来定义一种通用类型，来限制**对象**和**函数**。
 
-* 注意接口里面的不同的键值对结构使用分号;隔开。
+* 注意接口里面的不同的键值对结构使用分号`;`隔开。
 
 ### 3.1 interface 和 type 的区别
 
@@ -288,7 +285,7 @@ if(value===Direction.Up){  // 编译成 if(value==='UP')
   - 3. `interface`的同名声明可以合并，而`type`类型别名重写的话，会报错。
   - 4. `type`语句中还可以使用`typeof`获取实例的类型进行赋值。
 
-> 参考: [掘金:TS中interface和type到底有什么区别?]
+> 参考: [掘金:TS中interface和type到底有什么区别?](https://juejin.cn/post/6844903749501059085)
 
 
 ------
@@ -424,6 +421,7 @@ getPersonName({
 * class A implements B(interface) , 我们可以称作是**类 A 实现了接口 B**。
 
 - 接口描述了类的公共部分，而不是公共和私有两部分，它不会帮你检查是否具有某些私有成员。
+> 使用接口`interface`而不是父类`class`来描述“公共部分”，是因为很难找到一个合适的父类来适配若干子类。
 
 ```ts
 interface Person {
@@ -435,6 +433,13 @@ class User implements Person {
   age: 18
   say() {
     return 'hello'
+  }
+}
+class Adult implements Person{
+  name:string
+  age:20
+  say(){
+    return 'Hello'
   }
 }
 user = new User()
@@ -451,6 +456,7 @@ interface Person {
   age: number
   say(): string
 }
+
 interface Teacher extends Person {
   teach(): string
 }
@@ -519,12 +525,12 @@ let add2:ISum = add
 
 * 在 TS 中，类中的所有成员都默认为 public 类。标记为 **public** 的成员，（默认），允许在类的内外被调用。
 
-* 标记为 **private** 的成员，只允许在类内被使用。
+* 标记为 **private** 的成员，只允许在**类内**被使用。
   
   > 习惯上，对于声明了 private 的成员，成员命名时在前面加下划线加以区分。
-* 标记为 **protected** 的成员，只允许在类内及继承的子类中使用。
+* 标记为 **protected** 的成员，只允许在**类内及继承的子类中**使用。
   
-  > 内指在声明的类中，实例化后使用就是类外。
+  > “类内”指的是在声明的类中，实例化后使用就是类外。
 
 ```ts
 class Person {
@@ -684,6 +690,7 @@ interface Dog {
   fly: boolean
   bark: () => {}
 }
+// animal 是一个联合类型
 function trainAnimal(animal: Bird | Dog) {
   animal.fly
 }
@@ -740,7 +747,7 @@ function add(first: string | number, second: string | number) {
 
 - 4. **instanceof**
 
-> **instanceof** 用于检测构造函数的 prototype 属性是否出现在某个实例对象的原型链上
+> **instanceof** 用于检测构造函数的 prototype 属性（原型对象）是否出现在某个实例对象的原型链上
 
 > 注意：**instanceof**不能调用 interface。
 
@@ -768,24 +775,24 @@ function addSecond(first: object | NumberObj, second: object | NumberObj) {
 #### 5.3.2 类型断言的句法
 + **as关键字**
 ```ts
-	function formatInput(input:string){
-		//...
-	}
-	function getUserInput():string|number{
-		//...
-	}
-	let input = getUserInput();
-	// 类型断言：断定input是字符串
-	formatInput(input as string);
+function formatInput(input:string){
+	//...
+}
+function getUserInput():string|number{
+	//...
+}
+let input = getUserInput();
+// 类型断言：断定input是字符串
+formatInput(input as string);
 ```
 
 ### 5.4 函数泛型
 
 #### 5.4.1 泛型的概念
 
-- **泛型**generic 泛指的类型。在类型层面施加约束的占位类型，也称多态类型参数。
-
-- 泛型参数使用尖括号<>声明，尖括号的位置限定泛型的作用域，Typescript 将确保当前作用域中相同的泛型参数最终都绑定同一个具体类型。
+- **泛型**(generic )泛指的类型。在类型层面施加约束的占位类型，也称*多态类型参数*。
+- 泛型参数使用尖括号`<>`声明，尖括号的位置限定泛型的作用域，Typescript 将确保当前作用域中相同的泛型参数最终都绑定同一个具体类型。
+- 泛型使函数的功能更具一般性，比接收具体类型的函数更强大。泛型可以理解为一种约束。
 
 #### 5.4.2 函数中的泛型
 
@@ -814,7 +821,7 @@ map2<number>([1, 2])
 function join2<T, P>(first: T, second: P) {
   return `${first}${second}`
 }
-// typescript 能自动推到出泛型。这里推导出T是number，P是string
+// typescript 能自动推导出泛型。这里推导出T是number，P是string
 join2(1, '1')
 ```
 
@@ -836,6 +843,7 @@ function echoWithLength<T extends Length>(arg:T):T{
   console.log(arg.length)
   return arg
 }
+// 只要函数的【参数有length属性】就可以正确执行。
 const str=echoWithLength('str')
 const obj=echoWithLength({length:3})
 const arr2 =echoWithLength([2,3,4])
@@ -850,7 +858,7 @@ class DataManager<T> {
     return this.data[index]
   }
 }
-// 在使用类的时候，把泛型具象化
+// 在使用类的时候，把泛型具象化: 显式注解泛型
 const data = new DataManager<string>(['1', 'a'])
 console.log(data.getItem(0))
 ```
@@ -885,8 +893,6 @@ let kp2:KeyPair<string,number> = {key:'str',value:2}
 let arr:number[] = [1,2,3]
 let arrTwo:Array<number> = [1,2,3,4]
 ```
-
-
 
 #### 5.4.5 泛型中 keyof 的使用
 
