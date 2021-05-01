@@ -786,7 +786,7 @@ let input = getUserInput();
 formatInput(input as string);
 ```
 
-### 5.4 函数泛型
+### 5.4 🐯函数泛型
 
 #### 5.4.1 泛型的概念
 

@@ -1681,7 +1681,7 @@ console.log(SubType.prototype.isPrototypeOf(instance)); // true
 ------
 ## 1.5 数组
 
-### 1.5.1 数组有哪些原生方法？
+### 1.5.1 <span id="ArrayMethods">数组有哪些原生方法？</span>
 
 > 以下红色加粗或显示带🖍的方法的表示这些方法会直接改变原数组。
 
@@ -5988,6 +5988,8 @@ module.exports = {
 ### 8.1.3 Vue的响应式原理？
 + 当你把一个普通的 JavaScript 对象传入 Vue 实例作为 `data` 选项，Vue 将遍历此对象所有的 property，并使用 `Object.defineProperty` 把这些 property 全部转为 [getter/setter](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Working_with_Objects#定义_getters_与_setters)。用户看不到getter/setter，但是在内部它们让Vue能够追踪依赖，在property被访问和被修改时通知变化。每个组件实例都对应一个watcher实例，它会在组件渲染的过程中把“接触”过的数据property记录为依赖。之后当依赖项的setter触发时，会通知watcher，从而使它关联的组件重新渲染。
 
+> data对象里面的数据会被变成getter和setter函数，然后watcher会监听这些变化。当data里面的数据被访问的时候，会触发getter函数；当data里面的数据被修改的时候会触发setter函数。修改数据，并进行DOM树比较，重新渲染模板。
+
 + Vue的双向数据绑定将MVVM作为数据绑定的入口，整合Observer，Compile和Watcher三者，通过Observer来监听自己的model的数据变化，通过Compile来解析编译模板指令（vue中用来解析`{{}}`），最终利用watcher搭起observer和Compile之间的通信桥梁，达到数据变化 → 试图更新 ； 视图交互变化 → 数据model变更的双向绑定效果。
 
 <div align="center">
@@ -6004,7 +6006,8 @@ module.exports = {
 <script>
  const data = {};
  const input = document.getElementById("input");
- Object.defineProperty(data,'text',{
+ // Vue2 响应式底层依赖于Object.defineProperty()函数
+  Object.defineProperty(data,'text',{
    set(value){
      input.value = value;
      this.value = value;
@@ -6014,12 +6017,13 @@ module.exports = {
      return this.value;
    }
  });
+  // 输入框内容改变的事件
  input.onchange = function(e){
    data.text = e.target.value;
    console.log(data.text)
  };
-  // 输入框内容改变，控制台数据改变
-  // 控制台改变data.text ,输入框数据改变
+  // 1.输入框内容改变，控制台数据改变
+  // 2.控制台改变data.text ,输入框数据改变
 </script>
 </body>
 ```
@@ -6067,10 +6071,10 @@ module.exports = {
 > 详细资料可以参考：[《Object.defineProperty()》](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)
 
 ------
-### 8.1.6 使用Obeject.defineProperty()来进行数据劫持有什么缺点?
+### 8.1.6  🔥使用Obeject.defineProperty()来进行数据劫持有什么缺点?（Vue2.X的响应式特点？）
 + 有一些对属性的操作，使用这种方法无法拦截，比如说**通过下标方式修改(data里面的)数组数据或者给对象新增、删除属性**，vue 内部通过**重写函数**解决了这个问题。
 
-  - 对于已经创建的实例，Vue 不允许动态添加根级别的响应式 property。但是，可以使用 `Vue.set(object, propertyName, value)` 方法向嵌套对象或数组添加响应式 property; `Vue.delete(object,propertyName)`方法删除属性并响应。
+  - 对于已经创建的实例，Vue 不允许动态添加根级别的响应式 property。但是，可以使用 `Vue.set(object, propertyName, value)` 方法向嵌套对象或数组**添加**响应式 property; `Vue.delete(object,propertyName)`方法**删除**属性并响应。
   ```js
   Vue.set(vm.someObject,'b',2);
   Vue.delete(vm.someObject,'a');
@@ -6082,10 +6086,24 @@ module.exports = {
   // 删除
   this.$delete(this.someObject,'a');
   ```
-  - 对于数组的修改，【推荐使用api】。比如，splice，push，shift，unshift等。这些api方法Vue已经做了响应式处理。
+  - 对于数组的修改，[推荐使用api](#ArrayMethods)。比如，splice，push，shift，unshift等。这些api方法Vue已经做了响应式处理。
   > 参考资料:[官方Vue：检测变换的注意事项](https://cn.vuejs.org/v2/guide/reactivity.html#检测变化的注意事项)
 
 + 在 Vue3.0 中已经不使用这种方式了，而是通过使用 Proxy 对对象进行代理，从而实现数据劫持。使用 Proxy 的好处是它可以**完美的监听到任何方式的数据改变**，唯一的缺点是兼容性的问题，因为这是 ES6 的语法。
+
+```js
+// vue2 底层响应式
+Object.defineProperty(data,'count',{
+  get(){},
+  set(){},
+})
+
+// vue3 底层响应式
+new Proxy(data,{
+  get(key){},
+  set(key,value){}
+})
+```
 ------
 ## 8.2 Vue框架的特点
 ### 8.2.1 什么是Virtual DOM? 为什么要使用Virtual DOM？
@@ -6124,6 +6142,7 @@ module.exports = {
       ------
     
   - **beforeMount**: vue实例即将挂载到页面。
+    
     + 初始化实例的时候，存在`el`字段或`template`字段才会进入这个生命周期。
     + 此时，即将要把内存中的HTML结构渲染到页面上，但是此时并没有真正开始渲染，所以页面上还是空白的，用户看到的是插值表达式这样的页面结构。
     
@@ -6216,7 +6235,7 @@ module.exports = {
     <script>
       var vm = new Vue({
       data: {
-           avtiveClass: 'active',
+           activeClass: 'active',
            errorClass: 'text-danger'
         }
      });
@@ -6318,7 +6337,7 @@ module.exports = {
 	- 一个复选框是否勾选 \<input type="checkbox">
 	  + 绑定的变量是一个布尔值，无需设置`value`属性。
   - 多个复选框多选
-    + 一组复选框控件，都要绑定给同一个数组变量。每个复选控件都要有一个`value`值。
+    + 一组复选框控件，都要绑定给**同一个数组变量**。每个复选控件都要有一个`value`值。
     + 如果多选控件的`value`值存在于`v-model`绑定的数组中，那么该控件将会被选中。
   - 下拉列表\<select>\<option>\</select>  
     + v-model绑定给`select`标签，控件如果有`value`值就提取`value`值，如果没有`value`值就提取`option`标签内的文本。
