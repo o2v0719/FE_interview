@@ -71,7 +71,7 @@ foo=function(){
 > 没有用var 声明的变量不会提升。
 
 ------
-#### 1.1.2.2 一道常被人轻视的前端 JS 面试题
+#### 1.1.2.2 [面试题1]一道常被人轻视的前端 JS 面试题
 ```js
 function Foo() {
   getName = function() {
@@ -108,6 +108,29 @@ new new Foo().getName(); // 3
 [《一道常被人轻视的前端 JS 面试题》](https://www.cnblogs.com/xxcanghai/p/5189353.html)
 ------
 ------
+
+#### 1.2.2.3 [面试题2] 写出下面代码 的输出结果
+
+```js
+function a(){
+  console.log(c);
+}
+a();
+var c=1;
+
+// undefined; c的定义声明被提升，赋值声明停留在原地。
+```
+
+
+
+```js
+function a(){
+  console.log(c);
+}
+var c=1;
+a();
+//1 
+```
 
 
 
@@ -946,7 +969,7 @@ for(var i=1;i<=5;i++){
   })(i)
 };
 
-// 方法2：计时器函数的第一个参数使用立即执行函数，提供闭包条件
+// 方法2：计时器函数的【第一个参数】使用立即执行函数，提供闭包条件
 for(var i=1;i<=5;i++){
   setTimeout((function(i){
     return function(){
@@ -998,6 +1021,16 @@ console.log(i)
 // 4秒之后，队列任务依次执行，首先打印i，i=5，之后再给i+1，一共执行五次。
 ```
 ------
+#### 1.3.7.4 下面函数输出了什么？
+```js
+for(var i=0;i<5;i++){
+  setTimeout(function(){
+    console.log(i);
+  },1000*i)
+};
+// 立即输出5，然后每隔1s输出一个5。最后一共输出5个5.
+// 任务队列类里面一次是 0s后cosole.log(i) ; 1s后console.log(i); 2s后console.log(i)。。。
+```
 
 ### 1.3.8  js中的所有参数都是按值传递的。
 
@@ -1928,7 +1961,7 @@ console.log(unique(array));
 //[1,'1']
 ```
 
-+ 2. indexOf 简化内层循环
++ 2. 🤩**indexOf** 简化内层循环
 ```js
 var array = [1,1,'1','1'];
 function unique(array){
@@ -2451,7 +2484,39 @@ g(3);
 #### 1.6.4.3  什么是递归？
 
 + **递归**函数通常的形式是一个函数通过名称调用自己。比如经典的<a href="#recursion">阶乘递归函数</a>
-
++ [面试题1] ~ 使用递归求10的阶乘
+```js
+function factorial(num){
+  if(num===1){
+    return 1;
+  }
+  return num*factorial(num-1);
+}
+console.log(factorial(10));
+```
++ [面试题2] ~ 使用递归求0~100的累加和
+```js
+function sum(num){
+  if(num===0){
+   return 0;
+  }
+  return num+sum(num-1)
+}
+```
++ [面试题3] ~ 用一行代码实现斐波那契数列
+```js
+// 1 1 2 3 5 8 13 21...
+function fn(n){
+  if(n===1 || n ===2){
+    return 1;
+  }
+  return fn(n-1)+f(n-2)
+}
+// 1行代码
+function fn(n){
+  return (n===1||n===2)?1:fn(n-1)+f(n-2);
+}
+```
 #### 1.6.4.4 什么是尾递归？
 
 + 函数调用自身称为递归，如果函数尾调用自身就称为**尾递归**。尾递归是尾调用的特殊情况。
@@ -2518,6 +2583,7 @@ function factorial_es6(n,total=1){
 factorial_es6(5)
 ```
 ------
+
 
 ### 1.6.5 立即执行函数
 
@@ -4083,7 +4149,7 @@ socket.close();
 ------
 ### 5.2.1 sessionStorage
 + `sessionStorage`对象是`Storage`类型的实例。
-+ `sessionStorage` 对象**只存储会话数据**，这意味着数据只会存储到浏览器关闭。根浏览器关闭会消失的会话`cookie`类似。存储在`sessionStorage`中的数据不受页面刷新影响，可以在浏览器崩溃并重启后恢复。
++ `sessionStorage` 对象**只存储会话数据**，这意味着数据只会存储到浏览器关闭。跟浏览器关闭会消失的会话`cookie`类似。存储在`sessionStorage`中的数据不受页面刷新影响，可以在浏览器崩溃并重启后恢复。
 + 给`sessionStorage`对象添加数据
 ```js
 // 使用方法
@@ -4131,8 +4197,13 @@ sessionStorage.removeItem("book");
 + 不同浏览器给`localStorage`和`sessionStorage`设置了不同的空间限制，大多数限制为每个源5MB。
 ------
 #### 5.2.5 [面试题] 试比较cookies，localStorage，sessionStorage的异同？
-+ localStorage:仅在客户端存储不参与服务器通信，存储大小一般为5M，如果不是人为清除，那么即使是关闭浏览器也会一直存在; sessionStorage:仅在客户端存储不参与服务器通信，存储大小一般为5M，会话级存储，也就是说如果关闭当前页面或者浏览器那么就会清除; cookie:客户端存储，参与服务器通信，存储大小为4k,可设置生命周期，在设置的生命周期内有效。
-+ 
++ localStorage:仅在客户端存储，不参与服务器通信，用于浏览器缓存数据。存储大小一般为5M，如果不是人为清除，那么即使是关闭浏览器也会一直存在; 同源标签页（窗口）之间共享。
+
++ sessionStorage:仅在客户端存储，不参与服务器通信，用于浏览器缓存数据。存储大小一般为5M，会话级存储，也就是说如果关闭当前页面或者浏览器那么就会清除; 同源标签页（窗口）之间**不共享**。
+
++  cookie:由服务器端生成，客户端存储，参与服务器通信，存储大小限制为4KB,可设置生命周期，在设置的生命周期内有效。如果客户端保存了cookie，http请求一定会带上（而两个storage可以由脚本选择性地提交）。 同源标签页（窗口）之间共享。
+
+  
 ------
 # 6. 模块化
 ## 6.1 模块化开发怎么理解？
@@ -5981,7 +6052,7 @@ module.exports = {
 	- View代表UI组件，它负责将数据模型转化成UI展现出来。
 	- ViewModel 数据模型的改变和控制视图行为、处理用户交互，简单理解它就是一个同步View和Model的对象，连接Model和View。
 > 在MVVM架构下，View和Model之间并没有直接的联系，而是通过ViewModel进行交互，Model和ViewModel之间的交互是双向的，因此View数据的变化会同步到Model中,而Model数据的变化也会立即反应到View上。
-> ViewModel通过双向数据绑定把View层和Model层连接了起来，而View和Model之间的同步工作是完全自动的，无需人为干涉，因此开发者只需关注业务逻辑，不需要手动操作DOM，不需要关注数据状态的同步问题，复杂的数据状态维护完全由MVVM来统一管理。
+> ViewModel通过双向数据绑定把View层和Model层连接了起来，而View和Model之间的同步工作是完全自动的，无需人为干涉，因此**开发者只需关注业务逻辑，不需要手动操作DOM，不需要关注数据状态的同步问题，复杂的数据状态维护完全由MVVM来统一管理**。
 >
 > 详细资料可以参考：[MVVM是什么?](https://www.jianshu.com/p/6aeeecd64dcf)
 ------
