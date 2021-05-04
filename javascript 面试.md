@@ -431,9 +431,9 @@ function getType(value) {
   // 判断数据是引用类型的情况
   if (typeof value === "object") {
     let valueClass = Object.prototype.toString.call(value),
-        type = valueClass.split(" ")[1].split("");
-		type.pop();
-		return type.join("").toLowerCase();
+    type = valueClass.split(" ")[1].split("");
+    type.pop();
+    return type.join("").toLowerCase();
   } else {
     // 判断数据是基本数据类型的情况和函数的情况
     return typeof value;
@@ -1457,7 +1457,7 @@ console.log(obj1.b.f===obj2.b.f)
 <div align="center">
 	<img src="0_pictures/原型链.webp" alt="1" width="500x">
 </div>
-
+> 特别注意：Function.\__proto__===Function.prototype .  即 Function() 函数可以看做是 new Function（）生成的一个特别的实例。
 
 > 详细资料可以参考：[《JavaScript 深入理解之原型与原型链》](http://cavszhouyou.top/JavaScript%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E4%B9%8B%E5%8E%9F%E5%9E%8B%E4%B8%8E%E5%8E%9F%E5%9E%8B%E9%93%BE.html) 、[前端工匠:原型与原型链详解](https://github.com/ljianshu/Blog/issues/18)
 
@@ -8484,7 +8484,7 @@ console.log(result);
   
   + 针对每轮遍历，设置标志位，如果本轮循环只是发生了“比较”，而未发生”交换“，那么这轮遍历结束后已经排好序，可以退出循环。
 ```js
-function bubbleSortBetter(arr) {
+ function bubbleSortBetter(arr) {
   if (!Array.isArray(arr)) return;
   for (let i = 0; i < arr.length - 1; i++) {
     let flag = false;
