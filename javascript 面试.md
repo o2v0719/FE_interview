@@ -477,7 +477,12 @@ function checkNullObj(obj) {
 [《js 判断一个 object 对象是否为空》](https://blog.csdn.net/FungLeo/article/details/78113661)
 ------
 
+#### 1.2.2.11 如何判断一个对象是数组？
 
++ Array.isArray(arr);
++ typeof 运算符；
++ instancof 运算符；
++ Object.prototype.toString.call(arr);
 
 ### 1.2.3 数据类型的比较与转换
 
@@ -2264,9 +2269,9 @@ console.log(arr2);
 
 + 4. **for...in** 与**for...of**
 
-	- for...in用来遍历数据结构的”键“。for...in 可以遍历数组，但特别适合遍历对象。
+	- for...in用来遍历数据结构的”键“。**for...in 可以遍历数组，但特别适合遍历对象**。
 	
-	- for...of用来遍历数据结构的”值“，而不包括数组的原型属性、方法，以及索引。for...of可以用来遍历数组，不能直接遍历对象。
+	- for...of用来遍历数据结构的”值“，而不包括数组的原型属性、方法，以及索引。**for...of可以用来遍历数组，不能直接遍历对象**。
 	
 > for...of 只能用来遍历具有**Symboli.iterator**属性的数据结构。数组原生具备Iterator接口，可以直接用for...of 循环遍历。而对象并没有部署Iterator接口，是因为对象属性的遍历先后顺序是不确定的，需要开发者手动指定。
 >
@@ -4103,6 +4108,17 @@ socket.close();
   - 这如果服务器返回token验证失败，前端就需要重新登陆。
 + 使用Token的目的：Token的目的是为了减轻服务器的压力，减少频繁的查询数据库，使服务器更加健壮。
 
+-------
+### 4.3.3 🚀 Ajax请求中的get和post有什么区别？
+
++ 1. Get请求的参数是拼接在url后面进行传递，参数在URL中显示。而每个POST请求都应该在请求体中携带要提交的数据。所以GET请求发送的数据量小（对url长度进行限制），POST请求发送数据量大。
++ 2. GET方式请求的数据**会被浏览器缓存**起来，其他人可以从浏览器的历史记录中读取到这些数据，POST请求更加安全。
++ 3. GET请求的目的是给予服务器一些查询参数，以便从服务器获取数据；POST请求的目的是向服务器发送参数，如FORM表单数据。
++ 4. 从性能方面讲，发送相同量的数据，GET请求比POST请求要快两倍。
+  - GET方法只会产生一个TCP数据包。浏览器会把http header和data 一并发送出去，服务器响应200(返回数据);
+  - POST方法会产生两个TCP数据包，浏览器先发送header,服务器响应100（continue后），浏览器再发送data，服务器响应200(OK)，并回传响应的数据。
+
+> 总的来说，GET方法安全性低，效率更高；POST方法安全性高，效率低。
 
 ------
 # 5. 客户端存储
@@ -6056,7 +6072,7 @@ module.exports = {
 >
 > 详细资料可以参考：[MVVM是什么?](https://www.jianshu.com/p/6aeeecd64dcf)
 ------
-### 8.1.3 Vue的响应式原理？
+### 8.1.3 🚀Vue的响应式原理？
 + 当你把一个普通的 JavaScript 对象传入 Vue 实例作为 `data` 选项，Vue 将遍历此对象所有的 property，并使用 `Object.defineProperty` 把这些 property 全部转为 [getter/setter](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Working_with_Objects#定义_getters_与_setters)。用户看不到getter/setter，但是在内部它们让Vue能够追踪依赖，在property被访问和被修改时通知变化。每个组件实例都对应一个watcher实例，它会在组件渲染的过程中把“接触”过的数据property记录为依赖。之后当依赖项的setter触发时，会通知watcher，从而使它关联的组件重新渲染。
 
 > data对象里面的数据会被变成getter和setter函数，然后watcher会监听这些变化。当data里面的数据被访问的时候，会触发getter函数；当data里面的数据被修改的时候会触发setter函数。修改数据，并进行DOM树比较，重新渲染模板。
@@ -7257,7 +7273,7 @@ const router = new VueRouter({
   ]
 })
 ```
-+ 如何跳转到`命名路由`？
++ 🐯如何跳转到`命名路由`？
   - 给 `\<router-link>` 的 `to` 属性传一个对象
   ```vue
   <router-link :to="{ name: 'user', params: { userId: 123 }}">User</router-link>

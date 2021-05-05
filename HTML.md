@@ -105,3 +105,23 @@
 
 > 更多内容请参考：[meta标签viewport的深入理解](https://www.cnblogs.com/gaogch/p/10628613.html)
 
+------
+
+### 12. 列举HTML5和CSS3的新特性。
+
++ HTML5：
+
+  - 增加了video，radio多媒体标签。
+
+  - 增加了canvas元素作为容器，通过js可以绘制图形。
+
+  - 增加了一系列语义化标签header、aside、nav、main、section、article、footer等。
+
+  - 增加了Web Storage本地化存储方案：localStorage（永久存储机制）和sessionStorage(跨会话存储机制)
+
++ CSS3
+  - CSS3 提出了新的盒模型方案：box-sizing:border-box;
+  - 
+
+    
+
