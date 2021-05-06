@@ -132,6 +132,19 @@ a();
 //1 
 ```
 
+------
+
+#### 1.2.2.4 [面试题3] 判断下面代码的输出结果
+
+```js
+if(!('c' in window)){
+  var c ='good'
+}
+console.log(c);// undefined
+
+// 注意 ： 变量c的定义声明提前，c称为了window的属性！！！ 条件判断成功的赋值语句不会运行！！！
+```
+
 
 
 ## 1.2 数据类型
@@ -2524,6 +2537,19 @@ function fn(n){
   return (n===1||n===2)?1:fn(n-1)+f(n-2);
 }
 ```
++ [面试题4] ~ 青蛙跳台阶，可一次跳一阶台阶，也可以跳两阶台阶。如果有n级台阶，青蛙有几种跳法？【斐波那契数列】
+```js
+function fn(n){
+  if(n==1){
+    return 1;
+  }
+  if(n==2){
+    return 2;
+  }
+  return fn(n-1)+fn(n-2);
+}
+```
+
 #### 1.6.4.4 什么是尾递归？
 
 + 函数调用自身称为递归，如果函数尾调用自身就称为**尾递归**。尾递归是尾调用的特殊情况。
@@ -6085,9 +6111,20 @@ module.exports = {
   <img src="./0_pictures/activityVue.png" alt="lifeT" />
 </div>
 > 详细内容参考：[《深入响应式原理》](https://cn.vuejs.org/v2/guide/reactivity.html#%E5%A6%82%E4%BD%95%E8%BF%BD%E8%B8%AA%E5%8F%98%E5%8C%96)
+>
 
+-------
+#### 8.1.3.1 介绍Vue数据双向绑定原理（Vue2、Vue3）
++  Vue数据双向绑定是由数据劫持（Object.defineProperty()函数)结合发布订阅的模式实现的。
++ Vue3 使用了ES6的 proxy API对数据进行代理。
+> 相比与Vue2.x，使用proxy的优势如下：
+>
+> > + defineProperty 监听的是数据的对象的可遍历属性，而不是整个对象。而且setter和getter函数并不能监听到属性的删除操作。
+> > + 底层省去了for in（遍历属性）、闭包等内容来提升效率。可直接绑定整个对象。
+> > + 可以监听数组，不用再去单独的对数组做特异性操作（vue2单独对数组api做了处理）。
+> > + Vue3.x 可以检测到数组内部变化的数据。
 --------
-### 8.1.4 请简单实现双向数据绑定mvvm？
+### 8.1.4 🚀请简单实现双向数据绑定？(Vue2~defineProperty)
 ```html
 <body>
 <input id="input">
@@ -6117,7 +6154,12 @@ module.exports = {
 </body>
 ```
 ------
-### 8.1.5 Object.defineProperty()函数？
+### 8.1.5 🚀 请简单实现双向数据绑定？(Vue3~Proxy)
+```html
+<!-- 待补充 -->
+```
+------
+### 8.1.6 Object.defineProperty()函数？
 + **Object.defineProperty()**方法直接在一个对象上定义新的属性或修改一个对象的现有的属性，并返回该对象。这个函数一共有三个参数，第一个参数是`需要定义属性的对象`，第二个参数是`需要定义的属性`，第三个是`该属性描述符`。对象里目前存在的属性描述符有两种主要形式：*数据描述符*和*存取描述符*。数据描述符里的`数据属性`和存取描述符里的`访问器属性`不能混合使用。
 
   - 对于对象的`数据描述符`（数据属性）, 可以由四个特性来组成其描述符对象，分别是：` value` 表示属性的值，`writable` 表示属性是否可以被修改，`enumerable` 表示属性是否可枚举，`configurable` 表示属性是否可以通过delete删除并重新定义。
@@ -6160,7 +6202,7 @@ module.exports = {
 > 详细资料可以参考：[《Object.defineProperty()》](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)
 
 ------
-### 8.1.6  🔥使用Obeject.defineProperty()来进行数据劫持有什么缺点?（Vue2.X的响应式特点？）
+### 8.1.7  🔥使用Obeject.defineProperty()来进行数据劫持有什么缺点?（Vue2.X的响应式特点？）
 + 有一些对属性的操作，使用这种方法无法拦截，比如说**通过下标方式修改(data里面的)数组数据或者给对象新增、删除属性**，vue 内部通过**重写函数**解决了这个问题。
 
   - 对于已经创建的实例，Vue 不允许动态添加根级别的响应式 property。但是，可以使用 `Vue.set(object, propertyName, value)` 方法向嵌套对象或数组**添加**响应式 property; `Vue.delete(object,propertyName)`方法**删除**属性并响应。

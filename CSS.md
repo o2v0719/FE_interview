@@ -2383,3 +2383,107 @@ grid-template-areas:
   flex: 1;
 }
 ```
+
+
+
+#### 13.2.2 实现左右固定宽度，中间自适应的样式
+
+> 参考脚本:[左右固定宽度，中间自适应的解决方案](https://www.jb51.net/web/639884.html)
+
+```html
+<div class="outer">
+  <div class="left"></div>
+  <div class="mid"></div>
+  <div class="right"></div>
+</div>
+```
+
+
+
++ Flex布局
+```css
+.outer {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  height: 100px;
+}
+
+.left {
+  background-color: blue;
+  width: 100px;
+}
+
+.right {
+  background-color: green;
+  width: 100px;
+}
+
+.mid {
+  flex: 1;
+  background: yellow;
+}
+```
+
+
+
++ 绝对定位
+
+```css
+.outer {
+  position: relative;
+  width: 100%;
+  height: 100px;
+}
+
+.left {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  left: 0;
+  top: 0;
+  background-color: green;
+}
+
+.right {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  right: 0;
+  top: 0;
+  background-color: blue;
+}
+
+.mid {
+  margin-left: 100px;
+  margin-right: 100px;
+  height: 100px;
+  background-color: yellow;
+}
+```
+
+
+
+### 13.3 用CSS画三角形
+
+> 参考：[CSS画三角形](https://www.cnblogs.com/chengxs/p/11406278.html)
++ 原理：宽度width0，高度height0。四个方向的border 和 transparent。
+```css
+#triangle-up{
+  width:0;
+  height:0;
+  border-left:50px solid transparent;
+  border-right: 50px solid transparent;
+  border-bottom:100px solid red;
+}
+```
+
+```css
+#triangle-topleft {
+    width: 0;
+    height: 0;
+    border-top: 100px solid red;
+    border-right: 100px solid transparent;
+}
+```
+
