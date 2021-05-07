@@ -3348,7 +3348,7 @@ history.pushState(stateObject,"my title",'bar.html');
 
 
 + hash 模式。
-  hash 是指url中‘#’以及后面的字符。hash值的改变不会导致浏览器向服务器发送请求，而且hash值的改变会触发hashchange事件。这样即可实现url改变 => hashchange事件改变页面视图。
+          hash 是指url中‘#’以及后面的字符。hash值的改变不会导致浏览器向服务器发送请求，而且hash值的改变会触发hashchange事件。这样即可实现url改变 => hashchange事件改变页面视图。
   
 + history模式。
 
@@ -3358,13 +3358,13 @@ history.pushState(stateObject,"my title",'bar.html');
 
   ​       对于单页应用的 history 模式而言，url 的改变只能由下面四种方式引起：
 
-  - 点击浏览器的前进或后退按钮
+  - 点击浏览器的前进或后退按钮 ;
 
-  - 点击 a 标签
+  - 点击 a 标签;
 
-  - 在 JS 代码中触发 history.pushState 函数
+  - 在 JS 代码中触发 history.pushState 函数;
 
-  - 在 JS 代码中触发 history.replaceState 函数
+  - 在 JS 代码中触发 history.replaceState 函数;
 
   > hash值也是location对象的一个属性的值。
   > 参考资料：[面试官: 你了解前端路由吗？](https://juejin.cn/post/6844903589123457031)、[彻底弄懂前端路由](https://juejin.cn/post/6844903890278694919)
