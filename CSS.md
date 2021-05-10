@@ -2243,7 +2243,7 @@ grid-template-areas:
 .outer{
   display:flex;
   justify-content:center;
-  alignt-items;center;
+  alignt-items:center;
 }
 ```
 ```html
