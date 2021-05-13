@@ -2270,8 +2270,8 @@ grid-template-areas:
   - *overflow*的值为**`hidden`**、`auto`、`scroll`。
 
 + 使用BFC有哪些好处？
-  - 使用BFC可以[避免外边距折叠](#marginCollapse)
-  - 使用BFC可以[清除浮动](#clearFloat)
+  - 🔥使用BFC可以[避免外边距折叠](#marginCollapse)
+  - 🔥使用BFC可以[清除浮动](#clearFloat)
   - 使用BFC避免文字环绕：给环绕”浮动元素“的文本元素添加一个`overflow:hidden`，就可以给文本创建一个新的BFC。解决了文本环绕对象的问题。
   - 在多列布局中的最后一列创建一个新的BFC，可以避免它掉到下一行。
 
