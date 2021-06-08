@@ -372,7 +372,7 @@ h1 { font-family:Arial,sans-serif; }
 + CSS中的字号会继承，但==继承的是计算得到的值==，而不是百分数本身。
 
 #### 4.3.1 [面试题] 🚀em单位和rem单位有什么区别？
-+ `em`和`rem`都是基于声明字号`font-size`的值的相对长度单位。`em`相对于当前元素的字号计算，而`rem`相对于根元素计算。
++ `em`和`rem`都是基于声明字号`font-size`的值的相对长度单位。`em`相对于当前元素的字号计算，而`rem`相对于根元素计算。根元素 html { fontsize:20px;}。
 
 ### 4.4 字形
 
@@ -634,7 +634,6 @@ p {
 
 + 对于**浮动**元素：
 	+ 关注浮动元素的“流动方向”。
-	
 ------
 
 #### 😁 <span style="border: 2px dashed blue;">负margin的使用技巧：</span>
@@ -1678,7 +1677,6 @@ div {
 + 在以**斜线**分割的两部分中，前一部分定义的是开始栅格线，后一部分定义的是结束栅格线。
 	+ 如果值中没有斜线，那么定义的是开始栅格线，结束栅格线取决于开始栅格线的值。
 	+ 如果只提供一个数字，那么第二个数字（即结束线的编号）被设为auto。
-	
 ```css
 #grid{
 	display:grid;
@@ -1775,6 +1773,8 @@ grid-template-areas:
 </div>
 ```
 
+> 注意：水平居中的对象如果是一行文字，“text-align:center” 这个属性可以加到父级元素上，或文字所在的元素本身上。
+
 + 居中定宽的块级元素 ， 给当前块级元素设置`margin:0 auto`。
 ```css
 #inner{
@@ -1853,8 +1853,6 @@ grid-template-areas:
 <div align="left">
   <img src="./0_pictures/unknow-width-centerX-float.png" alt="image"  />
 </div>
-
-
 + 通用（定宽不定宽都适用）`display:flex`
 ```css
 .outer {
