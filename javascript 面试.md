@@ -806,7 +806,7 @@ Function.prototype.myCall = function(context){
   let args = [...arguments].slice(1);
   // 【3】 判断上下文对象是否存在,如果不存在设置为window
   context = context || window;
-  // 【4】将函数（abc）[this 指向他] 作为上下文对象（A)的一个属性
+  // 【4】将函数（abc）[this 指向他] 作为上下文对象（A)的一个属性,这样【函数abc里面的this】就指向了context
   context.fn = this;
   // 【5】 使用上下文对象来调用这个方法，并保存返回结果。
   result = context.fn(...args);
@@ -862,7 +862,7 @@ Function.prototype.myApply = function(context){
       return
    };
    let args = Array.prototype.slice.call(arguments);
-      // 绑定的对象是第一个参数
+   // 绑定的对象是第一个参数
    const context = args.shift();
    const self = this;
    return function Fn() {
@@ -901,7 +901,7 @@ Function.prototype.myBind = function () {
   // 以下返回的Fn函数是我们要关注的myBind实现的对abc函数的改造结果。
    let Fn = function () {
       let args2 = Array.prototype.slice.call(arguments);
-        // 【6】判断Fn是通过new调用的构造函数还是被直接调用的函数
+  // 【6】判断Fn是通过new调用的构造函数还是被直接调用的函数
       return self.apply(
           this instanceof o ? this : context,
           args.concat(args2)
@@ -909,7 +909,8 @@ Function.prototype.myBind = function () {
     };
    o.prototype = self.prototype;
       // 利用o函数实现中继，=> 原型式继承
-   Fn.prototype = new o;
+   Fn.prototype = new o();
+  // 注意o函数作为一个桥梁时必须的，否则直接Fn.prototype = new that()的话，原函数会被多调用一次。
    return Fn;
 }
 ```
@@ -1796,7 +1797,7 @@ let removed = colors.splice(1,1); // 删除第二项
 console.log(colors);//["red","blue"]
 console.log(removed);//["green"] 
 ```
-+ <font color=green>**slice()**</font> 用于创建一个包含原有数组的一个或多个元素的新数组，不改变原数组。<font color=green>**slice()**</font>方法接收一个或两个参数：开始索引和结束索引。如果只有一个参数，就是返回该索引到数组末尾的所有元素。如果有两个参数，则返回从开始索引到结束索引的所有元素，其中不包含结束索引对应的元素。
++ <font color=green>**slice()**</font> 用于创建一个包含原有数组的一个或多个元素的新数组，不改变原数组。<font color=green>**slice()**</font>方法接收一个或两个参数：开始索引和结束索引。如果只有一个参数，就是返回该索引到数组末尾的所有元素。如果有两个参数，则返回从开始索引到结束索引的所有元素，其中不包含结束索引对应的元素。如果slice() 的第一个参数也被省略，那么表示从第0项开始直到末尾。
 ```js
 let colors=["red","green","blue","yellow","purple"];
 let colors2=colors.slice(1);
@@ -1805,6 +1806,9 @@ console.log(colors);//["red","green","blue","yellow","purple"]
 console.log(colors2);//["green","blue","yellow","purple"]
 console.log(colors3);//["green","blue","yellow"]
 ```
+> 利用slice() 方法获取函数的参数组成的数组
+>
+> > let args = Array.prototype.slice.call(arguments);
 
 #### 1.5.1.3 改
 + <font color=red>**splice()**</font>🖍方法传入三个参数，分别是开始位置、要删除的元素的数量、插入的元素。**splice()**方法会返回被删除的元素组成的数组，如果没有元素被删除，则返回空数组。
