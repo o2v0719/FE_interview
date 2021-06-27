@@ -1496,7 +1496,7 @@ function hasPrototypeProperty(object,name){
 }
 ```
 ------
-#### 1.4.3.4  Javascript 中，有一个函数，执行时对象查找时，永远不会去查找原型，这个函数是？
+#### 1.4.3.4  Javascript 中，有一个函数，执行对象查找时，永远不会去查找原型，这个函数是？
 
 + Object.prototype.hasOwnProperty.所有继承了 Object 的对象都会继承到 **hasOwnProperty** 方法。这个方法可以用来检测一个对象是否含有特定的自身属性，和in 运算符不同，该方法会忽略掉那些从原型链上继承到的属性。
 ------
@@ -3134,12 +3134,11 @@ setImmediate(function() {
 #### 1.7.5.2 函数节流的实现
 ```html
 <body>
-  <input type="text">
-  <input type="submit" id="input">
+  <button id="submit">提交</button>
 </body>
 
 <script>
-  let btn = document.getElementById('input');
+  let btn = document.getElementById('submit');
   let tSubmit = throttle(submit, 2000) // 页面初始化后throttle函数即刻执行
   btn.addEventListener('click', tSubmit);
   function submit() {
@@ -3154,7 +3153,7 @@ setImmediate(function() {
       let that = this, args = arguments, curT = new Date().getTime();
       clearTimeout(t);
       if (curT - begin >= delay) {
-        fun.apply(that, args);
+        fun.apply(that, args);// 立即执行fun函数
         // 初始化时间重新赋值为“点击事件发生后即刻就执行了fun函数的时间”
         begin = curT;
       } else {
@@ -3200,7 +3199,7 @@ setImmediate(function() {
       // triggerFirst true表示初次事件触发立即执行；false表示初次事件触发延迟执行
       if (triggerFirst) {
         // t===null 表示在防抖间隔时间之外，fun函数还未执行，需要立即执行它
-        let unExec = !t;
+        let instantExecution = !t;
         t = setTimeout(function () {
           t = null;// 只要在time间隔时间内，计时器的id都是存在的
         }, time);
@@ -3389,7 +3388,7 @@ history.pushState(stateObject,"my title",'bar.html');
 
   ​      由于 **history.pushState()** 和 **history.replaceState()** 可以改变 url 同时，不会刷新页面，所以在 HTML5 中的 histroy 具备了实现前端路由的能力。
 
-  ​       回想我们之前完成的 hash 模式，当 hash 变化时，可以通过 hashchange 进行监听。 而 history 的改变并不会触发任何事件，所以我们无法直接监听 history 的改变而做出相应的改变。 所以，我们需要换个思路，我们可以罗列出所有可能触发 history 改变的情况，并且将这些方式一一进行拦截，变相地监听 history 的改变。
+  ​       回想我们之前完成的 hash 模式，当 hash 变化时，可以通过 hashchange 进行监听。 而 **history 的改变并不会触发任何事件，所以我们无法直接监听 history 的改变而做出相应的改变。 所以，我们需要换个思路，我们可以罗列出所有可能触发 history 改变的情况，并且将这些方式一一进行拦截，变相地监听 history 的改变**。
 
   ​       对于单页应用的 history 模式而言，url 的改变只能由下面四种方式引起：
 
